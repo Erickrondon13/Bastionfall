@@ -13,15 +13,24 @@ export function drawTerrain(ctx, W, H, tile, state) {
 
   for (let r = 0; r < state.map.rows; r++) {
     for (let c = 0; c < state.map.cols; c++) {
-      if (state.blocked.has(`${c},${r}`)) continue;
+      const x = c * tile;
+      const y = r * tile;
+      if (state.blocked.has(`${c},${r}`)) {
+        ctx.fillStyle = "#7a5c3e";
+        ctx.fillRect(x, y, tile, tile);
+        ctx.fillStyle = "rgba(0,0,0,.12)";
+        ctx.fillRect(x, y, tile, 3);
+        ctx.fillRect(x, y, 3, tile);
+        continue;
+      }
       const light = (c + r) % 2 === 0;
       ctx.fillStyle = light ? "#1a2230" : "#161d29";
-      ctx.fillRect(c * tile, r * tile, tile, tile);
+      ctx.fillRect(x, y, tile, tile);
       const h = hash(c, r);
       if (h > 0.82) {
         ctx.fillStyle = "rgba(76,201,240,.06)";
         ctx.beginPath();
-        ctx.arc(c * tile + tile * (0.3 + h * 0.4), r * tile + tile * (0.3 + h * 0.4), 1.5, 0, Math.PI * 2);
+        ctx.arc(x + tile * (0.3 + h * 0.4), y + tile * (0.3 + h * 0.4), 1.5, 0, Math.PI * 2);
         ctx.fill();
       }
     }
