@@ -38,3 +38,4 @@ Abre `index.html` directamente en el navegador (doble click). No necesita servid
 
 Lee `PROMPT_OPENCODE.md` y `docs/FASES.md` para la hoja de ruta de desarrollo
 con OpenCode. La recomendación es: primero gameplay, después arte.
+# Bastionfall.
