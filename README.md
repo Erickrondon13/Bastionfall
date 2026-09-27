@@ -38,6 +38,19 @@ Luego abre `http://localhost:8000`.
 - **Ajustes**: el sonido se puede silenciar; la preferencia se guarda en `localStorage`.
 - Las pantallas de **victoria/derrota** permiten reiniciar la partida.
 
+## Móvil (Fase 16)
+
+- Canvas **responsive** que escala al ancho del dispositivo; el mapeo de toques
+  se ajusta al factor de escala del canvas.
+- Barra táctil con **▶ Oleada**, **▲ Mejorar**, **✕ Vender** y **⏸ Pausa**
+  (visible en pantallas pequeñas).
+- Los botones de torre y los paneles (Campaña, Progresión, Menú) son táctiles.
+
+## Optimización (Fase 15)
+
+- **Object pooling** de proyectiles en `CombatSystem` para reducir asignaciones y
+  presión de GC durante oleadas grandes.
+
 ## Progresión persistente
 
 Al terminar cada partida (victoria o derrota) ganas **esencia** según las oleadas
@@ -107,6 +120,6 @@ solo lee el estado. Ver `docs/ARCHITECTURE.md` para el diseño completo.
 
 ## Roadmap (`docs/FASES.md`)
 
-Implementado hasta la **Fase 11** (menús) más guardado (`localStorage`, Fase 12) y
-resiliencia. Próximas: balance (Fase 13), arte (Fase 14), optimización (Fase 15),
-móvil (Fase 16) y pulido (Fase 17).
+Implementado hasta la **Fase 16** (móvil) más guardado (`localStorage`, Fase 12),
+resiliencia y optimización (Fase 15). Próximas: balance (Fase 13), arte (Fase 14) y
+pulido (Fase 17).

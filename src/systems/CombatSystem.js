@@ -48,6 +48,10 @@ function dealDamage(e, p) {
 }
 
 export class CombatSystem {
+  constructor() {
+    this.pool = [];
+  }
+
   update(state, events) {
     if (state.gameOver || state.victory) return;
 
@@ -58,7 +62,7 @@ export class CombatSystem {
         const target = acquireTarget(t, state.enemigos, state.pathPoints, state.base);
         if (target) {
           t.cool = t.cooldown;
-          state.proyectiles.push(createProjectile(t, target));
+          state.proyectiles.push(this.acquire(t, target));
         }
       }
     }
@@ -69,6 +73,7 @@ export class CombatSystem {
       const tgt = p.target;
       if (!tgt || tgt.hp <= 0) {
         state.proyectiles.splice(i, 1);
+        this.pool.push(p);
         continue;
       }
       const dx = tgt.x - p.x;
@@ -77,10 +82,30 @@ export class CombatSystem {
       if (d <= p.speed) {
         applyHit(state, p, tgt);
         state.proyectiles.splice(i, 1);
+        this.pool.push(p);
       } else {
         p.x += (dx / d) * p.speed;
         p.y += (dy / d) * p.speed;
       }
     }
+  }
+
+  acquire(tower, target) {
+    const p = this.pool.pop();
+    if (p) {
+      p.x = tower.x;
+      p.y = tower.y;
+      p.target = target;
+      p.speed = tower.projSpeed;
+      p.damage = tower.damage;
+      p.splash = tower.splash;
+      p.slow = tower.slow;
+      p.burn = tower.burn;
+      p.burnTime = tower.burnTime;
+      p.color = tower.proj;
+      p.dead = false;
+      return p;
+    }
+    return createProjectile(tower, target);
   }
 }

@@ -25,8 +25,10 @@ export class Input {
 
   cellFromEvent(ev) {
     const rect = this.canvas.getBoundingClientRect();
-    const x = ev.clientX - rect.left;
-    const y = ev.clientY - rect.top;
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    const x = (ev.clientX - rect.left) * scaleX;
+    const y = (ev.clientY - rect.top) * scaleY;
     return { c: Math.floor(x / this.tile()), r: Math.floor(y / this.tile()) };
   }
 

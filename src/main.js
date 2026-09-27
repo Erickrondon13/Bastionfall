@@ -63,6 +63,11 @@ soundBtn.addEventListener("click", () => {
 refreshSound();
 setMenu(true);
 
+document.getElementById("tb-wave").addEventListener("click", () => game.startWave());
+document.getElementById("tb-upgrade").addEventListener("click", () => game.upgradeSelected());
+document.getElementById("tb-sell").addEventListener("click", () => game.sellSelected());
+document.getElementById("tb-pause").addEventListener("click", () => game.togglePause());
+
 const loop = new GameLoop(
   (dt) => {
     game.update(dt);

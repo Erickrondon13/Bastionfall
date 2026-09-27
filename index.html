@@ -42,8 +42,8 @@
   }
   #sel .name { font-weight: 700; color: var(--accent); }
   #sel .info { color: var(--muted); }
-  #wrap { position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,.5); }
-  canvas { display: block; background: #0d1117; cursor: crosshair; }
+  #wrap { position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,.5); width: 100%; max-width: 760px; }
+  canvas { display: block; background: #0d1117; cursor: crosshair; width: 100%; height: auto; aspect-ratio: 760 / 520; touch-action: none; }
   #toolbar { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
   .tower-btn {
     background: var(--panel); border: 2px solid transparent; border-radius: 10px;
@@ -100,6 +100,18 @@
   .menu-buttons { display: flex; flex-direction: column; gap: 10px; }
   .menu-buttons .menu-btn { width: 100%; padding: 12px; font-size: 15px; }
   .menu-hint { color: var(--muted); font-size: 12px; margin: 16px 0 0; }
+  #touchbar {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    max-width: 760px; width: 100%;
+  }
+  .touch-btn {
+    background: var(--panel); border: 2px solid transparent; border-radius: 10px;
+    padding: 10px 14px; color: var(--text); font-weight: 700; cursor: pointer; min-width: 110px;
+  }
+  .touch-btn:active { transform: translateY(1px); border-color: var(--accent); }
+  @media (min-width: 820px) {
+    #touchbar { display: none; }
+  }
   #campaign {
     position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
     background: rgba(8,11,16,.85); z-index: 10;
@@ -183,6 +195,13 @@
     Click en terreno libre para construir. Click en una torre para seleccionarla y
     <kbd>U</kbd> mejorar / <kbd>X</kbd> vender. <kbd>1</kbd>–<kbd>4</kbd> elegir torre ·
     <kbd>Espacio</kbd> siguiente oleada · <kbd>P</kbd> progresión · <kbd>R</kbd> reiniciar.
+  </div>
+
+  <div id="touchbar">
+    <button class="touch-btn" id="tb-wave">▶ Oleada</button>
+    <button class="touch-btn" id="tb-upgrade">▲ Mejorar</button>
+    <button class="touch-btn" id="tb-sell">✕ Vender</button>
+    <button class="touch-btn" id="tb-pause">⏸ Pausa</button>
   </div>
 
   <div id="tech">
