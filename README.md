@@ -62,6 +62,18 @@ tocar la lógica.
 - **Partículas** al matar enemigos y **screen‑shake** al golpear la base o cambiar de
   fase del jefe, ambos vía el bus de eventos.
 
+## Arte (Fase 14)
+
+Paso de arte **programático** en Canvas (sin assets externos):
+
+- Terreno con gradiente y decoración, camino tipo carretera con bordes.
+- **Base tipo castillo** con bandera animada.
+- **Torres** con base, anillo de color y **cañón giratorio** que apunta al objetivo.
+- **Enemigos con silueta por tipo** (slime, flecha, hexágono blindado, murciélago
+  volador, divisor, jefe con corona) y anillo de estado (quemadura/ralentización).
+- **Proyectiles** con halo de brillo.
+- Fondo con gradiente radial en la página.
+
 ## Progresión persistente
 
 Al terminar cada partida (victoria o derrota) ganas **esencia** según las oleadas
@@ -131,7 +143,7 @@ solo lee el estado. Ver `docs/ARCHITECTURE.md` para el diseño completo.
 
 ## Roadmap (`docs/FASES.md`)
 
-Implementado hasta la **Fase 17** (pulido). De `docs/FASES.md` solo restan: arte
-(Fase 14, requiere assets/sprites) y ajustes finos de balance/QA. El juego es
-plenamente jugable en escritorio y móvil, con campaña, progresión, jefes, audio y
-resiliencia.
+Implementado el juego completo según `docs/FASES.md`: todas las fases (1–17),
+incluida la **Fase 14 (arte)** mediante dibujo programático en Canvas. El juego es
+plenamente jugable en escritorio y móvil, con campaña, progresión, jefes, audio,
+resiliencia y efectos. Los ajustes finos de balance/QA quedan como pulido continuo.

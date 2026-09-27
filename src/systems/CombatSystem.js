@@ -62,6 +62,7 @@ export class CombatSystem {
         const target = acquireTarget(t, state.enemigos, state.pathPoints, state.base);
         if (target) {
           t.cool = t.cooldown;
+          t.angle = Math.atan2(target.y - t.y, target.x - t.x);
           state.proyectiles.push(this.acquire(t, target));
         }
       }
