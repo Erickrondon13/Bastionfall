@@ -1,5 +1,4 @@
 import { createEnemy } from "../entities/Enemy.js";
-import { TOTAL_WAVES } from "../config/waves.js";
 
 export class SpawnSystem {
   update(state, events) {
@@ -17,7 +16,7 @@ export class SpawnSystem {
       const bonus = 20 + state.oleada * 5;
       state.oro += bonus;
       events.emit("wave:complete", { wave: state.oleada, bonus });
-      if (state.oleada >= TOTAL_WAVES) {
+      if (state.oleada >= state.totalOleadas) {
         state.victory = true;
         events.emit("game:victory", {});
       }

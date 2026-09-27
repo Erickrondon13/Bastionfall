@@ -41,6 +41,31 @@ superadas. Con esa esencia desbloqueas mejoras permanentes en el panel `P`:
 El progreso se guarda en `localStorage` (`bastionfall.save.v1`), así que persiste
 entre sesiones. Ver `docs/FASES.md` (Fase 6 y Fase 12).
 
+## Campaña y estrellas
+
+- **Estrellas (Fase 7):** al ganar recibes 1–3 ★ según vida restante, oro y tiempo.
+  Se guarda como récord por mapa/etapa.
+- **Campaña (Fase 8):** abre el panel `C` para elegir etapas. Cada etapa desbloquea
+  la siguiente al completarla; el progreso de la campaña también persiste.
+
+## Audio (Fase 10)
+
+Efectos de sonido generados con WebAudio (sin archivos): disparos, oleada,
+golpe a la base, victoria y derrota. Se activan con la primera interacción.
+
+## Resiliencia
+
+El bucle de simulación y la persistencia usan patrones de resiliencia
+(`src/core/resilience.js`):
+
+- **Circuit breaker**: si un sistema lanza errores repetidos, se aísla (se omite)
+  en vez de romper todo el juego.
+- **Timeout de frame**: cada sistema tiene un presupuesto de tiempo; un sistema
+  demasiado lento se marca como fallo y dispara el breaker.
+- **Retry**: la escritura en `localStorage` se reintenta con reintentos acotados.
+- **Idempotencia**: premios de esencia, compras, récords de estrellas y el inicio
+  de oleada son operaciones idempotentes (no se duplican).
+
 ## Mecánicas
 
 - 🗺️ **Mapas como datos** (`src/config/maps.js`): "Llanura Asediada" y "Garganta del Cañón".
@@ -70,6 +95,7 @@ solo lee el estado. Ver `docs/ARCHITECTURE.md` para el diseño completo.
 
 ## Roadmap (`docs/FASES.md`)
 
-Implementado hasta la **Fase 6** (progresión persistente) y guardado básico
-(`localStorage`, Fase 12). Próximas: estrellas, campaña, jefes adicionales,
-audio/efectos, menús, balance, arte, optimización, móvil y pulido.
+Implementado hasta la **Fase 10** (audio) más guardado (`localStorage`, Fase 12) y
+resiliencia. Próximas: jefes adicionales (Fase 9), menús completos (Fase 11),
+balance (Fase 13), arte (Fase 14), optimización (Fase 15), móvil (Fase 16) y pulido
+(Fase 17).

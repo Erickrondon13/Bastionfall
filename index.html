@@ -89,6 +89,22 @@
   .tech-node.owned { border-color: var(--ok); }
   .tech-node.owned button { background: var(--ok); cursor: default; }
   .tech-node.cant button { background: #3a4658; color: var(--muted); cursor: not-allowed; }
+  #campaign {
+    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+    background: rgba(8,11,16,.85); z-index: 10;
+  }
+  #campaign.open { display: flex; }
+  #campaign-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .camp-title { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0 4px; }
+  .camp-stage {
+    background: #212a3a; border: 1px solid #2e3a4d; border-radius: 10px; padding: 10px 14px;
+    color: var(--text); text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  }
+  .camp-stage:hover:not(:disabled) { border-color: var(--accent); }
+  .camp-stage.locked { opacity: .5; cursor: not-allowed; }
+  .camp-stage.done { border-color: var(--ok); }
+  .camp-name { font-weight: 700; }
+  .camp-meta { color: var(--ok); font-size: 13px; }
   #hint { color: var(--muted); font-size: 13px; text-align: center; max-width: 760px; }
   kbd {
     background: #2a3342; border-radius: 4px; padding: 1px 6px; font-size: 12px;
@@ -149,6 +165,7 @@
       <div class="desc">Quemadura continua (DoT)</div>
     </button>
     <button class="menu-btn" id="btn-tech">Progresión (P)</button>
+    <button class="menu-btn" id="btn-campaign">Campaña (C)</button>
   </div>
 
   <div id="hint">
@@ -163,6 +180,14 @@
       <p class="tech-esencia">Esencia disponible: <b id="tech-esencia">0</b></p>
       <div id="tech-list"></div>
       <button class="menu-btn" id="tech-close">Cerrar (P)</button>
+    </div>
+  </div>
+
+  <div id="campaign">
+    <div class="tech-panel">
+      <h2>Selecciona una etapa</h2>
+      <div id="campaign-list"></div>
+      <button class="menu-btn" id="campaign-close">Cerrar (C)</button>
     </div>
   </div>
 

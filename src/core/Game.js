@@ -7,7 +7,9 @@ import { EconomySystem } from "../systems/EconomySystem.js";
 import { buildWave, TOTAL_WAVES } from "../config/waves.js";
 import { towerStats, TOWER_TYPES } from "../config/towers.js";
 import { createTower, upgradeTower, towerUpgradeCost } from "../entities/Tower.js";
+import { computeStars } from "../config/stars.js";
 import { EventBus } from "./EventBus.js";
+import { CircuitBreaker, IdempotencyGuard, TimeoutError, now } from "./resilience.js";
 
 export class Game {
   constructor(canvas, progression) {
@@ -20,10 +22,13 @@ export class Game {
       new CombatSystem(),
       new EconomySystem(),
     ];
+    this.frameBudgetMs = 12;
+    this.awardGuard = new IdempotencyGuard();
     this.onVictory = null;
     this.onGameOver = null;
     this.events.on("game:victory", () => {
       this.award();
+      this.recordResult();
       if (this.onVictory) this.onVictory();
     });
     this.events.on("game:over", () => {
@@ -38,19 +43,40 @@ export class Game {
   }
 
   loadMap(id) {
+    this.stage = null;
     this.map = buildMap(id);
+    this.buildGuards();
     this.newGame();
+  }
+
+  loadStage(stage) {
+    this.stage = stage;
+    this.map = buildMap(stage.map);
+    this.buildGuards();
+    this.newGame();
+    this.state.stageId = stage.id;
+  }
+
+  buildGuards() {
+    this.systemGuards = this.systems.map((sys) => ({
+      sys,
+      name: sys.constructor.name,
+      cb: new CircuitBreaker({ threshold: 3, cooldownMs: 4000, label: sys.constructor.name }),
+    }));
   }
 
   newGame() {
     this.state = createState(this.map);
-    this.state.totalOleadas = TOTAL_WAVES;
-    this._awarded = false;
+    this.state.totalOleadas = this.stage ? this.stage.waves : TOTAL_WAVES;
+    this.awardGuard.reset();
+    this.systemGuards.forEach((g) => g.cb.reset());
+    this.state.vidaMax = this.state.vida;
+    this.state.time = 0;
     if (this.progression) {
       const bonus = this.progression.startBonus();
       this.state.oro += bonus.gold;
       this.state.vida += bonus.life;
-      this.state.vidaMax = this.state.vida;
+      this.state.vidaMax += bonus.life;
       this.state.unlocked = TOWER_TYPES.map(t => this.progression.isTowerUnlocked(t.key));
     } else {
       this.state.unlocked = TOWER_TYPES.map(() => true);
@@ -64,10 +90,19 @@ export class Game {
   }
 
   award() {
-    if (!this.progression || this._awarded) return;
-    this._awarded = true;
-    const gain = this.progression.award(this.state.oleada, this.state.victory);
-    this.setFlash(`+${gain} esencia`);
+    if (!this.progression) return;
+    this.awardGuard.run("award", () => {
+      const gain = this.progression.award(this.state.oleada, this.state.victory);
+      this.setFlash(`+${gain} esencia`);
+    });
+  }
+
+  recordResult() {
+    if (!this.progression) return;
+    const earned = computeStars(this.state);
+    this.lastStars = earned;
+    if (this.state.stageId) this.progression.recordStage(this.state.stageId, earned);
+    else this.progression.recordStars(this.state.map.id, earned);
   }
 
   setFlash(msg) {
@@ -79,7 +114,7 @@ export class Game {
     const s = this.state;
     if (s.oleadaActiva || s.gameOver || s.victory) return;
     s.oleada++;
-    s.spawnQueue = buildWave(s.oleada);
+    s.spawnQueue = buildWave(s.oleada, s.totalOleadas);
     s.spawnTimer = 0;
     s.oleadaActiva = true;
   }
@@ -133,6 +168,27 @@ export class Game {
   update(dt) {
     const s = this.state;
     if (s.flash.timer > 0) s.flash.timer--;
-    for (const sys of this.systems) sys.update(s, this.events);
+    if (!s.gameOver && !s.victory) s.time += 1;
+
+    for (const g of this.systemGuards) {
+      if (g.cb.state === "open") {
+        if (now() - g.cb.openedAt > g.cb.cooldownMs) {
+          g.cb.state = "half-open";
+        } else {
+          continue;
+        }
+      }
+      const start = now();
+      const ok = g.cb.call(() => {
+        g.sys.update(s, this.events);
+        const dur = now() - start;
+        if (dur > this.frameBudgetMs) {
+          throw new TimeoutError(g.name, `${dur.toFixed(1)}ms > ${this.frameBudgetMs}ms`);
+        }
+      });
+      if (!ok && g.cb.tripped) {
+        this.setFlash(`Sistema ${g.name} desactivado (fallo)`);
+      }
+    }
   }
 }

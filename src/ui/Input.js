@@ -60,5 +60,6 @@ export class Input {
     else if (ev.code === "KeyX") { g.sellSelected(); }
     else if (ev.code === "KeyR") { g.restart(); }
     else if (ev.code === "KeyP") { ev.preventDefault(); this.onToggleTech && this.onToggleTech(); }
+    else if (ev.code === "KeyC") { ev.preventDefault(); this.onToggleCampaign && this.onToggleCampaign(); }
   }
 }

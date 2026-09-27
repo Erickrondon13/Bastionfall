@@ -16,7 +16,7 @@ function poolFor(n) {
   return pool;
 }
 
-export function buildWave(n) {
+export function buildWave(n, totalWaves = TOTAL_WAVES) {
   const pool = poolFor(n);
   const count = 6 + n * 2;
   const queue = [];
@@ -27,8 +27,8 @@ export function buildWave(n) {
     queue.push({ type, delay: 35 });
   }
 
-  // Oleada 10: jefe final.
-  if (n === TOTAL_WAVES) {
+  // Última oleada del nivel: jefe final.
+  if (n === totalWaves) {
     queue.push({ type: "jefe", delay: 60 });
   }
 
