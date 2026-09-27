@@ -10,7 +10,8 @@ export class Renderer {
 
   draw(state) {
     const ctx = this.ctx;
-    const { map, tile } = state;
+    const map = state.map;
+    const tile = map.tile;
     const W = map.cols * tile;
     const H = map.rows * tile;
     const time = state.time || 0;
