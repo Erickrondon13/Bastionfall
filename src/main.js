@@ -8,6 +8,7 @@ import { Progression } from "./core/Progression.js";
 import { TechMenu } from "./ui/TechMenu.js";
 import { LevelSelect } from "./ui/LevelSelect.js";
 import { Sfx } from "./audio/Sfx.js";
+import { ABILITIES } from "./config/abilities.js";
 import { Effects } from "./render/Effects.js";
 
 const canvas = document.getElementById("game");
@@ -21,6 +22,17 @@ const overlay = new Overlay(game);
 const input = new Input(game, canvas);
 const techMenu = new TechMenu(progression);
 const levelSelect = new LevelSelect(game, progression);
+
+const abilitiesEl = document.getElementById("abilities");
+for (const a of ABILITIES) {
+  const btn = document.createElement("button");
+  btn.className = "ability-btn";
+  btn.dataset.ability = a.id;
+  btn.title = a.desc;
+  btn.innerHTML = `<span class="ab-name">${a.name}</span> <span class="ab-key">${a.key.replace("Key", "")}</span><span class="ab-cd"></span>`;
+  btn.addEventListener("click", () => game.useAbility(a.id));
+  abilitiesEl.appendChild(btn);
+}
 const sfx = new Sfx(game.events, { muted: !progression.soundEnabled() });
 
 const menuEl = document.getElementById("menu");

@@ -4,7 +4,13 @@ export class Effects {
     this.shake = 0;
     events.on("enemy:killed", (e) => this.burst(e.enemy.x, e.enemy.y, e.enemy.color, 8));
     events.on("base:hit", () => { this.shake = 10; });
+    events.on("base:shield", () => { this.shake = 4; });
     events.on("boss:phase", () => { this.shake = 14; });
+    events.on("boss:spawn", () => { this.shake = 12; });
+    events.on("ability:used", () => { this.shake = 6; });
+    events.on("ability:impact", (e) => {
+      if (e && e.x != null) this.burst(e.x, e.y, e.color || "#fff", 12);
+    });
   }
 
   burst(x, y, color, n) {

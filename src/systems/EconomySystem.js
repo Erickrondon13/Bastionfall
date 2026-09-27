@@ -8,6 +8,10 @@ export class EconomySystem {
       if (e.hp > 0) continue;
 
       state.oro += e.reward;
+      state.stats.kills++;
+      state.stats.goldEarned += e.reward;
+      if (e.boss) state.stats.bosses++;
+      if (e.elite) state.stats.elites++;
       events.emit("enemy:killed", { enemy: e });
 
       if (e.onDeath === "split") {

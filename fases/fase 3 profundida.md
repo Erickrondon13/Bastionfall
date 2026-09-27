@@ -720,3 +720,28 @@ que:
 > **15 torres que hacen prácticamente lo mismo.**
 
 Y dado que ya tienes `config/`, `systems/`, `entities/`, `render/` y `core/`, tu arquitectura actual está bastante bien posicionada para evolucionar hacia esto sin convertir `Game.js` en el clásico archivo de 4.000 líneas que un día abre VS Code y pide vacaciones. 😄
+
+---
+
+## Estado de implementación (Fase 3 — rebanada vertical)
+
+Se implementó un subconjunto coherente y probado (no el documento completo, para
+evitar código frágil). Archivos nuevos/modificados:
+
+- `src/config/enemies.js`: tipos `regenerativo`, `invisible`, `curador`, `invocador` + `applyElite` con afijos.
+- `src/config/towers.js`: `crit` por nivel (base para críticos/DPS).
+- `src/config/abilities.js` + `src/systems/AbilitySystem.js`: 5 habilidades con CD.
+- `src/config/achievements.js`: 7 logros.
+- `src/systems/EnemySystem.js`: regen, aura de curación, invocación.
+- `src/systems/CombatSystem.js`: críticos, daño flotante, invisible, escudo, resistencia al hielo.
+- `src/systems/SpawnSystem.js`: élites por oleada; `MovementSystem` respeta escudo base.
+- `src/entities/Tower.js` / `Enemy.js`: copian `crit` y campos de comportamiento.
+- `Game.js`: `useAbility`, jefe cada 10 oleadas en infinito, rastreo de stats, evaluación de logros, leaderboard infinito.
+- `Renderer`/`art`/`Effects`: daño flotante, rango, escudo base, indicadores de élite/escudo, feedback de habilidades.
+- `Hud`/`Overlay`/`index.html`/`main.js`: barra de habilidades, panel de stats/DPS, stats de partida y logros.
+
+**Pendiente del documento (no implementado aún):** árbol A/B de mejoras por torre,
+sinergias entre torres, modificadores de partida roguelite, reliquias, eventos
+meteor/shield durante oleadas, bosses con mecánicas únicas, tutoriales, guardado
+de partida a medias, música por ambiente, y campaña de mundos 1-2-3. Cada uno puede
+ser una fase independiente.

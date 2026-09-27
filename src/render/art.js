@@ -206,6 +206,22 @@ export function drawEnemy(ctx, e, time) {
   }
   ctx.restore();
 
+  if (e.shield > 0) ring(ctx, x, y, r + 4, "#4cc9f0");
+  if (e.elite) {
+    ctx.fillStyle = "#ffd166";
+    ctx.font = "bold 10px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("★", x, y - r - 9);
+  }
+  if (e.invisible) {
+    ctx.globalAlpha = 0.4;
+    ctx.fillStyle = "#c77dff";
+    ctx.beginPath();
+    ctx.arc(x, y, r + 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
   if (e.burnTimer > 0) ring(ctx, x, y, r, "#ff9e00");
   else if (e.slowTimer > 0) ring(ctx, x, y, r, "#a0c4ff");
 

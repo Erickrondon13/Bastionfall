@@ -30,9 +30,55 @@ export class Renderer {
     for (const p of state.proyectiles) art.drawProjectile(ctx, p);
     if (this.effects) this.effects.draw(ctx);
     this.drawBossBar(state, W);
+    this.drawSelectedRange(state);
+    this.drawBaseShield(state);
+    this.drawFloaters(state);
     ctx.restore();
 
     this.drawFlash(state);
+  }
+
+  drawSelectedRange(state) {
+    const t = state.selectedTowerEntity;
+    if (!t) return;
+    const ctx = this.ctx;
+    ctx.strokeStyle = "rgba(76,201,240,.35)";
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(t.x, t.y, t.range, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  drawBaseShield(state) {
+    if (state.baseShield <= 0) return;
+    const ctx = this.ctx;
+    const b = state.base;
+    ctx.strokeStyle = `rgba(76,201,240,${0.4 + 0.3 * Math.sin(state.time / 6)})`;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, 26, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  drawFloaters(state) {
+    const ctx = this.ctx;
+    for (let i = state.floaters.length - 1; i >= 0; i--) {
+      const f = state.floaters[i];
+      f.timer--;
+      if (f.timer <= 0) {
+        state.floaters.splice(i, 1);
+        continue;
+      }
+      const a = Math.min(1, f.timer / 24);
+      ctx.globalAlpha = a;
+      ctx.fillStyle = f.color;
+      ctx.font = (f.crit ? "bold 14px" : "11px") + " sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(f.text, f.x, f.y - (48 - f.timer) * 0.5);
+    }
+    ctx.globalAlpha = 1;
   }
 
   drawBossBar(state, W) {

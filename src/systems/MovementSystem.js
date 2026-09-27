@@ -54,7 +54,8 @@ export class MovementSystem {
 
       const arrived = e.flying ? moveFlying(e, base) : moveAlongPath(e, pathPoints);
       if (arrived) {
-        state.vida -= e.boss ? 5 : 1;
+        if (state.baseShield <= 0) state.vida -= e.boss ? 5 : 1;
+        else events.emit("base:shield", { enemy: e });
         enemigos.splice(i, 1);
         events.emit("base:hit", { enemy: e });
         if (state.vida <= 0) {

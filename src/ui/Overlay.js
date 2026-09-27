@@ -6,30 +6,38 @@ export class Overlay {
     this.el = document.getElementById("overlay");
     this.title = document.getElementById("overlay-title");
     this.text = document.getElementById("overlay-text");
+    this.stats = document.getElementById("overlay-stats");
+    this.ach = document.getElementById("overlay-ach");
     this.stars = document.getElementById("overlay-stars");
     document.getElementById("overlay-btn").addEventListener("click", () => game.restart());
 
-    game.onVictory = () => {
-      const s = game.state;
+    const finish = (s, title, baseText) => {
       const earned = game.lastStars != null ? game.lastStars : computeStars(s);
       const best = game.progression
         ? (s.stageId ? game.progression.bestStars(s.stageId) : game.progression.bestStars(s.map.id))
         : earned;
-      const lines = [`Sobreviviste las ${s.totalOleadas} oleadas. Oro final: ${s.oro}`];
-      const r = game._lastRewards;
-      if (r) {
-        lines.push(`Llaves totales: ${r.keys}`);
-        if (r.chest) lines.push("¡Cofre abierto! (+40 esencia)");
-        if (r.cavern && r.cavern.milestone) lines.push(`¡Hito! 5 cavernas ${s.cavernLabel} completadas (+200 esencia)`);
+      const st = s.stats || {};
+      const lines = [
+        baseText,
+        "",
+        `Oleadas: ${s.oleada}   Enemigos: ${st.kills || 0}   Jefes: ${st.bosses || 0}`,
+        `Daño total: ${Math.round(st.dmgDealt || 0)}`,
+        `Oro ganado: ${st.goldEarned || 0}   Oro gastado: ${st.goldSpent || 0}`,
+      ];
+      if (s.endless) {
+        const best2 = game.progression ? game.progression.endlessBest() : { bestWave: 0 };
+        lines.push(`Mejor marca infinito: oleada ${best2.bestWave}`);
       }
-      this.show("Victoria", lines.join("\n"));
+      this.show(title, lines.join("\n"));
+      this.stats.textContent = lines.slice(1).join("\n");
+      const newly = game.newAchievements || [];
+      this.ach.textContent = newly.length ? "🏆 Logros:\n" + newly.map((a) => `• ${a.name} — ${a.desc}`).join("\n") : "";
       this.stars.textContent = `${starsToString(earned)}  (mejor: ${starsToString(best)})`;
       this.stars.style.display = "block";
     };
-    game.onGameOver = () => {
-      this.show("Derrota", `Tu base cayó en la oleada ${game.state.oleada}.`);
-      this.stars.style.display = "none";
-    };
+
+    game.onVictory = () => finish(game.state, "Victoria", `Sobreviviste las ${game.state.totalOleadas} oleadas. Oro final: ${game.state.oro}`);
+    game.onGameOver = () => finish(game.state, "Derrota", `Tu base cayó en la oleada ${game.state.oleada}.`);
   }
 
   show(title, text) {

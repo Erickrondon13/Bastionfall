@@ -16,6 +16,7 @@ function acquireTarget(tower, enemies, pathPoints, base) {
   let bestProg = -Infinity;
   for (const e of enemies) {
     if (e.hp <= 0) continue;
+    if (e.invisible && dist(tower, e) > tower.range * 0.55) continue;
     if (dist(tower, e) > tower.range) continue;
     const p = progress(e, pathPoints, base);
     if (p > bestProg) {
@@ -26,25 +27,47 @@ function acquireTarget(tower, enemies, pathPoints, base) {
   return best;
 }
 
+function pushFloater(state, x, y, text, color, crit) {
+  if (state.floaters.length > 120) state.floaters.shift();
+  state.floaters.push({ x, y, text: String(text), color, crit: !!crit, timer: 48 });
+}
+
 function applyHit(state, p, target) {
   if (p.splash > 0) {
     for (const e of state.enemigos) {
       if (e.hp <= 0) continue;
-      if (dist(p, e) <= p.splash) dealDamage(e, p);
+      if (dist(p, e) <= p.splash) dealDamage(state, e, p);
     }
   } else {
-    dealDamage(target, p);
+    dealDamage(state, target, p);
   }
 }
 
-function dealDamage(e, p) {
-  const eff = Math.max(1, p.damage * (1 - e.armor));
+function dealDamage(state, e, p) {
+  let dmg = p.damage;
+  let crit = false;
+  if (p.crit && Math.random() < p.crit) {
+    dmg *= 1.8;
+    crit = true;
+  }
+  let eff = Math.max(1, dmg * (1 - e.armor));
+  if (e.shield > 0) {
+    const absorbed = Math.min(e.shield, eff);
+    e.shield -= absorbed;
+    eff -= absorbed;
+    if (e.shield <= 0 && !e._shieldBroken) {
+      e._shieldBroken = true;
+      pushFloater(state, e.x, e.y, "ESCUDO ROTO", "#4cc9f0", false);
+    }
+  }
   e.hp -= eff;
-  if (p.slow > 0) e.slowTimer = Math.max(e.slowTimer, 90);
+  state.stats.dmgDealt += eff;
+  if (p.slow > 0) e.slowTimer = Math.max(e.slowTimer, e.slowResist ? 45 : 90);
   if (p.burn > 0) {
     e.burnTimer = p.burnTime;
     e.burnDamage = p.burn;
   }
+  pushFloater(state, e.x, e.y - e.radius, Math.round(dmg), crit ? "#ffd166" : "#ffffff", crit);
 }
 
 export class CombatSystem {
@@ -55,7 +78,6 @@ export class CombatSystem {
   update(state, events) {
     if (state.gameOver || state.victory) return;
 
-    // Torres disparan.
     for (const t of state.torres) {
       if (t.cool > 0) t.cool--;
       if (t.cool <= 0) {
@@ -68,7 +90,6 @@ export class CombatSystem {
       }
     }
 
-    // Proyectiles.
     for (let i = state.proyectiles.length - 1; i >= 0; i--) {
       const p = state.proyectiles[i];
       const tgt = p.target;
@@ -103,6 +124,7 @@ export class CombatSystem {
       p.slow = tower.slow;
       p.burn = tower.burn;
       p.burnTime = tower.burnTime;
+      p.crit = tower.crit;
       p.color = tower.proj;
       p.dead = false;
       return p;

@@ -25,6 +25,8 @@ export class Progression {
         keys: parsed.keys || 0,
         chests: parsed.chests || 0,
         caverns: parsed.caverns || {},
+        achievements: parsed.achievements || {},
+        endless: parsed.endless || { bestWave: 0, bestTime: 0 },
       };
     } catch {
       return defaultSave();
@@ -130,6 +132,32 @@ export class Progression {
 
   cavernCount(label) {
     return (this.data.caverns && this.data.caverns[label]) || 0;
+  }
+
+  // --- Logros ---
+  achievements() {
+    return this.data.achievements || {};
+  }
+
+  hasAchievement(id) {
+    return !!(this.data.achievements && this.data.achievements[id]);
+  }
+
+  // --- Leaderboard infinito ---
+  recordEndless(wave, time) {
+    this.data.endless = this.data.endless || { bestWave: 0, bestTime: 0 };
+    let improved = false;
+    if (wave > this.data.endless.bestWave) {
+      this.data.endless.bestWave = wave;
+      improved = true;
+    }
+    if (time > this.data.endless.bestTime) this.data.endless.bestTime = time;
+    this.save();
+    return improved;
+  }
+
+  endlessBest() {
+    return this.data.endless || { bestWave: 0, bestTime: 0 };
   }
 
   isStageUnlocked(index) {

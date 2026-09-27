@@ -22,6 +22,7 @@ export function createTower(typeIndex, c, r, tile, mods) {
     cooldown: stats.cooldown,
     splash: stats.splash,
     slow: stats.slow,
+    crit: stats.crit || 0,
     projSpeed: stats.projSpeed,
     burn: stats.burn || 0,
     burnTime: stats.burnTime || 0,
@@ -49,6 +50,7 @@ export function upgradeTower(tower, mods) {
   tower.cooldown = next.cooldown;
   tower.splash = next.splash;
   tower.slow = next.slow;
+  tower.crit = next.crit || 0;
   tower.projSpeed = next.projSpeed;
   tower.burn = next.burn || 0;
   tower.burnTime = next.burnTime || 0;

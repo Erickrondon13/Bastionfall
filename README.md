@@ -93,6 +93,28 @@ entre sesiones. Ver `docs/FASES.md` (Fase 6 y Fase 12).
 - **Campaña (Fase 8):** abre el panel `C` para elegir etapas. Cada etapa desbloquea
   la siguiente al completarla; el progreso de la campaña también persiste.
 
+## Profundización del gameplay (Fase 3)
+
+Implementado un subconjunto coherente y probado de `fases/fase 3 profundida.md`
+enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
+
+- **Estadísticas de torres visibles**: panel con daño, velocidad, alcance,
+  **crítico** y **DPS**; círculo de rango al seleccionar una torre.
+- **Daño flotante + críticos**: los impactos muestran el daño; los críticos
+  brillan en dorado (multipican ×1.8).
+- **Habilidades activas** (`src/config/abilities.js` + `AbilitySystem`): Rayo,
+  Meteorito, Congelación, Bono de oro y Escudo de bastión, cada una con
+  enfriamiento y tecla (`F/G/H/B/N`).
+- **Enemigos avanzados** (`src/config/enemies.js` + `EnemySystem`): regenerativo,
+  invisible (solo visible/objetivable de cerca), curador (aura de sanación) e
+  invocador (genera esbirros).
+- **Sistema de élites**: probabilidad creciente de que un enemigo sea élite con
+  afijos (Resistente al hielo, Rápido, Escudo, Brutal +HP/+recompensa).
+- **Logros** (`src/config/achievements.js`) y **estadísticas de partida**
+  (oleadas, kills, jefes, daño, oro) en el overlay de victoria/derrota; persisten
+  en `localStorage`.
+- **Endless mejorado**: jefe cada 10 oleadas + leaderboard local de mejor oleada.
+
 ## Cavernas aleatorias y llaves (Fase 2)
 
 - **Cavernas (menú Cavernas):** generador de mapas procedural tipo "cueva" con 4

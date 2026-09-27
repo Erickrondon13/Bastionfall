@@ -29,6 +29,16 @@ export function createEnemy(typeKey, wave, start, hpMult = 1) {
     slowTimer: 0,
     burnTimer: 0,
     burnDamage: 0,
+    regen: t.regen || 0,
+    invisible: !!t.invisible,
+    healRadius: t.healRadius || 0,
+    healRate: t.healRate || 0,
+    summonEvery: t.summonEvery || 0,
+    summonTimer: t.summonEvery || 0,
+    slowResist: false,
+    shield: 0,
+    elite: false,
+    affixNames: [],
   };
 }
 

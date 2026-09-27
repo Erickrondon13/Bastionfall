@@ -5,14 +5,25 @@ import { MovementSystem } from "../systems/MovementSystem.js";
 import { CombatSystem } from "../systems/CombatSystem.js";
 import { EconomySystem } from "../systems/EconomySystem.js";
 import { BossSystem } from "../systems/BossSystem.js";
+import { EnemySystem } from "../systems/EnemySystem.js";
+import { AbilitySystem } from "../systems/AbilitySystem.js";
 import { buildWave, TOTAL_WAVES } from "../config/waves.js";
 import { MODES, getMode } from "../config/modes.js";
 import { generateCavern, tierLabel } from "../config/mapgen.js";
+import { ABILITIES, getAbility } from "../config/abilities.js";
+import { ACHIEVEMENTS } from "../config/achievements.js";
 import { towerStats, TOWER_TYPES } from "../config/towers.js";
 import { createTower, upgradeTower, towerUpgradeCost } from "../entities/Tower.js";
 import { computeStars } from "../config/stars.js";
 import { EventBus } from "./EventBus.js";
 import { CircuitBreaker, IdempotencyGuard, TimeoutError, now } from "./resilience.js";
+
+function progressOf(e, s) {
+  if (e.flying) return -Math.hypot(e.x - s.base.x, e.y - s.base.y);
+  const seg = s.pathPoints[e.pathIndex + 1];
+  const dNext = seg ? Math.hypot(e.x - seg.x, e.y - seg.y) : 0;
+  return e.pathIndex * 10000 - dNext;
+}
 
 export class Game {
   constructor(canvas, progression) {
@@ -23,8 +34,10 @@ export class Game {
       new SpawnSystem(),
       new MovementSystem(),
       new BossSystem(),
+      new EnemySystem(),
       new CombatSystem(),
       new EconomySystem(),
+      new AbilitySystem(),
     ];
     this.frameBudgetMs = 12;
     this.awardGuard = new IdempotencyGuard();
@@ -39,17 +52,22 @@ export class Game {
       this.recordResult();
       const rewards = this.progression ? this.progression.addKey() : { keys: 0, chest: false };
       this._lastRewards = { keys: rewards.keys, chest: rewards.chest };
+      this.evaluateAchievements();
       if (this.cavern && this.cavern.index < this.cavern.maps.length - 1) {
         this._pendingCavernAdvance = true;
       } else {
         if (this.cavern) {
-          const cav = this.progression
-            ? this.progression.recordCavernComplete(this.cavern.label)
-            : { count: 0, milestone: false };
+          const cav = this.progression ? this.progression.recordCavernComplete(this.cavern.label) : { count: 0, milestone: false };
           this._lastRewards.cavern = cav;
         }
         if (this.onVictory) this.onVictory();
       }
+    });
+    this.events.on("game:over", () => {
+      this.award();
+      this.evaluateAchievements();
+      this.recordEndlessIfNeeded();
+      if (this.onGameOver) this.onGameOver();
     });
     this.events.on("game:over", () => {
       this.award();
@@ -137,6 +155,20 @@ export class Game {
     this.systemGuards.forEach((g) => g.cb.reset());
     this.state.vidaMax = this.state.vida;
     this.state.time = 0;
+    this.state.floaters = [];
+    this.state.baseShield = 0;
+    this.state.abilityCd = {};
+    for (const a of ABILITIES) this.state.abilityCd[a.id] = 0;
+    this.state.stats = {
+      kills: 0,
+      bosses: 0,
+      elites: 0,
+      dmgDealt: 0,
+      goldEarned: 0,
+      goldSpent: 0,
+      maxOro: 0,
+      towersByType: {},
+    };
     if (this.progression) {
       const bonus = this.progression.startBonus();
       this.state.oro += bonus.gold;
@@ -183,13 +215,100 @@ export class Game {
     this.state.flash.timer = 90;
   }
 
+  evaluateAchievements() {
+    if (!this.progression) {
+      this.newAchievements = [];
+      return [];
+    }
+    const unlocked = this.progression.data.achievements || {};
+    const newly = [];
+    for (const a of ACHIEVEMENTS) {
+      if (unlocked[a.id]) continue;
+      try {
+        if (a.test(this.state)) newly.push(a);
+      } catch {
+        /* ignore */
+      }
+    }
+    if (newly.length) {
+      for (const a of newly) unlocked[a.id] = true;
+      this.progression.data.achievements = unlocked;
+      this.progression.save();
+    }
+    this.newAchievements = newly;
+    return newly;
+  }
+
+  recordEndlessIfNeeded() {
+    if (!this.progression || !this.state.endless) return;
+    this.progression.recordEndless(this.state.oleada, this.state.time);
+  }
+
   startWave() {
     const s = this.state;
     if (this.paused || s.oleadaActiva || s.gameOver || s.victory) return;
     s.oleada++;
     s.spawnQueue = buildWave(s.oleada, s.totalOleadas);
+    if (s.endless && s.oleada % 10 === 0) s.spawnQueue.push({ type: "jefe", delay: 40 });
     s.spawnTimer = 0;
     s.oleadaActiva = true;
+  }
+
+  useAbility(id) {
+    const s = this.state;
+    if (this.paused || s.gameOver || s.victory) return false;
+    const def = getAbility(id);
+    if (!def) return false;
+    if ((s.abilityCd[id] || 0) > 0) {
+      this.setFlash(`${def.name} en enfriamiento`);
+      return false;
+    }
+    if (id === "rayo") {
+      const top = [...s.enemigos]
+        .filter((e) => e.hp > 0)
+        .sort((a, b) => progressOf(b, s) - progressOf(a, s))
+        .slice(0, 5);
+      for (const e of top) {
+        const d = 60 + s.oleada * 4;
+        e.hp -= d;
+        s.stats.dmgDealt += d;
+        this.events.emit("ability:impact", { x: e.x, y: e.y, color: def.color });
+      }
+    } else if (id === "meteoro") {
+      let center = null;
+      let best = 0;
+      for (const e of s.enemigos) {
+        if (e.hp <= 0) continue;
+        let n = 0;
+        for (const o of s.enemigos) if (o.hp > 0 && Math.hypot(o.x - e.x, o.y - e.y) <= 75) n++;
+        if (n > best) {
+          best = n;
+          center = e;
+        }
+      }
+      if (center) {
+        for (const o of s.enemigos) {
+          if (o.hp > 0 && Math.hypot(o.x - center.x, o.y - center.y) <= 75) {
+            const d = 100 + s.oleada * 5;
+            o.hp -= d;
+            s.stats.dmgDealt += d;
+          }
+        }
+        this.events.emit("ability:impact", { x: center.x, y: center.y, color: def.color });
+      }
+    } else if (id === "freeze") {
+      for (const e of s.enemigos) if (e.hp > 0) e.slowTimer = Math.max(e.slowTimer, e.slowResist ? 120 : 240);
+    } else if (id === "gold") {
+      const g = 120 + s.oleada * 5;
+      s.oro += g;
+      s.stats.goldEarned += g;
+      this.setFlash(`+${g} oro`);
+    } else if (id === "shield") {
+      s.baseShield = 600;
+    }
+    s.abilityCd[id] = def.cooldown * 60;
+    this.events.emit("ability:used", { id });
+    return true;
   }
 
   tryPlaceTower(c, r) {
@@ -202,6 +321,7 @@ export class Game {
     const stats = towerStats(s.selectedTower, 0);
     if (s.oro < stats.cost) { this.setFlash("Oro insuficiente"); return false; }
     s.oro -= stats.cost;
+    s.stats.goldSpent += stats.cost;
     s.torres.push(createTower(s.selectedTower, c, r, s.map.tile, this.mods()));
     return true;
   }
@@ -221,6 +341,7 @@ export class Game {
     if (cost == null) { this.setFlash("Nivel máximo"); return false; }
     if (s.oro < cost) { this.setFlash("Oro insuficiente para mejorar"); return false; }
     s.oro -= cost;
+    s.stats.goldSpent += cost;
     upgradeTower(t, this.mods());
     this.setFlash(`${t.name} → nivel ${t.level + 1}`);
     return true;
@@ -264,6 +385,8 @@ export class Game {
         this.setFlash(`Sistema ${g.name} desactivado (fallo)`);
       }
     }
+
+    if (this.state.oro > this.state.stats.maxOro) this.state.stats.maxOro = this.state.oro;
 
     if (this._pendingCavernAdvance && this.cavern) {
       this._pendingCavernAdvance = false;

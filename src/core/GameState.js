@@ -12,6 +12,7 @@ export function createState(map) {
     torres: [],
     enemigos: [],
     proyectiles: [],
+    floaters: [],
     selectedTower: 0,
     selectedTowerEntity: null,
     oleadaActiva: false,
@@ -21,5 +22,17 @@ export function createState(map) {
     victory: false,
     hoverCell: null,
     flash: { msg: "", timer: 0 },
+    abilityCd: {},
+    baseShield: 0,
+    stats: {
+      kills: 0,
+      bosses: 0,
+      elites: 0,
+      dmgDealt: 0,
+      goldEarned: 0,
+      goldSpent: 0,
+      maxOro: 0,
+      towersByType: {},
+    },
   };
 }
