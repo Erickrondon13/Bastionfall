@@ -21,6 +21,7 @@ export function createEnemy(typeKey, wave, start, hpMult = 1) {
     flying: t.flying,
     onDeath: t.onDeath,
     boss: !!t.boss,
+    bossKind: t.bossKind || null,
     phase: 1,
     baseArmor: t.armor,
     shieldTimer: 0,

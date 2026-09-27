@@ -44,6 +44,7 @@ export function createTower(typeIndex, c, r, tile, mods) {
     burnTime: stats.burnTime || 0,
     cool: 0,
     invested: stats.cost,
+    disabledTimer: 0,
     angle: -Math.PI / 2,
   };
 }

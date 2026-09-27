@@ -139,7 +139,54 @@ export const ENEMY_TYPES = {
     onDeath: null,
     boss: true,
   },
+  colossus: {
+    key: "colossus",
+    name: "Coloso",
+    hp: 1700,
+    speed: 0.42,
+    reward: 250,
+    color: "#ff6b6b",
+    radius: 24,
+    armor: 0.32,
+    flying: false,
+    onDeath: null,
+    boss: true,
+    bossKind: "colossus",
+  },
+  swarm_mother: {
+    key: "swarm_mother",
+    name: "Madre Enjambre",
+    hp: 1150,
+    speed: 0.5,
+    reward: 240,
+    color: "#f15bb5",
+    radius: 20,
+    armor: 0.1,
+    flying: false,
+    onDeath: null,
+    boss: true,
+    bossKind: "swarm",
+  },
+  void_walker: {
+    key: "void_walker",
+    name: "Caminante del Vacío",
+    hp: 980,
+    speed: 0.7,
+    reward: 260,
+    color: "#7b2cbf",
+    radius: 19,
+    armor: 0.2,
+    flying: false,
+    onDeath: null,
+    boss: true,
+    bossKind: "void",
+  },
 };
+
+export function bossTypeFor(wave) {
+  const cycle = ["void_walker", "swarm_mother", "colossus"];
+  return cycle[Math.floor((wave || 1) / 10) % cycle.length];
+}
 
 export const ELITE_AFFIXES = {
   resistente: {

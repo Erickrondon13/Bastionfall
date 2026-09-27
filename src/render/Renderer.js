@@ -27,6 +27,17 @@ export class Renderer {
     art.drawBase(ctx, state.base, time);
     this.drawHover(state, tile);
     for (const t of state.torres) art.drawTower(ctx, t);
+    for (const t of state.torres) {
+      if (t.disabledTimer > 0) {
+        ctx.strokeStyle = "rgba(239,71,111,.9)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, 18, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
     for (const e of state.enemigos) art.drawEnemy(ctx, e, time);
     for (const p of state.proyectiles) art.drawProjectile(ctx, p);
     if (this.effects) this.effects.draw(ctx);

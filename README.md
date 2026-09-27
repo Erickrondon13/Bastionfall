@@ -132,6 +132,10 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   la partida y se acumulan: Núcleo de guerra (+daño), Corazón dorado (+oro), Fragmento glacial (+lentitud),
   Engranaje veloz (+velocidad de ataque), Ojo crítico (+crítico), Prisma de alcance (+alcance), Corazón vital
   (+vida), Esencia ardiente (+quemadura). Barra de reliquias en HUD. Ver `fases/fase 3 profundida.md` §10.
+- **Bosses con mecánicas únicas (§8):** el boss cíclico cambia cada 10 oleadas en infinito (o por etapa):
+  **Coloso** (invoca refuerzos en fase 2/3 y entra en furia en fase 3), **Madre Enjambre** (spawnea divisores,
+  deshabilita una torre temporalmente y se teletransporta), **Caminante del Vacío** (se vuelve invisible,
+  teletransporta y desactiva tus habilidades). Ver `fases/fase 3 profundida.md` §8.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

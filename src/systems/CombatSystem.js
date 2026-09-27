@@ -84,6 +84,10 @@ export class CombatSystem {
     if (state.gameOver || state.victory) return;
 
     for (const t of state.torres) {
+      if (t.disabledTimer > 0) {
+        t.disabledTimer--;
+        continue;
+      }
       if (t.cool > 0) t.cool--;
       if (t.cool <= 0) {
         const target = acquireTarget(t, state.enemigos, state.pathPoints, state.base);

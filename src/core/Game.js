@@ -231,6 +231,7 @@ export class Game {
     this.state.baseShield = 0;
     this.state.abilityCd = {};
     for (const a of ABILITIES) this.state.abilityCd[a.id] = 0;
+    this.state.abilityLockTimer = 0;
     this.state.stats = {
       kills: 0,
       bosses: 0,
@@ -338,6 +339,10 @@ export class Game {
   useAbility(id) {
     const s = this.state;
     if (this.paused || s.gameOver || s.victory) return false;
+    if ((s.abilityLockTimer || 0) > 0) {
+      this.setFlash("Habilidades desactivadas por el jefe");
+      return false;
+    }
     const def = getAbility(id);
     if (!def) return false;
     if ((s.abilityCd[id] || 0) > 0) {

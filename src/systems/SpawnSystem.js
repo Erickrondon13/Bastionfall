@@ -1,5 +1,5 @@
 import { createEnemy } from "../entities/Enemy.js";
-import { applyElite } from "../config/enemies.js";
+import { applyElite, bossTypeFor } from "../config/enemies.js";
 
 export class SpawnSystem {
   update(state, events) {
@@ -9,8 +9,9 @@ export class SpawnSystem {
         state.spawnTimer--;
         if (state.spawnTimer <= 0) {
           const item = state.spawnQueue.shift();
+          const type = item.type === "jefe" ? bossTypeFor(state.oleada) : item.type;
           const hpMult = state.hpMult * ((state.mods && state.mods.enemyHpMult) || 1);
-          const enemy = createEnemy(item.type, state.oleada, state.pathPoints[0], hpMult);
+          const enemy = createEnemy(type, state.oleada, state.pathPoints[0], hpMult);
           const speedMult = (state.mods && state.mods.enemySpeedMult) || 1;
           enemy.speed *= speedMult;
           enemy.baseSpeed = enemy.speed;

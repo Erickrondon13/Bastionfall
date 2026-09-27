@@ -765,16 +765,19 @@ y se marca aquí antes de pasar a la siguiente.
 - [x] **3e — Reliquias (§10):** `src/config/relics.js`; al derrotar un boss se pausa y eliges 1 de 3 reliquias
       que potencian el resto de la run y se acumulan (Núcleo de guerra, Corazón dorado, Fragmento glacial,
       Engranaje veloz, Ojo crítico, Prisma de alcance, Corazón vital, Esencia ardiente). Barra de reliquias en HUD.
+- [x] **3f — Bosses con mecánicas únicas (§8):** 3 bosses con identidad propia en `enemies.js` + `BossSystem.js`:
+      **Coloso** (invoca minions en fases 2/3, furia en fase 3), **Madre Enjambre** (spawnea divisores,
+      deshabilita una torre temporalmente, teletransporta por el camino), **Caminante del Vacío** (se vuelve
+      invisible, teletransporta y desactiva las habilidades del jugador). El boss cíclico se elige con `bossTypeFor`.
 
 ### Pendiente (orden sugerido)
-1. **Bosses con mecánicas únicas (§8):** Colossus / Swarm Mother / Void Walker.
-2. **Eventos durante las oleadas (§9):** Tormenta, Meteor Shower, Eclipse.
-3. **Economía más interesante (§12):** intereses, racha, bonus perfecto.
-4. **Tutorial (§15):** primeros pasos en el mapa 1.
-5. **Guardado de partida a medias (§16):** "Continuar partida".
-6. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
-7. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
-8. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
+1. **Eventos durante las oleadas (§9):** Tormenta, Meteor Shower, Eclipse.
+2. **Economía más interesante (§12):** intereses, racha, bonus perfecto.
+3. **Tutorial (§15):** primeros pasos en el mapa 1.
+4. **Guardado de partida a medias (§16):** "Continuar partida".
+5. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
+6. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
+7. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
 
 > Criterio del documento: priorizar **identidad estratégica de las 4 torres**
 > (ramas, sinergias, estadísticas, habilidades) antes de añadir más torres.
