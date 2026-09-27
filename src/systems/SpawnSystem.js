@@ -30,8 +30,23 @@ export class SpawnSystem {
         state.oleadaActiva = false;
         const goldMult = ((state.mods && state.mods.goldMult) || 1) * ((state.relics && state.relics.goldMult) || 1);
         const bonus = Math.round((20 + state.oleada * 5) * goldMult);
-        state.oro += bonus;
-        events.emit("wave:complete", { wave: state.oleada, bonus });
+        const interest = Math.min(100, Math.floor(state.oro * 0.05));
+        let streak = state.streak || 0;
+        let perfect = false;
+        let perfectBonus = 0;
+        if (state.waveLivesLost === 0) {
+          streak++;
+          perfect = true;
+          perfectBonus = 25 + streak * 10;
+        } else {
+          streak = 0;
+        }
+        state.streak = streak;
+        state.perfectWaves = (state.perfectWaves || 0) + (perfect ? 1 : 0);
+        state.waveLivesLost = 0;
+        const total = bonus + interest + perfectBonus;
+        state.oro += total;
+        events.emit("wave:complete", { wave: state.oleada, bonus, interest, streak, perfect, perfectBonus, total });
         if (state.oleada >= state.totalOleadas) {
           state.victory = true;
           events.emit("game:victory", {});

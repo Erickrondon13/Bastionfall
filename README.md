@@ -139,6 +139,9 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
 - **Eventos durante las oleadas (§9):** desde la oleada 4 hay ~40% de probabilidad de un evento aleatorio:
   **Tormenta** (proyectiles -30% velocidad), **Lluvia de meteoros** (daño aleatorio a enemigos) y
   **Eclipse** (enemigos +25% velocidad). Ver `fases/fase 3 profundida.md` §9.
+- **Economía más interesante (§12):** al completar oleada suma **interés** (+5% del oro restante, tope 100),
+  **racha perfecta** (oleadas sin perder vidas acumulan bonus creciente, se resetea al fallar) y
+  **bonus perfecto** por oleada sin fugas. Ver `fases/fase 3 profundida.md` §12.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

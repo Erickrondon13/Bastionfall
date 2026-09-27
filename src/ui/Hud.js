@@ -10,6 +10,7 @@ export class Hud {
       vida: document.getElementById("hud-vida"),
       oro: document.getElementById("hud-oro"),
       oleada: document.getElementById("hud-oleada"),
+      streak: document.getElementById("hud-streak"),
       enemigos: document.getElementById("hud-enemigos"),
       esencia: document.getElementById("hud-esencia"),
       selName: document.getElementById("hud-sel-name"),
@@ -31,6 +32,7 @@ export class Hud {
     this.el.vida.textContent = s.vida;
     this.el.oro.textContent = s.oro;
     this.el.oleada.textContent = `${s.oleada} / ${Number.isFinite(s.totalOleadas) ? s.totalOleadas : "∞"}`;
+    this.el.streak.textContent = s.streak || 0;
     this.el.enemigos.textContent = s.enemigos.length;
     this.el.esencia.textContent = this.game.progression ? this.game.progression.esencia() : 0;
 

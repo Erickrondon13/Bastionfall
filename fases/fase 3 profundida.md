@@ -772,14 +772,16 @@ y se marca aquí antes de pasar a la siguiente.
 - [x] **3g — Eventos durante las oleadas (§9):** `src/config/events.js` + `src/systems/EventSystem.js`;
       desde la oleada 4 hay ~40% de probabilidad de un evento aleatorio: **Tormenta** (proyectiles -30% velocidad),
       **Lluvia de meteoros** (daño aleatorio a enemigos) y **Eclipse** (enemigos +25% velocidad). Barra de evento en HUD.
+- [x] **3h — Economía más interesante (§12):** al completar oleada se suma **interés** (+5% del oro restante,
+      tope 100), **racha perfecta** (sin perder vidas acumula bonus creciente, se resetea al fallar) y
+      **bonus perfecto** por oleada sin fugas. Indicador de racha en HUD y resumen en el flash de oleada.
 
 ### Pendiente (orden sugerido)
-1. **Economía más interesante (§12):** intereses, racha, bonus perfecto.
-2. **Tutorial (§15):** primeros pasos en el mapa 1.
-3. **Guardado de partida a medias (§16):** "Continuar partida".
-4. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
-5. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
-6. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
+1. **Tutorial (§15):** primeros pasos en el mapa 1.
+2. **Guardado de partida a medias (§16):** "Continuar partida".
+3. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
+4. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
+5. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
 
 > Criterio del documento: priorizar **identidad estratégica de las 4 torres**
 > (ramas, sinergias, estadísticas, habilidades) antes de añadir más torres.

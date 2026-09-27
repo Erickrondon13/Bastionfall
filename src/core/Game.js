@@ -82,6 +82,12 @@ export class Game {
       this.award();
       if (this.onGameOver) this.onGameOver();
     });
+    this.events.on("wave:complete", ({ wave, interest, streak, perfect, perfectBonus, total }) => {
+      let msg = `Oleada ${wave} · +${total} oro (interés +${interest})`;
+      if (streak > 1) msg += ` · 🔥 racha x${streak}`;
+      if (perfect) msg += ` · ❤ perfecto +${perfectBonus}`;
+      this.setFlash(msg);
+    });
     this.events.on("enemy:killed", ({ enemy }) => {
       if (enemy && enemy.boss && !this.state.gameOver && !this.state.victory && !this.pendingRelic) {
         this.offerRelic();
@@ -216,6 +222,10 @@ export class Game {
     this.state.relicIds = [];
     this.state.eventMods = { projSpeedMult: 1, enemySpeedMult: 1 };
     this.state.activeEvent = null;
+    this.state.streak = 0;
+    this.state.waveLivesLost = 0;
+    this.state.totalLivesLost = 0;
+    this.state.perfectWaves = 0;
     this.pendingRelic = false;
     for (const id of this.pendingMods) {
       const m = modifierById(id);
