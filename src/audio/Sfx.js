@@ -30,6 +30,8 @@ export class Sfx {
     this.events.on("enemy:killed", () => this.blip(440, 0.05, "square", 0.05));
     this.events.on("wave:complete", () => this.arpeggio([523, 659], 0.08));
     this.events.on("base:hit", () => this.blip(150, 0.14, "sawtooth", 0.08));
+    this.events.on("boss:spawn", () => this.arpeggio([196, 146, 110], 0.18));
+    this.events.on("boss:phase", () => this.arpeggio([330, 440, 550], 0.1));
     this.events.on("game:victory", () => this.arpeggio([523, 659, 784, 1046], 0.12));
     this.events.on("game:over", () => this.arpeggio([330, 247, 196], 0.16));
   }

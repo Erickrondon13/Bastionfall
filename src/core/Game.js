@@ -4,6 +4,7 @@ import { SpawnSystem } from "../systems/SpawnSystem.js";
 import { MovementSystem } from "../systems/MovementSystem.js";
 import { CombatSystem } from "../systems/CombatSystem.js";
 import { EconomySystem } from "../systems/EconomySystem.js";
+import { BossSystem } from "../systems/BossSystem.js";
 import { buildWave, TOTAL_WAVES } from "../config/waves.js";
 import { towerStats, TOWER_TYPES } from "../config/towers.js";
 import { createTower, upgradeTower, towerUpgradeCost } from "../entities/Tower.js";
@@ -19,6 +20,7 @@ export class Game {
     this.systems = [
       new SpawnSystem(),
       new MovementSystem(),
+      new BossSystem(),
       new CombatSystem(),
       new EconomySystem(),
     ];

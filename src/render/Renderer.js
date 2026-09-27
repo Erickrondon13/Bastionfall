@@ -21,7 +21,29 @@ export class Renderer {
     this.drawHover(state, tile);
     this.drawEnemies(state);
     this.drawProjectiles(state);
+    this.drawBossBar(state, W);
     this.drawFlash(state);
+  }
+
+  drawBossBar(state, W) {
+    const boss = state.enemigos.find((e) => e.boss);
+    if (!boss) return;
+    const ctx = this.ctx;
+    const bw = Math.min(W - 40, 480);
+    const x = (W - bw) / 2;
+    const y = 8;
+    const ratio = Math.max(0, boss.hp / boss.maxHp);
+    ctx.fillStyle = "rgba(0,0,0,.55)";
+    ctx.fillRect(x - 2, y - 2, bw + 4, 16);
+    ctx.fillStyle = "#3a0d22";
+    ctx.fillRect(x, y, bw, 12);
+    ctx.fillStyle = boss.shieldTimer > 0 ? "#ff9e00" : "#ff006e";
+    ctx.fillRect(x, y, bw * ratio, 12);
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 11px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`JEFE — fase ${boss.phase}${boss.shieldTimer > 0 ? " (escudo)" : ""}`, W / 2, y + 6);
   }
 
   drawTerrain(state, W, H, tile) {

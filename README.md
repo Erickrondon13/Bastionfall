@@ -70,10 +70,13 @@ El bucle de simulación y la persistencia usan patrones de resiliencia
 
 - 🗺️ **Mapas como datos** (`src/config/maps.js`): "Llanura Asediada" y "Garganta del Cañón".
 - 👾 **Enemigos**: básico, rápido, tanque, volador (vuela en línea recta), blindado
-  (armadura), divisor (se parte al morir) y un **jefe** en la oleada 10.
+  (armadura), divisor (se parte al morir) y un **jefe** con fases, escudo y esbirros
+  en la oleada final de cada nivel.
 - 🌊 **Oleadas** con dificultad progresiva y compositor (`src/config/waves.js`).
 - 🏹 **4 torres**, cada una con 3 niveles de mejora (rango/daño/cadencia).
 - 💥 **Proyectiles** con daño directo, área (splash), ralentización y quemadura (DoT).
+- 👹 **Jefe (Fase 9)**: barra de vida propia, 3 fases según PV, escudo temporal y
+  invoca esbirros; suena una alerta al aparecer y al cambiar de fase.
 - ❤️ Vidas, economía y HUD en tiempo real.
 - 🧩 **Bus de eventos** (`EventBus`) para desacoplar sistemas de UI/audio.
 
@@ -96,6 +99,5 @@ solo lee el estado. Ver `docs/ARCHITECTURE.md` para el diseño completo.
 ## Roadmap (`docs/FASES.md`)
 
 Implementado hasta la **Fase 10** (audio) más guardado (`localStorage`, Fase 12) y
-resiliencia. Próximas: jefes adicionales (Fase 9), menús completos (Fase 11),
-balance (Fase 13), arte (Fase 14), optimización (Fase 15), móvil (Fase 16) y pulido
-(Fase 17).
+resiliencia. Próximas: menús completos (Fase 11), balance (Fase 13), arte (Fase 14),
+optimización (Fase 15), móvil (Fase 16) y pulido (Fase 17).
