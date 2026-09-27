@@ -181,6 +181,8 @@
   .branch-label { color: var(--muted); font-size: 13px; align-self: center; }
   .branch-btn { background: var(--panel); border: 2px solid var(--accent); border-radius: 10px; padding: 8px 14px; color: var(--text); cursor: pointer; }
   .branch-btn:hover { transform: translateY(-2px); }
+  #synergy-bar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 760px; width: 100%; min-height: 0; }
+  .syn-chip { background: rgba(255,209,102,.15); border: 1px solid var(--gold); color: var(--gold); border-radius: 8px; padding: 4px 10px; font-size: 12px; }
   #overlay button {
     margin-top: 8px; background: var(--accent); color: #08121a; border: none;
     padding: 10px 22px; border-radius: 8px; font-weight: 700; cursor: pointer;
@@ -238,6 +240,7 @@
   <div id="abilities"></div>
   <div id="tower-stats">—</div>
   <div id="tower-branch"></div>
+  <div id="synergy-bar"></div>
 
   <div id="hint">
     Click en terreno libre para construir. Click en una torre para seleccionarla y

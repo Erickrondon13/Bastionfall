@@ -7,6 +7,7 @@ import { EconomySystem } from "../systems/EconomySystem.js";
 import { BossSystem } from "../systems/BossSystem.js";
 import { EnemySystem } from "../systems/EnemySystem.js";
 import { AbilitySystem } from "../systems/AbilitySystem.js";
+import { SynergySystem } from "../systems/SynergySystem.js";
 import { buildWave, TOTAL_WAVES } from "../config/waves.js";
 import { MODES, getMode } from "../config/modes.js";
 import { generateCavern, tierLabel } from "../config/mapgen.js";
@@ -35,6 +36,7 @@ export class Game {
       new MovementSystem(),
       new BossSystem(),
       new EnemySystem(),
+      new SynergySystem(),
       new CombatSystem(),
       new EconomySystem(),
       new AbilitySystem(),
@@ -408,6 +410,12 @@ export class Game {
     }
 
     if (this.state.oro > this.state.stats.maxOro) this.state.stats.maxOro = this.state.oro;
+
+    const syn = this.state.activeSynergies || [];
+    if (syn.length && JSON.stringify(syn) !== JSON.stringify(this._lastSynergies)) {
+      this.setFlash("Sinergia: " + syn.join(", "));
+    }
+    this._lastSynergies = syn;
 
     if (this._pendingCavernAdvance && this.cavern) {
       this._pendingCavernAdvance = false;

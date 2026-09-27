@@ -740,24 +740,50 @@ evitar código frágil). Archivos nuevos/modificados:
 - `Renderer`/`art`/`Effects`: daño flotante, rango, escudo base, indicadores de élite/escudo, feedback de habilidades.
 - `Hud`/`Overlay`/`index.html`/`main.js`: barra de habilidades, panel de stats/DPS, stats de partida y logros.
 
-**Pendiente del documento (no implementado aún):** sinergias entre torres,
-modificadores de partida roguelite, reliquias, eventos meteor/shield durante
-oleadas, bosses con mecánicas únicas, tutoriales, guardado de partida a medias,
-música por ambiente, y campaña de mundos 1-2-3. Cada uno puede ser una fase
-independiente.
+## Checklist de implementación (Fase 3)
 
-### Árbol de mejoras A/B (implementado como Fase 3b)
+Estado vivo del documento. Cada ítem es una fase independiente que se implementa
+y se marca aquí antes de pasar a la siguiente.
 
-Cada torre ahora tiene una **rama de especialización** a elegir tras el primer
-nivel, siguiendo la recomendación del documento ("4 torres que generen 20
-estrategias" en vez de más torres):
+### Hecho
+- [x] **3a — Gameplay profundo (§2/§17/§18):** estadísticas de torres visibles
+      (daño/velocidad/alcance/crítico/DPS), daño flotante, críticos ×1.8, rango visible.
+- [x] **3a — Habilidades activas (§3):** Rayo, Meteorito, Congelación, Bono de oro,
+      Escudo de bastión, con cooldown y teclas `F/G/H/B/N`.
+- [x] **3a — Enemigos avanzados (§4):** regenerativo, invisible, curador, invocador.
+- [x] **3a — Élites (§5):** afijos aleatorios (Resistente, Rápido, Escudo, Brutal).
+- [x] **3a — Logros (§13) y estadísticas de partida (§14):** overlay con stats + logros.
+- [x] **3a — Endless mejorado (§7):** jefe cada 10 oleadas + leaderboard local.
+- [x] **3b — Árbol de mejoras A/B (§2):** rama de especialización por torre (`Q`/`E`).
+- [x] **3c — Sinergias entre torres (§11):** `src/config/synergies.js` + `src/systems/SynergySystem.js`;
+      combinar tipos activa bonificaciones (Hielo+Fuego = "Choque térmico", Arco+Cañón = "Artillería
+      coordinada", Hielo+Arco = "Puntería helada", Cañón+Fuego = "Lluvia de fuego"); barra de sinergias en HUD.
+
+### Pendiente (orden sugerido)
+ 1. **Modificadores de partida roguelite (§6):** antes de empezar, elige
+   +dificultad/+recompensa (HP+, oro+, velocidad torres+, etc.).
+ 2. **Reliquias (§10):** tras vencer un boss, eliges una mejora permanente de la run.
+ 3. **Bosses con mecánicas únicas (§8):** Colossus / Swarm Mother / Void Walker.
+ 4. **Eventos durante las oleadas (§9):** Tormenta, Meteor Shower, Eclipse.
+ 5. **Economía más interesante (§12):** intereses, racha, bonus perfecto.
+ 6. **Tutorial (§15):** primeros pasos en el mapa 1.
+ 7. **Guardado de partida a medias (§16):** "Continuar partida".
+ 8. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
+ 9. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
+ 10. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
+
+> Criterio del documento: priorizar **identidad estratégica de las 4 torres**
+> (ramas, sinergias, estadísticas, habilidades) antes de añadir más torres.
+
+### Árbol de mejoras A/B (Fase 3b — detalle)
+
+Cada torre tiene una **rama de especialización** a elegir tras el nivel 1:
 
 - **Arco**: `A` Francotirador (alcance + crítico) · `B` Tirador rápido (cadencia).
 - **Cañón**: `A` Artillería (área masiva) · `B` Demoledor (daño directo).
 - **Hielo**: `A` Criostasis (ralentización extrema) · `B` Tormenta (rango + velocidad).
 - **Fuego**: `A` Piroclasto (quemadura intensa) · `B` Incendiario (proyectil rápido).
 
-Flujo: subir a nivel 1 (común) → elegir rama (`Q`/`E` o botones en pantalla) →
-subir a nivel 2 y 3 de la rama. El panel de estadísticas muestra la rama activa.
+Flujo: nivel 1 (común) → elegir rama (`Q`/`E` o botones) → nivel 2 y 3 de la rama.
 Archivos: `src/config/towers.js` (branches), `src/entities/Tower.js` (applyStats /
 chooseBranch), `Game.chooseBranch`, `Hud.updateBranch`, teclas `Q`/`E` en `Input`.

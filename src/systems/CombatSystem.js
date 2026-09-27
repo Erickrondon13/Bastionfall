@@ -1,4 +1,9 @@
 import { createProjectile } from "../entities/Projectile.js";
+import { blankMods } from "../config/synergies.js";
+
+function synMods(state, key) {
+  return (state.synergyMods && state.synergyMods[key]) || blankMods()[key] || { dmgMult: 1, splashMult: 1, slowMult: 1, critAdd: 0 };
+}
 
 function dist(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y);
@@ -62,7 +67,7 @@ function dealDamage(state, e, p) {
   }
   e.hp -= eff;
   state.stats.dmgDealt += eff;
-  if (p.slow > 0) e.slowTimer = Math.max(e.slowTimer, e.slowResist ? 45 : 90);
+  if (p.slow > 0) e.slowTimer = Math.max(e.slowTimer, e.slowResist ? Math.round(p.slowDur / 2) : p.slowDur);
   if (p.burn > 0) {
     e.burnTimer = p.burnTime;
     e.burnDamage = p.burn;
@@ -85,7 +90,7 @@ export class CombatSystem {
         if (target) {
           t.cool = t.cooldown;
           t.angle = Math.atan2(target.y - t.y, target.x - t.x);
-          state.proyectiles.push(this.acquire(t, target));
+          state.proyectiles.push(this.acquire(state, t, target));
         }
       }
     }
@@ -112,23 +117,29 @@ export class CombatSystem {
     }
   }
 
-  acquire(tower, target) {
+  acquire(state, tower, target) {
+    const m = synMods(state, tower.key);
+    const dmgMult = m.dmgMult || 1;
+    const splashMult = m.splashMult || 1;
+    const slowMult = m.slowMult || 1;
+    const critAdd = m.critAdd || 0;
     const p = this.pool.pop();
     if (p) {
       p.x = tower.x;
       p.y = tower.y;
       p.target = target;
       p.speed = tower.projSpeed;
-      p.damage = tower.damage;
-      p.splash = tower.splash;
+      p.damage = tower.damage * dmgMult;
+      p.splash = tower.splash * splashMult;
       p.slow = tower.slow;
+      p.slowDur = (tower.slow > 0 ? 90 : 0) * slowMult;
       p.burn = tower.burn;
       p.burnTime = tower.burnTime;
-      p.crit = tower.crit;
+      p.crit = Math.min(1, (tower.crit || 0) + critAdd);
       p.color = tower.proj;
       p.dead = false;
       return p;
     }
-    return createProjectile(tower, target);
+    return createProjectile(tower, target, { dmgMult, splashMult, slowMult, critAdd });
   }
 }

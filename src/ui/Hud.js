@@ -14,6 +14,7 @@ export class Hud {
       selInfo: document.getElementById("hud-sel-info"),
       towerStats: document.getElementById("tower-stats"),
       towerBranch: document.getElementById("tower-branch"),
+      synergyBar: document.getElementById("synergy-bar"),
     };
     this.buttons = [...document.querySelectorAll(".tower-btn")];
     this.abilities = [...document.querySelectorAll(".ability-btn")];
@@ -57,6 +58,7 @@ export class Hud {
     this.updateAbilityBar(s);
     this.updateTowerStats(s);
     this.updateBranch(s);
+    this.updateSynergies(s);
   }
 
   updateAbilityBar(s) {
@@ -112,5 +114,10 @@ export class Hud {
         btn.addEventListener("click", () => this.game.chooseBranch(btn.dataset.branch));
       });
     }
+  }
+
+  updateSynergies(s) {
+    const active = s.activeSynergies || [];
+    this.el.synergyBar.innerHTML = active.map((n) => `<span class="syn-chip">⚡ ${n}</span>`).join("");
   }
 }

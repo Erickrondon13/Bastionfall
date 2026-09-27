@@ -117,7 +117,13 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
 - **Árbol de mejoras A/B por torre**: tras el nivel 1 eliges una rama de
   especialización (p. ej. Arco → Francotirador/Tirador rápido; Cañón →
   Artillería/Demoledor; Hielo → Criostasis/Tormenta; Fuego → Piroclasto/Incendiario)
-  con teclas `Q`/`E` o botones en pantalla. Ver `fases/fase 3 profundida.md`.
+   con teclas `Q`/`E` o botones en pantalla. Ver `fases/fase 3 profundida.md`.
+- **Sinergias entre torres**: al tener ciertos tipos de torre a la vez se activa una
+  bonificación global (barra de sinergias en el HUD, aviso al activarse). Pares: Hielo+Fuego
+  = "Choque térmico" (+30% daño de fuego, +20% lentitud de hielo); Arco+Cañón = "Artillería
+  coordinada" (+15% daño de arco y cañón); Hielo+Arco = "Puntería helada" (+25% crítico de
+  arco); Cañón+Fuego = "Lluvia de fuego" (+15% daño de cañón). Ver `fases/fase 3 profundida.md` §11.
+
 
 ## Cavernas aleatorias y llaves (Fase 2)
 
