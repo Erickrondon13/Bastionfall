@@ -1,3 +1,5 @@
+import { BALANCE } from "./balance.js";
+
 export const TOTAL_WAVES = 10;
 
 const UNLOCKS = {
@@ -18,7 +20,7 @@ function poolFor(n) {
 
 export function buildWave(n, totalWaves = TOTAL_WAVES) {
   const pool = poolFor(n);
-  const count = 6 + n * 2;
+  const count = BALANCE.waveEnemyBase + n * BALANCE.waveEnemyPerWave;
   const queue = [];
 
   for (let i = 0; i < count; i++) {

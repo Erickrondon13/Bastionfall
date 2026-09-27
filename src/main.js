@@ -8,12 +8,14 @@ import { Progression } from "./core/Progression.js";
 import { TechMenu } from "./ui/TechMenu.js";
 import { LevelSelect } from "./ui/LevelSelect.js";
 import { Sfx } from "./audio/Sfx.js";
+import { Effects } from "./render/Effects.js";
 
 const canvas = document.getElementById("game");
 const progression = new Progression();
 const game = new Game(canvas, progression);
 
-const renderer = new Renderer(canvas);
+const effects = new Effects(game.events);
+const renderer = new Renderer(canvas, effects);
 const hud = new Hud(game);
 const overlay = new Overlay(game);
 const input = new Input(game, canvas);
@@ -71,6 +73,7 @@ document.getElementById("tb-pause").addEventListener("click", () => game.toggleP
 const loop = new GameLoop(
   (dt) => {
     game.update(dt);
+    effects.update();
     overlay.el.style.display = game.state.gameOver || game.state.victory ? "flex" : "none";
   },
   () => {

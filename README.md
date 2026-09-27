@@ -51,6 +51,17 @@ Luego abre `http://localhost:8000`.
 - **Object pooling** de proyectiles en `CombatSystem` para reducir asignaciones y
   presión de GC durante oleadas grandes.
 
+## Balance (Fase 13)
+
+Los números de dificultad están centralizados en `src/config/balance.js` (escalado de
+PV por oleada, tamaño de oleada, retraso de spawn, etc.) para ajustar la curva sin
+tocar la lógica.
+
+## Pulido (Fase 17)
+
+- **Partículas** al matar enemigos y **screen‑shake** al golpear la base o cambiar de
+  fase del jefe, ambos vía el bus de eventos.
+
 ## Progresión persistente
 
 Al terminar cada partida (victoria o derrota) ganas **esencia** según las oleadas
@@ -120,6 +131,7 @@ solo lee el estado. Ver `docs/ARCHITECTURE.md` para el diseño completo.
 
 ## Roadmap (`docs/FASES.md`)
 
-Implementado hasta la **Fase 16** (móvil) más guardado (`localStorage`, Fase 12),
-resiliencia y optimización (Fase 15). Próximas: balance (Fase 13), arte (Fase 14) y
-pulido (Fase 17).
+Implementado hasta la **Fase 17** (pulido). De `docs/FASES.md` solo restan: arte
+(Fase 14, requiere assets/sprites) y ajustes finos de balance/QA. El juego es
+plenamente jugable en escritorio y móvil, con campaña, progresión, jefes, audio y
+resiliencia.

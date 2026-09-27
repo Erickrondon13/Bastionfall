@@ -1,3 +1,5 @@
+import { BALANCE } from "./balance.js";
+
 export const ENEMY_TYPES = {
   basico: {
     key: "basico",
@@ -86,4 +88,4 @@ export const ENEMY_TYPES = {
   },
 };
 
-export const MAX_HP_SCALE = 0.18;
+export const MAX_HP_SCALE = BALANCE.enemyHpScalePerWave;

@@ -1,9 +1,10 @@
 import { TOWER_TYPES, towerStats } from "../config/towers.js";
 
 export class Renderer {
-  constructor(canvas) {
+  constructor(canvas, effects) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
+    this.effects = effects || null;
   }
 
   draw(state) {
@@ -12,7 +13,10 @@ export class Renderer {
     const W = map.cols * tile;
     const H = map.rows * tile;
 
+    const shake = this.effects ? this.effects.shakeOffset() : { x: 0, y: 0 };
     ctx.clearRect(0, 0, W, H);
+    ctx.save();
+    ctx.translate(shake.x, shake.y);
 
     this.drawTerrain(state, W, H, tile);
     this.drawPath(state);
@@ -22,6 +26,9 @@ export class Renderer {
     this.drawEnemies(state);
     this.drawProjectiles(state);
     this.drawBossBar(state, W);
+    if (this.effects) this.effects.draw(ctx);
+    ctx.restore();
+
     this.drawFlash(state);
   }
 
