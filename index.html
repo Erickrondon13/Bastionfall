@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Oleada Defensa — Prototipo</title>
+<style>
+  :root {
+    --bg: #11151c;
+    --panel: #1b2230;
+    --accent: #4cc9f0;
+    --text: #e6edf3;
+    --muted: #8b98a9;
+    --danger: #ef476f;
+    --gold: #ffd166;
+    --ok: #06d6a0;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    height: 100%;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+  }
+  h1 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: 1px;
+  }
+  h1 small { color: var(--muted); font-weight: 400; font-size: 13px; }
+  #hud {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: var(--panel);
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+  #hud b { color: var(--accent); }
+  .stat-vida { color: var(--danger); }
+  .stat-oro { color: var(--gold); }
+  .stat-oleada { color: var(--ok); }
+  #wrap {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,.5);
+  }
+  canvas { display: block; background: #0d1117; cursor: crosshair; }
+  #toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .tower-btn {
+    background: var(--panel);
+    border: 2px solid transparent;
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: var(--text);
+    cursor: pointer;
+    min-width: 130px;
+    text-align: left;
+    transition: border-color .15s, transform .1s;
+  }
+  .tower-btn:hover { transform: translateY(-2px); }
+  .tower-btn.active { border-color: var(--accent); }
+  .tower-btn .name { font-weight: 700; }
+  .tower-btn .cost { color: var(--gold); font-size: 12px; }
+  .tower-btn .desc { color: var(--muted); font-size: 11px; }
+  #hint {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    max-width: 760px;
+  }
+  kbd {
+    background: #2a3342;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 12px;
+    border: 1px solid #3a4658;
+  }
+  #overlay {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: rgba(8,11,16,.82);
+    text-align: center;
+    gap: 10px;
+  }
+  #overlay h2 { margin: 0; font-size: 34px; }
+  #overlay p { margin: 0; color: var(--muted); }
+  #overlay button {
+    margin-top: 8px;
+    background: var(--accent);
+    color: #08121a;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>Oleada Defensa <small>prototipo jugable</small></h1>
+
+  <div id="hud">
+    <span>Vida <b class="stat-vida" id="hud-vida">20</b></span>
+    <span>Oro <b class="stat-oro" id="hud-oro">120</b></span>
+    <span>Oleada <b class="stat-oleada" id="hud-oleada">0 / 0</b></span>
+    <span>Enemigos <b id="hud-enemigos">0</b></span>
+  </div>
+
+  <div id="wrap">
+    <canvas id="game" width="760" height="520"></canvas>
+    <div id="overlay">
+      <h2 id="overlay-title">Victoria</h2>
+      <p id="overlay-text"></p>
+      <button id="overlay-btn">Reiniciar (R)</button>
+    </div>
+  </div>
+
+  <div id="toolbar">
+    <button class="tower-btn" data-tower="0">
+      <div class="name">1 · Arco <span class="cost">$50</span></div>
+      <div class="desc">Rápido, bajo daño, buen rango</div>
+    </button>
+    <button class="tower-btn" data-tower="1">
+      <div class="name">2 · Cañón <span class="cost">$100</span></div>
+      <div class="desc">Lento, alto daño, área</div>
+    </button>
+    <button class="tower-btn" data-tower="2">
+      <div class="name">3 · Hielo <span class="cost">$75</span></div>
+      <div class="desc">Ralentiza a los enemigos</div>
+    </button>
+  </div>
+
+  <div id="hint">
+    Coloca torres con click en el terreno. <kbd>1</kbd> Arco · <kbd>2</kbd> Cañón · <kbd>3</kbd> Hielo ·
+    <kbd>Espacio</kbd> siguiente oleada · <kbd>R</kbd> reiniciar.
+  </div>
+
+<script>
+(() => {
+  "use strict";
+
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+
+  const COLS = 19;
+  const ROWS = 13;
+  const TILE = 40;
+  const W = COLS * TILE;
+  const H = ROWS * TILE;
+
+  // ---- Configuración de torres ----
+  const TOWER_TYPES = [
+    { key: "arco",  name: "Arco",  cost: 50,  range: 130, damage: 8,  cooldown: 28,  color: "#4cc9f0", proj: "#9be7ff", splash: 0,   slow: 0,   projSpeed: 7 },
+    { key: "cañon", name: "Cañón", cost: 100, range: 110, damage: 34, cooldown: 90,  color: "#ef476f", proj: "#ff8fa3", splash: 45,  slow: 0,   projSpeed: 5 },
+    { key: "hielo", name: "Hielo", cost: 75,  range: 115, damage: 4,  cooldown: 45,  color: "#a0c4ff", proj: "#dbeaff", splash: 0,   slow: 0.5, projSpeed: 6 },
+  ];
+
+  // ---- Tipos de enemigos ----
+  const ENEMY_TYPES = {
+    basico: { hp: 40,  speed: 1.1, reward: 12, color: "#ffd166", radius: 11, name: "Básico" },
+    rapido: { hp: 22,  speed: 2.1, reward: 14, color: "#06d6a0", radius: 9,  name: "Rápido" },
+    tanque: { hp: 140, speed: 0.6, reward: 30, color: "#b5179e", radius: 15, name: "Tanque" },
+  };
+
+  // ---- Ruta (en coordenadas de celda) ----
+  const PATH_CELLS = [
+    [0,2],[1,2],[2,2],[2,3],[2,4],[2,5],[3,5],[4,5],[5,5],[5,6],
+    [5,7],[5,8],[5,9],[6,9],[7,9],[8,9],[8,8],[8,7],[8,6],[8,5],
+    [9,5],[10,5],[11,5],[11,6],[11,7],[11,8],[11,9],[11,10],[11,11],[12,11],
+    [13,11],[14,11],[15,11],[16,11],[17,11],[18,11],
+  ];
+  const pathPoints = PATH_CELLS.map(([c, r]) => ({ x: c * TILE + TILE/2, y: r * TILE + TILE/2 }));
+
+  // Mapa de celdas bloqueadas (ruta + base)
+  const blocked = new Set();
+  PATH_CELLS.forEach(([c, r]) => blocked.add(c + "," + r));
+  const BASE = pathPoints[pathPoints.length - 1];
+
+  // ---- Estado ----
+  let state;
+  function newState() {
+    return {
+      vida: 20,
+      oro: 120,
+      oleada: 0,
+      torres: [],
+      enemigos: [],
+      proyectiles: [],
+      selectedTower: 0,
+      oleadaActiva: false,
+      spawnQueue: [],
+      spawnTimer: 0,
+      gameOver: false,
+      victory: false,
+      totalOleadas: 0,
+    };
+  }
+
+  // ---- Oleadas (dificultad progresiva) ----
+  function buildWave(n) {
+    // Cantidad y mezcla escalan con n
+    const count = 6 + n * 2;
+    const tipos = ["basico"];
+    if (n >= 2) tipos.push("rapido");
+    if (n >= 3) tipos.push("tanque");
+    const q = [];
+    for (let i = 0; i < count; i++) {
+      // Más probabilidad de tipos duros en oleadas altas
+      let pool = tipos.slice();
+      if (n >= 5 && Math.random() < 0.3) pool = ["tanque", "rapido"];
+      q.push(pool[Math.floor(Math.random() * pool.length)]);
+    }
+    return q;
+  }
+
+  function startWave() {
+    if (state.oleadaActiva || state.gameOver || state.victory) return;
+    state.oleada++;
+    state.totalOleadas = state.oleada + 9;
+    state.spawnQueue = buildWave(state.oleada);
+    state.spawnTimer = 0;
+    state.oleadaActiva = true;
+    updateHud();
+  }
+
+  function spawnEnemy(type) {
+    const t = ENEMY_TYPES[type];
+    const hpScale = 1 + (state.oleada - 1) * 0.18;
+    state.enemigos.push({
+      type,
+      x: pathPoints[0].x,
+      y: pathPoints[0].y,
+      hp: t.hp * hpScale,
+      maxHp: t.hp * hpScale,
+      speed: t.speed,
+      baseSpeed: t.speed,
+      reward: t.reward,
+      color: t.color,
+      radius: t.radius,
+      pathIndex: 0,
+      slowTimer: 0,
+    });
+  }
+
+  // ---- Colocación de torres ----
+  function tryPlaceTower(c, r) {
+    const key = c + "," + r;
+    if (blocked.has(key)) return false;
+    if (c < 0 || r < 0 || c >= COLS || r >= ROWS) return false;
+    if (state.torres.some(t => t.c === c && t.r === r)) return false;
+    const def = TOWER_TYPES[state.selectedTower];
+    if (state.oro < def.cost) { flash("Oro insuficiente"); return false; }
+    state.oro -= def.cost;
+    state.torres.push({
+      c, r,
+      x: c * TILE + TILE/2,
+      y: r * TILE + TILE/2,
+      def,
+      cool: 0,
+    });
+    updateHud();
+    return true;
+  }
+
+  let flashMsg = "";
+  let flashTimer = 0;
+  function flash(msg) { flashMsg = msg; flashTimer = 60; }
+
+  // ---- Combate ----
+  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+  function update() {
+    if (state.gameOver || state.victory) return;
+
+    // Spawning
+    if (state.oleadaActiva) {
+      if (state.spawnQueue.length > 0) {
+        state.spawnTimer--;
+        if (state.spawnTimer <= 0) {
+          spawnEnemy(state.spawnQueue.shift());
+          state.spawnTimer = 35;
+        }
+      } else if (state.enemigos.length === 0) {
+        // Oleada completada
+        state.oleadaActiva = false;
+        const bonus = 20 + state.oleada * 5;
+        state.oro += bonus;
+        flash("¡Oleada " + state.oleada + " completa! +" + bonus + " oro");
+        if (state.oleada >= 10) {
+          state.victory = true;
+          showOverlay("Victoria", "Sobreviviste las 10 oleadas. Oro final: " + state.oro);
+        }
+        updateHud();
+      }
+    }
+
+    // Enemigos
+    for (let i = state.enemigos.length - 1; i >= 0; i--) {
+      const e = state.enemigos[i];
+      if (e.slowTimer > 0) { e.slowTimer--; e.speed = e.baseSpeed * 0.45; }
+      else e.speed = e.baseSpeed;
+
+      const target = pathPoints[e.pathIndex + 1];
+      if (!target) {
+        // Llegó a la base
+        state.vida -= 1;
+        state.enemigos.splice(i, 1);
+        updateHud();
+        if (state.vida <= 0) {
+          state.gameOver = true;
+          showOverlay("Derrota", "Tu base cayó en la oleada " + state.oleada + ".");
+        }
+        continue;
+      }
+      const dx = target.x - e.x;
+      const dy = target.y - e.y;
+      const d = Math.hypot(dx, dy);
+      const step = e.speed;
+      if (d <= step) {
+        e.x = target.x; e.y = target.y;
+        e.pathIndex++;
+      } else {
+        e.x += (dx / d) * step;
+        e.y += (dy / d) * step;
+      }
+    }
+
+    // Torres disparan
+    for (const t of state.torres) {
+      if (t.cool > 0) t.cool--;
+      if (t.cool === 0) {
+        let target = null, best = Infinity;
+        for (const e of state.enemigos) {
+          const d = dist(t, e);
+          if (d <= t.def.range && d < best) { best = d; target = e; }
+        }
+        if (target) {
+          t.cool = t.def.cooldown;
+          state.proyectiles.push({
+            x: t.x, y: t.y,
+            target,
+            speed: t.def.projSpeed,
+            damage: t.def.damage,
+            color: t.def.proj,
+            splash: t.def.splash,
+            slow: t.def.slow,
+          });
+        }
+      }
+    }
+
+    // Proyectiles
+    for (let i = state.proyectiles.length - 1; i >= 0; i--) {
+      const p = state.proyectiles[i];
+      if (!p.target || p.target.hp <= 0) { state.proyectiles.splice(i, 1); continue; }
+      const dx = p.target.x - p.x;
+      const dy = p.target.y - p.y;
+      const d = Math.hypot(dx, dy);
+      if (d <= p.speed) {
+        // Impacto
+        if (p.splash > 0) {
+          for (const e of state.enemigos) {
+            if (dist(p.target, e) <= p.splash) damage(e, p.damage);
+          }
+        } else {
+          damage(p.target, p.damage);
+        }
+        if (p.slow > 0) p.target.slowTimer = 90;
+        state.proyectiles.splice(i, 1);
+      } else {
+        p.x += (dx / d) * p.speed;
+        p.y += (dy / d) * p.speed;
+      }
+    }
+
+    // Recolección de muertes
+    for (let i = state.enemigos.length - 1; i >= 0; i--) {
+      if (state.enemigos[i].hp <= 0) {
+        state.oro += state.enemigos[i].reward;
+        state.enemigos.splice(i, 1);
+        updateHud();
+      }
+    }
+
+    if (flashTimer > 0) flashTimer--;
+  }
+
+  function damage(e, dmg) { e.hp -= dmg; }
+
+  // ---- Render ----
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Terreno
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const isPath = blocked.has(c + "," + r);
+        ctx.fillStyle = isPath ? "#2b3140" : ((c + r) % 2 ? "#161c26" : "#1a212d");
+        ctx.fillRect(c * TILE, r * TILE, TILE, TILE);
+      }
+    }
+
+    // Ruta
+    ctx.strokeStyle = "#3a4658";
+    ctx.lineWidth = 22;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+    for (let i = 1; i < pathPoints.length; i++) ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
+    ctx.stroke();
+
+    // Base
+    ctx.fillStyle = "#06d6a0";
+    ctx.beginPath();
+    ctx.arc(BASE.x, BASE.y, 16, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#08121a";
+    ctx.font = "bold 14px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("⌂", BASE.x, BASE.y);
+
+    // Torres
+    for (const t of state.torres) {
+      ctx.fillStyle = t.def.color;
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, 13, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#08121a";
+      ctx.fillText(t.def.name[0], t.x, t.y);
+    }
+
+    // Rango de torre bajo cursor
+    if (hoverCell) {
+      const def = TOWER_TYPES[state.selectedTower];
+      const ok = !blocked.has(hoverCell.c + "," + hoverCell.r) && state.oro >= def.cost;
+      ctx.fillStyle = ok ? "rgba(76,201,240,.12)" : "rgba(239,71,111,.12)";
+      ctx.beginPath();
+      ctx.arc(hoverCell.c * TILE + TILE/2, hoverCell.r * TILE + TILE/2, def.range, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Enemigos
+    for (const e of state.enemigos) {
+      ctx.fillStyle = e.color;
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
+      ctx.fill();
+      // Barra de vida
+      const w = e.radius * 2;
+      ctx.fillStyle = "#000";
+      ctx.fillRect(e.x - w/2, e.y - e.radius - 7, w, 4);
+      ctx.fillStyle = "#06d6a0";
+      ctx.fillRect(e.x - w/2, e.y - e.radius - 7, w * Math.max(0, e.hp / e.maxHp), 4);
+    }
+
+    // Proyectiles
+    for (const p of state.proyectiles) {
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Flash
+    if (flashTimer > 0 && flashMsg) {
+      ctx.fillStyle = "rgba(255,255,255," + (flashTimer / 120) + ")";
+      ctx.font = "bold 16px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(flashMsg, W/2, 26);
+    }
+  }
+
+  // ---- HUD ----
+  const hud = {
+    vida: document.getElementById("hud-vida"),
+    oro: document.getElementById("hud-oro"),
+    oleada: document.getElementById("hud-oleada"),
+    enemigos: document.getElementById("hud-enemigos"),
+  };
+  function updateHud() {
+    hud.vida.textContent = state.vida;
+    hud.oro.textContent = state.oro;
+    hud.oleada.textContent = state.oleada + " / 10";
+    hud.enemigos.textContent = state.enemigos.length;
+    document.querySelectorAll(".tower-btn").forEach(b => {
+      b.classList.toggle("active", +b.dataset.tower === state.selectedTower);
+    });
+  }
+
+  // ---- Overlay ----
+  const overlay = document.getElementById("overlay");
+  function showOverlay(title, text) {
+    document.getElementById("overlay-title").textContent = title;
+    document.getElementById("overlay-text").textContent = text;
+    overlay.style.display = "flex";
+  }
+  function hideOverlay() { overlay.style.display = "none"; }
+
+  // ---- Input ----
+  let hoverCell = null;
+  canvas.addEventListener("mousemove", (ev) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = ev.clientX - rect.left;
+    const y = ev.clientY - rect.top;
+    hoverCell = { c: Math.floor(x / TILE), r: Math.floor(y / TILE) };
+  });
+  canvas.addEventListener("mouseleave", () => hoverCell = null);
+  canvas.addEventListener("click", (ev) => {
+    if (!hoverCell) return;
+    tryPlaceTower(hoverCell.c, hoverCell.r);
+  });
+
+  document.querySelectorAll(".tower-btn").forEach(b => {
+    b.addEventListener("click", () => { state.selectedTower = +b.dataset.tower; updateHud(); });
+  });
+
+  window.addEventListener("keydown", (ev) => {
+    if (ev.code === "Digit1") { state.selectedTower = 0; updateHud(); }
+    else if (ev.code === "Digit2") { state.selectedTower = 1; updateHud(); }
+    else if (ev.code === "Digit3") { state.selectedTower = 2; updateHud(); }
+    else if (ev.code === "Space") { ev.preventDefault(); startWave(); }
+    else if (ev.code === "KeyR") { restart(); }
+  });
+
+  document.getElementById("overlay-btn").addEventListener("click", restart);
+
+  function restart() {
+    hideOverlay();
+    state = newState();
+    updateHud();
+  }
+
+  // ---- Loop ----
+  function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  state = newState();
+  // 10 oleadas objetivo
+  state.totalOleadas = 10;
+  updateHud();
+  loop();
+})();
+</script>
+</body>
+</html>
