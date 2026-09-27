@@ -1,0 +1,10 @@
+{
+  "name": "bastionfall",
+  "version": "0.2.0",
+  "description": "Bastionfall — Tower defense en HTML5 Canvas (sin frameworks).",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "serve": "node server.mjs"
+  }
+}

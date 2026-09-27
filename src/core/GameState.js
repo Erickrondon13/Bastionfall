@@ -1,0 +1,25 @@
+export function createState(map) {
+  return {
+    map,
+    pathPoints: map.pathPoints,
+    blocked: map.blocked,
+    base: map.base,
+    vida: map.startLife,
+    vidaMax: map.startLife,
+    oro: map.startGold,
+    oleada: 0,
+    totalOleadas: 0,
+    torres: [],
+    enemigos: [],
+    proyectiles: [],
+    selectedTower: 0,
+    selectedTowerEntity: null,
+    oleadaActiva: false,
+    spawnQueue: [],
+    spawnTimer: 0,
+    gameOver: false,
+    victory: false,
+    hoverCell: null,
+    flash: { msg: "", timer: 0 },
+  };
+}

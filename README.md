@@ -1,41 +1,62 @@
-# Oleada Defensa — Prototipo
+# Bastionfall — Tower Defense
 
-Juego de defensa de torres (tower defense) en HTML5 Canvas, sin frameworks ni dependencias.
-Este es el **MVP 0**: un prototipo jugable que sirve de base para convertirlo
-progresivamente en un juego más completo siguiendo `docs/FASES.md`.
+Juego de defensa de torres en **HTML5 Canvas**, sin frameworks ni dependencias de build.
+Nació como prototipo monolítico (`index.html`) y ahora usa una arquitectura modular por
+sistemas (estilo ECS ligero) con módulos ES nativos.
 
-## Cómo jugar
+## Cómo ejecutar
 
-Abre `index.html` directamente en el navegador (doble click). No necesita servidor.
+Los módulos ES no cargan con `file://`, así que usa el servidor incluido:
 
-- **Objetivo**: sobrevive 10 oleadas sin que la vida de tu base llegue a 0.
-- Coloca torres haciendo click en el terreno libre.
-- Usa el oro para construir; ganas oro al matar enemigos y al completar oleadas.
+```bash
+npm start          # arranca en http://localhost:8000
+# o bien:
+python3 -m http.server 8000
+```
+
+Luego abre `http://localhost:8000`.
 
 ## Controles
 
 | Tecla / Acción | Función |
 | --- | --- |
-| `1` | Selecciona torre **Arco** ($50) |
-| `2` | Selecciona torre **Cañón** ($100) |
-| `3` | Selecciona torre **Hielo** ($75) |
-| Click | Coloca la torre seleccionada |
+| `1` `2` `3` `4` | Selecciona torre: **Arco**, **Cañón**, **Hielo**, **Fuego** |
+| Click en terreno libre | Construye la torre seleccionada |
+| Click en una torre | La selecciona |
+| `U` | Mejora la torre seleccionada (3 niveles) |
+| `X` | Vende la torre seleccionada (60% del oro invertido) |
 | `Espacio` | Inicia la siguiente oleada |
 | `R` | Reinicia la partida |
 
-## Mecánicas incluidas
+## Mecánicas
 
-- 🗺️ Mapa con ruta fija y base con vida.
-- 👾 Enemigos que siguen la ruta: **básico**, **rápido** y **tanque**.
-- 🌊 Sistema de oleadas con dificultad progresiva (más enemigos y más PV por oleada).
-- 🏰 Base con vida; cada enemigo que llega resta 1.
-- 💰 Economía: oro por bajas + bonus por oleada completada.
-- 🏹 3 torres: Arco (rápido), Cañón (área/impacto), Hielo (ralentiza).
-- 💥 Proyectiles con daño directo y área.
-- ❤️ Vidas, oleadas y HUD en tiempo real.
+- 🗺️ **Mapas como datos** (`src/config/maps.js`): "Llanura Asediada" y "Garganta del Cañón".
+- 👾 **Enemigos**: básico, rápido, tanque, volador (vuela en línea recta), blindado
+  (armadura), divisor (se parte al morir) y un **jefe** en la oleada 10.
+- 🌊 **Oleadas** con dificultad progresiva y compositor (`src/config/waves.js`).
+- 🏹 **4 torres**, cada una con 3 niveles de mejora (rango/daño/cadencia).
+- 💥 **Proyectiles** con daño directo, área (splash), ralentización y quemadura (DoT).
+- ❤️ Vidas, economía y HUD en tiempo real.
+- 🧩 **Bus de eventos** (`EventBus`) para desacoplar sistemas de UI/audio.
 
-## Siguiente paso
+## Arquitectura
 
-Lee `PROMPT_OPENCODE.md` y `docs/FASES.md` para la hoja de ruta de desarrollo
-con OpenCode. La recomendación es: primero gameplay, después arte.
-# Bastionfall.
+```
+src/
+  main.js              # arranque y bucle
+  core/                # Game, Loop, EventBus, GameState
+  config/              # mapas, torres, enemigos, oleadas (datos puros)
+  entities/            # Tower, Enemy, Projectile
+  systems/             # Spawn, Movement, Combat, Economy
+  render/Renderer.js   # dibuja leyendo el estado (sin reglas)
+  ui/                  # Hud, Input, Overlay
+```
+
+Cada sistema es una responsabilidad aislada: `update(state, events)`. El `Renderer`
+solo lee el estado. Ver `docs/ARCHITECTURE.md` para el diseño completo.
+
+## Roadmap (`docs/FASES.md`)
+
+Implementado hasta la **Fase 5** (enemigos avanzados). Próximas: progresión
+persistente, estrellas, campaña, jefes adicionales, audio/efectos, menús, guardado
+(`localStorage`), balance, arte, optimización, móvil y pulido.
