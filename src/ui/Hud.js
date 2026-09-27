@@ -1,5 +1,6 @@
 import { TOWER_TYPES } from "../config/towers.js";
 import { ABILITIES } from "../config/abilities.js";
+import { modifierById } from "../config/modifiers.js";
 
 export class Hud {
   constructor(game) {
@@ -15,6 +16,7 @@ export class Hud {
       towerStats: document.getElementById("tower-stats"),
       towerBranch: document.getElementById("tower-branch"),
       synergyBar: document.getElementById("synergy-bar"),
+      modBar: document.getElementById("mod-bar"),
     };
     this.buttons = [...document.querySelectorAll(".tower-btn")];
     this.abilities = [...document.querySelectorAll(".ability-btn")];
@@ -59,6 +61,7 @@ export class Hud {
     this.updateTowerStats(s);
     this.updateBranch(s);
     this.updateSynergies(s);
+    this.updateMods(s);
   }
 
   updateAbilityBar(s) {
@@ -119,5 +122,20 @@ export class Hud {
   updateSynergies(s) {
     const active = s.activeSynergies || [];
     this.el.synergyBar.innerHTML = active.map((n) => `<span class="syn-chip">⚡ ${n}</span>`).join("");
+  }
+
+  updateMods(s) {
+    const ids = s.activeModIds || [];
+    if (!ids.length) {
+      this.el.modBar.innerHTML = "";
+      return;
+    }
+    this.el.modBar.innerHTML = ids
+      .map((id) => {
+        const m = modifierById(id);
+        if (!m) return "";
+        return `<span class="mod-chip">${m.icon} ${m.name}</span>`;
+      })
+      .join("");
   }
 }

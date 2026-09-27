@@ -23,6 +23,7 @@ export class Renderer {
 
     art.drawTerrain(ctx, W, H, tile, state);
     art.drawPath(ctx, state.pathPoints);
+    this.drawHazards(state);
     art.drawBase(ctx, state.base, time);
     this.drawHover(state, tile);
     for (const t of state.torres) art.drawTower(ctx, t);
@@ -36,6 +37,21 @@ export class Renderer {
     ctx.restore();
 
     this.drawFlash(state);
+  }
+
+  drawHazards(state) {
+    const ctx = this.ctx;
+    for (const h of state.hazards || []) {
+      const a = Math.max(0, Math.min(1, h.timer / 90));
+      ctx.fillStyle = `rgba(255,120,40,${0.18 + 0.22 * a})`;
+      ctx.beginPath();
+      ctx.arc(h.x, h.y, h.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = `rgba(255,200,80,${0.5 * a})`;
+      ctx.beginPath();
+      ctx.arc(h.x, h.y, h.r * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
   drawSelectedRange(state) {

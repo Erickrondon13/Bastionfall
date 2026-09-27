@@ -8,6 +8,8 @@ import { BossSystem } from "../systems/BossSystem.js";
 import { EnemySystem } from "../systems/EnemySystem.js";
 import { AbilitySystem } from "../systems/AbilitySystem.js";
 import { SynergySystem } from "../systems/SynergySystem.js";
+import { HazardSystem } from "../systems/HazardSystem.js";
+import { MODIFIERS, baseMods, modifierById } from "../config/modifiers.js";
 import { buildWave, TOTAL_WAVES } from "../config/waves.js";
 import { MODES, getMode } from "../config/modes.js";
 import { generateCavern, tierLabel } from "../config/mapgen.js";
@@ -40,6 +42,7 @@ export class Game {
       new CombatSystem(),
       new EconomySystem(),
       new AbilitySystem(),
+      new HazardSystem(),
     ];
     this.frameBudgetMs = 12;
     this.awardGuard = new IdempotencyGuard();
@@ -76,8 +79,19 @@ export class Game {
       if (this.onGameOver) this.onGameOver();
     });
     this.mode = MODES[0];
+    this.pendingMods = [];
     this.loadMap("llanura");
     this.paused = true;
+  }
+
+  toggleMod(id) {
+    const i = this.pendingMods.indexOf(id);
+    if (i >= 0) this.pendingMods.splice(i, 1);
+    else this.pendingMods.push(id);
+  }
+
+  isModActive(id) {
+    return this.pendingMods.includes(id);
   }
 
   setMode(modeId) {
@@ -97,7 +111,13 @@ export class Game {
   }
 
   mods() {
-    return this.progression ? this.progression.mods() : { dmg: { arco: 1, cañon: 1, hielo: 1, fuego: 1 }, range: 1 };
+    const base = this.progression
+      ? this.progression.mods()
+      : { dmg: { arco: 1, cañon: 1, hielo: 1, fuego: 1 }, range: 1 };
+    const rm = (this.state && this.state.mods) ? this.state.mods : baseMods();
+    const dmg = {};
+    for (const k of ["arco", "cañon", "hielo", "fuego"]) dmg[k] = (base.dmg[k] || 1) * rm.towerDmgMult;
+    return { dmg, range: base.range * rm.towerRangeMult, cdMult: rm.towerCdMult };
   }
 
   loadMap(id) {
@@ -147,6 +167,13 @@ export class Game {
 
   newGame() {
     this.state = createState(this.map);
+    this.state.mods = baseMods();
+    this.state.activeModIds = [...this.pendingMods];
+    for (const id of this.pendingMods) {
+      const m = modifierById(id);
+      if (m) m.apply(this.state);
+    }
+    this.state.hazards = [];
     this.state.totalOleadas = this.mode && this.mode.endless
       ? Infinity
       : (this.map.waves || (this.stage ? this.stage.waves : TOTAL_WAVES));
@@ -251,6 +278,15 @@ export class Game {
     if (this.paused || s.oleadaActiva || s.gameOver || s.victory) return;
     s.oleada++;
     s.spawnQueue = buildWave(s.oleada, s.totalOleadas);
+    const mult = (s.mods && s.mods.spawnMult) || 1;
+    if (mult > 1) {
+      const out = [];
+      for (const it of s.spawnQueue) {
+        out.push(it);
+        if (it.type !== "jefe" && Math.random() < mult - 1) out.push({ ...it });
+      }
+      s.spawnQueue = out;
+    }
     if (s.endless && s.oleada % 10 === 0) s.spawnQueue.push({ type: "jefe", delay: 40 });
     s.spawnTimer = 0;
     s.oleadaActiva = true;

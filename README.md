@@ -123,6 +123,11 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   = "Choque térmico" (+30% daño de fuego, +20% lentitud de hielo); Arco+Cañón = "Artillería
   coordinada" (+15% daño de arco y cañón); Hielo+Arco = "Puntería helada" (+25% crítico de
   arco); Cañón+Fuego = "Lluvia de fuego" (+15% daño de cañón). Ver `fases/fase 3 profundida.md` §11.
+- **Modificadores roguelite de partida (§6)**: antes de empezar (menú `Modificadores` / tecla `M`)
+  eliges retos que suben la dificultad a cambio de más oro: Furia enemiga (+30% HP), Velocidad
+  letal (+20% vel.), Blindaje extra (+0.1 armadura), Enjambre (+25% enemigos), Filón de oro
+  (+50% oro), Sobrecalentamiento (torres +20% ataque), Rastro de fuego (enemigos dejan fuego
+  que daña a otros), Cristal (torres +40% daño, -15% alcance). Ver `fases/fase 3 profundida.md` §6.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

@@ -758,19 +758,21 @@ y se marca aquí antes de pasar a la siguiente.
 - [x] **3c — Sinergias entre torres (§11):** `src/config/synergies.js` + `src/systems/SynergySystem.js`;
       combinar tipos activa bonificaciones (Hielo+Fuego = "Choque térmico", Arco+Cañón = "Artillería
       coordinada", Hielo+Arco = "Puntería helada", Cañón+Fuego = "Lluvia de fuego"); barra de sinergias en HUD.
+- [x] **3d — Modificadores roguelite de partida (§6):** `src/config/modifiers.js` + `src/systems/HazardSystem.js`;
+      antes de empezar eliges retos (Furia enemiga +HP, Velocidad letal, Blindaje extra, Enjambre +enemigos,
+      Filón de oro +oro, Sobrecalentamiento torres +velocidad, Rastro de fuego, Cristal +daño/-alcance). Panel en el
+      menú (tecla `M`) con resumen de dificultad/recompensa; barra de modificadores en HUD.
 
 ### Pendiente (orden sugerido)
- 1. **Modificadores de partida roguelite (§6):** antes de empezar, elige
-   +dificultad/+recompensa (HP+, oro+, velocidad torres+, etc.).
- 2. **Reliquias (§10):** tras vencer un boss, eliges una mejora permanente de la run.
- 3. **Bosses con mecánicas únicas (§8):** Colossus / Swarm Mother / Void Walker.
- 4. **Eventos durante las oleadas (§9):** Tormenta, Meteor Shower, Eclipse.
- 5. **Economía más interesante (§12):** intereses, racha, bonus perfecto.
- 6. **Tutorial (§15):** primeros pasos en el mapa 1.
- 7. **Guardado de partida a medias (§16):** "Continuar partida".
- 8. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
- 9. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
- 10. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
+1. **Reliquias (§10):** tras vencer un boss, eliges una mejora permanente de la run.
+2. **Bosses con mecánicas únicas (§8):** Colossus / Swarm Mother / Void Walker.
+3. **Eventos durante las oleadas (§9):** Tormenta, Meteor Shower, Eclipse.
+4. **Economía más interesante (§12):** intereses, racha, bonus perfecto.
+5. **Tutorial (§15):** primeros pasos en el mapa 1.
+6. **Guardado de partida a medias (§16):** "Continuar partida".
+7. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
+8. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
+9. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
 
 > Criterio del documento: priorizar **identidad estratégica de las 4 torres**
 > (ramas, sinergias, estadísticas, habilidades) antes de añadir más torres.

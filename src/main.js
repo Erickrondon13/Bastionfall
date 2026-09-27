@@ -10,6 +10,7 @@ import { LevelSelect } from "./ui/LevelSelect.js";
 import { Sfx } from "./audio/Sfx.js";
 import { ABILITIES } from "./config/abilities.js";
 import { Effects } from "./render/Effects.js";
+import { MODIFIERS } from "./config/modifiers.js";
 
 const canvas = document.getElementById("game");
 const progression = new Progression();
@@ -129,6 +130,48 @@ modeBtns.endless.addEventListener("click", () => { game.setMode("endless"); refr
 refreshSound();
 refreshMode();
 setMenu(true);
+
+const modEl = document.getElementById("modifiers");
+const modList = document.getElementById("mod-list");
+const modSummary = document.getElementById("mod-summary");
+function renderMods() {
+  modList.innerHTML = "";
+  let diff = 0;
+  let reward = 0;
+  for (const m of MODIFIERS) {
+    const active = game.isModActive(m.id);
+    if (active) {
+      diff += m.difficulty;
+      reward += m.reward;
+    }
+    const card = document.createElement("div");
+    card.className = "mod-card" + (active ? " active" : "");
+    card.innerHTML =
+      `<span class="mc-name">${m.icon} ${m.name}</span>` +
+      `<span class="mc-desc">${m.desc}</span>` +
+      `<span class="mc-tags">Dificultad: <span class="diff">${"★".repeat(m.difficulty) || "—"}</span> · Recompensa: <span class="rew">+${Math.round(m.reward * 100)}% oro</span></span>`;
+    card.addEventListener("click", () => {
+      game.toggleMod(m.id);
+      renderMods();
+    });
+    modList.appendChild(card);
+  }
+  modSummary.innerHTML = `Seleccionados: <b>${diff}</b> ★ de dificultad · <b>+${Math.round(reward * 100)}%</b> oro extra`;
+}
+function toggleMods(force) {
+  const open = force !== undefined ? force : !modEl.classList.contains("open");
+  modEl.classList.toggle("open", open);
+  if (open) {
+    setMenu(false);
+    renderMods();
+  }
+}
+document.getElementById("menu-mods").addEventListener("click", () => toggleMods(true));
+document.getElementById("modifiers-close").addEventListener("click", () => toggleMods(false));
+input.onToggleMods = () => {
+  if (modEl.classList.contains("open")) toggleMods(false);
+  else toggleMods(true);
+};
 
 document.getElementById("tb-wave").addEventListener("click", () => game.startWave());
 document.getElementById("tb-upgrade").addEventListener("click", () => game.upgradeSelected());
