@@ -3,7 +3,7 @@ import { createSplitEnemy } from "../entities/Enemy.js";
 export class EconomySystem {
   update(state, events) {
     const { enemigos } = state;
-    const goldMult = (state.mods && state.mods.goldMult) || 1;
+    const goldMult = ((state.mods && state.mods.goldMult) || 1) * ((state.relics && state.relics.goldMult) || 1);
     const hpMult = (state.mods && state.mods.enemyHpMult) || 1;
     for (let i = enemigos.length - 1; i >= 0; i--) {
       const e = enemigos[i];

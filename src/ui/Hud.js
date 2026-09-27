@@ -1,6 +1,7 @@
 import { TOWER_TYPES } from "../config/towers.js";
 import { ABILITIES } from "../config/abilities.js";
 import { modifierById } from "../config/modifiers.js";
+import { relicById } from "../config/relics.js";
 
 export class Hud {
   constructor(game) {
@@ -17,6 +18,7 @@ export class Hud {
       towerBranch: document.getElementById("tower-branch"),
       synergyBar: document.getElementById("synergy-bar"),
       modBar: document.getElementById("mod-bar"),
+      relicBar: document.getElementById("relic-bar"),
     };
     this.buttons = [...document.querySelectorAll(".tower-btn")];
     this.abilities = [...document.querySelectorAll(".ability-btn")];
@@ -62,6 +64,7 @@ export class Hud {
     this.updateBranch(s);
     this.updateSynergies(s);
     this.updateMods(s);
+    this.updateRelics(s);
   }
 
   updateAbilityBar(s) {
@@ -135,6 +138,21 @@ export class Hud {
         const m = modifierById(id);
         if (!m) return "";
         return `<span class="mod-chip">${m.icon} ${m.name}</span>`;
+      })
+      .join("");
+  }
+
+  updateRelics(s) {
+    const ids = s.relicIds || [];
+    if (!ids.length) {
+      this.el.relicBar.innerHTML = "";
+      return;
+    }
+    this.el.relicBar.innerHTML = ids
+      .map((id) => {
+        const r = relicById(id);
+        if (!r) return "";
+        return `<span class="relic-chip">${r.icon} ${r.name}</span>`;
       })
       .join("");
   }

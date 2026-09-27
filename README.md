@@ -128,6 +128,10 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   letal (+20% vel.), Blindaje extra (+0.1 armadura), Enjambre (+25% enemigos), Filón de oro
   (+50% oro), Sobrecalentamiento (torres +20% ataque), Rastro de fuego (enemigos dejan fuego
   que daña a otros), Cristal (torres +40% daño, -15% alcance). Ver `fases/fase 3 profundida.md` §6.
+- **Reliquias (§10):** al derrotar un boss se pausa y eliges 1 de 3 reliquias que potencian el resto de
+  la partida y se acumulan: Núcleo de guerra (+daño), Corazón dorado (+oro), Fragmento glacial (+lentitud),
+  Engranaje veloz (+velocidad de ataque), Ojo crítico (+crítico), Prisma de alcance (+alcance), Corazón vital
+  (+vida), Esencia ardiente (+quemadura). Barra de reliquias en HUD. Ver `fases/fase 3 profundida.md` §10.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

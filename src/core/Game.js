@@ -10,6 +10,7 @@ import { AbilitySystem } from "../systems/AbilitySystem.js";
 import { SynergySystem } from "../systems/SynergySystem.js";
 import { HazardSystem } from "../systems/HazardSystem.js";
 import { MODIFIERS, baseMods, modifierById } from "../config/modifiers.js";
+import { relicById, randomRelics } from "../config/relics.js";
 import { buildWave, TOTAL_WAVES } from "../config/waves.js";
 import { MODES, getMode } from "../config/modes.js";
 import { generateCavern, tierLabel } from "../config/mapgen.js";
@@ -78,8 +79,16 @@ export class Game {
       this.award();
       if (this.onGameOver) this.onGameOver();
     });
+    this.events.on("enemy:killed", ({ enemy }) => {
+      if (enemy && enemy.boss && !this.state.gameOver && !this.state.victory && !this.pendingRelic) {
+        this.offerRelic();
+      }
+    });
+
     this.mode = MODES[0];
     this.pendingMods = [];
+    this.pendingRelic = false;
+    this.relicChoices = [];
     this.loadMap("llanura");
     this.paused = true;
   }
@@ -115,9 +124,40 @@ export class Game {
       ? this.progression.mods()
       : { dmg: { arco: 1, cañon: 1, hielo: 1, fuego: 1 }, range: 1 };
     const rm = (this.state && this.state.mods) ? this.state.mods : baseMods();
+    const rel = (this.state && this.state.relics) ? this.state.relics : { dmgMult: 1, rangeMult: 1, cdMult: 1 };
     const dmg = {};
-    for (const k of ["arco", "cañon", "hielo", "fuego"]) dmg[k] = (base.dmg[k] || 1) * rm.towerDmgMult;
-    return { dmg, range: base.range * rm.towerRangeMult, cdMult: rm.towerCdMult };
+    for (const k of ["arco", "cañon", "hielo", "fuego"]) dmg[k] = (base.dmg[k] || 1) * rm.towerDmgMult * rel.dmgMult;
+    return { dmg, range: base.range * rm.towerRangeMult * rel.rangeMult, cdMult: rm.towerCdMult * rel.cdMult };
+  }
+
+  offerRelic() {
+    if (this.pendingRelic) return;
+    this.pendingRelic = true;
+    this.relicChoices = randomRelics(3).map((r) => r.id);
+    this.paused = true;
+    if (this.onRelicOffer) this.onRelicOffer(this.relicChoices);
+  }
+
+  chooseRelic(id) {
+    const r = relicById(id);
+    if (!r || !this.pendingRelic) return;
+    const before = { ...this.state.relics };
+    r.apply(this.state);
+    const dm = this.state.relics.dmgMult / before.dmgMult;
+    const cm = this.state.relics.cdMult / before.cdMult;
+    const rm = this.state.relics.rangeMult / before.rangeMult;
+    const dc = this.state.relics.critAdd - before.critAdd;
+    for (const t of this.state.torres) {
+      t.damage = Math.round(t.damage * dm);
+      t.cooldown = Math.max(1, Math.round(t.cooldown * cm));
+      t.range = Math.round(t.range * rm);
+      t.crit = Math.min(1, (t.crit || 0) + dc);
+    }
+    this.state.relicIds.push(id);
+    this.pendingRelic = false;
+    this.relicChoices = [];
+    this.paused = false;
+    this.setFlash(`Reliquia: ${r.icon} ${r.name}`);
   }
 
   loadMap(id) {
@@ -169,6 +209,9 @@ export class Game {
     this.state = createState(this.map);
     this.state.mods = baseMods();
     this.state.activeModIds = [...this.pendingMods];
+    this.state.relics = { dmgMult: 1, goldMult: 1, slowMult: 1, cdMult: 1, rangeMult: 1, burnMult: 1, critAdd: 0 };
+    this.state.relicIds = [];
+    this.pendingRelic = false;
     for (const id of this.pendingMods) {
       const m = modifierById(id);
       if (m) m.apply(this.state);

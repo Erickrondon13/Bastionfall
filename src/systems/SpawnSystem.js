@@ -27,7 +27,7 @@ export class SpawnSystem {
         }
       } else if (state.enemigos.length === 0) {
         state.oleadaActiva = false;
-        const goldMult = (state.mods && state.mods.goldMult) || 1;
+        const goldMult = ((state.mods && state.mods.goldMult) || 1) * ((state.relics && state.relics.goldMult) || 1);
         const bonus = Math.round((20 + state.oleada * 5) * goldMult);
         state.oro += bonus;
         events.emit("wave:complete", { wave: state.oleada, bonus });

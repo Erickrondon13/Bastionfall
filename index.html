@@ -185,11 +185,27 @@
   .syn-chip { background: rgba(255,209,102,.15); border: 1px solid var(--gold); color: var(--gold); border-radius: 8px; padding: 4px 10px; font-size: 12px; }
   #mod-bar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 760px; width: 100%; min-height: 0; }
   .mod-chip { background: rgba(239,71,111,.15); border: 1px solid var(--danger); color: #ff8aa8; border-radius: 8px; padding: 4px 10px; font-size: 12px; }
+  #relic-bar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 760px; width: 100%; min-height: 0; }
+  .relic-chip { background: rgba(155,93,229,.18); border: 1px solid #9b5de5; color: #d9b8ff; border-radius: 8px; padding: 4px 10px; font-size: 12px; }
   #modifiers {
     position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
     background: rgba(8,11,16,.85); z-index: 10;
   }
   #modifiers.open { display: flex; }
+  #relic {
+    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+    background: rgba(8,11,16,.88); z-index: 30;
+  }
+  #relic.open { display: flex; }
+  .relic-cards { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin: 14px 0; }
+  .relic-card {
+    background: #212a3a; border: 2px solid #9b5de5; border-radius: 12px; padding: 16px 18px;
+    color: var(--text); text-align: center; cursor: pointer; width: 180px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .relic-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(155,93,229,.4); }
+  .relic-card .rc-icon { font-size: 30px; }
+  .relic-card .rc-name { font-weight: 700; font-size: 16px; }
+  .relic-card .rc-desc { color: var(--muted); font-size: 13px; }
   .mod-card {
     background: #212a3a; border: 1px solid #2e3a4d; border-radius: 10px; padding: 10px 14px;
     color: var(--text); text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 3px;
@@ -260,6 +276,7 @@
   <div id="tower-branch"></div>
   <div id="synergy-bar"></div>
   <div id="mod-bar"></div>
+  <div id="relic-bar"></div>
 
   <div id="hint">
     Click en terreno libre para construir. Click en una torre para seleccionarla y
@@ -312,6 +329,14 @@
       <div id="mod-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
       <div id="mod-summary" class="tech-esencia"></div>
       <button class="menu-btn" id="modifiers-close">Cerrar (M)</button>
+    </div>
+  </div>
+
+  <div id="relic">
+    <div class="tech-panel" style="max-width: 640px; text-align: center;">
+      <h2>¡Jefe derrotado! Elige una reliquia</h2>
+      <p class="tech-esencia">La reliquia potencia el resto de la partida (y se acumula).</p>
+      <div id="relic-cards" class="relic-cards"></div>
     </div>
   </div>
 

@@ -762,17 +762,19 @@ y se marca aquí antes de pasar a la siguiente.
       antes de empezar eliges retos (Furia enemiga +HP, Velocidad letal, Blindaje extra, Enjambre +enemigos,
       Filón de oro +oro, Sobrecalentamiento torres +velocidad, Rastro de fuego, Cristal +daño/-alcance). Panel en el
       menú (tecla `M`) con resumen de dificultad/recompensa; barra de modificadores en HUD.
+- [x] **3e — Reliquias (§10):** `src/config/relics.js`; al derrotar un boss se pausa y eliges 1 de 3 reliquias
+      que potencian el resto de la run y se acumulan (Núcleo de guerra, Corazón dorado, Fragmento glacial,
+      Engranaje veloz, Ojo crítico, Prisma de alcance, Corazón vital, Esencia ardiente). Barra de reliquias en HUD.
 
 ### Pendiente (orden sugerido)
-1. **Reliquias (§10):** tras vencer un boss, eliges una mejora permanente de la run.
-2. **Bosses con mecánicas únicas (§8):** Colossus / Swarm Mother / Void Walker.
-3. **Eventos durante las oleadas (§9):** Tormenta, Meteor Shower, Eclipse.
-4. **Economía más interesante (§12):** intereses, racha, bonus perfecto.
-5. **Tutorial (§15):** primeros pasos en el mapa 1.
-6. **Guardado de partida a medias (§16):** "Continuar partida".
-7. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
-8. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
-9. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
+1. **Bosses con mecánicas únicas (§8):** Colossus / Swarm Mother / Void Walker.
+2. **Eventos durante las oleadas (§9):** Tormenta, Meteor Shower, Eclipse.
+3. **Economía más interesante (§12):** intereses, racha, bonus perfecto.
+4. **Tutorial (§15):** primeros pasos en el mapa 1.
+5. **Guardado de partida a medias (§16):** "Continuar partida".
+6. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
+7. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
+8. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
 
 > Criterio del documento: priorizar **identidad estratégica de las 4 torres**
 > (ramas, sinergias, estadísticas, habilidades) antes de añadir más torres.

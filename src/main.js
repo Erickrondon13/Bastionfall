@@ -11,6 +11,7 @@ import { Sfx } from "./audio/Sfx.js";
 import { ABILITIES } from "./config/abilities.js";
 import { Effects } from "./render/Effects.js";
 import { MODIFIERS } from "./config/modifiers.js";
+import { RELICS, relicById } from "./config/relics.js";
 
 const canvas = document.getElementById("game");
 const progression = new Progression();
@@ -171,6 +172,25 @@ document.getElementById("modifiers-close").addEventListener("click", () => toggl
 input.onToggleMods = () => {
   if (modEl.classList.contains("open")) toggleMods(false);
   else toggleMods(true);
+};
+
+const relicEl = document.getElementById("relic");
+const relicCards = document.getElementById("relic-cards");
+game.onRelicOffer = (ids) => {
+  relicCards.innerHTML = "";
+  for (const id of ids) {
+    const r = relicById(id);
+    if (!r) continue;
+    const card = document.createElement("div");
+    card.className = "relic-card";
+    card.innerHTML = `<div class="rc-icon">${r.icon}</div><div class="rc-name">${r.name}</div><div class="rc-desc">${r.desc}</div>`;
+    card.addEventListener("click", () => {
+      relicEl.classList.remove("open");
+      game.chooseRelic(id);
+    });
+    relicCards.appendChild(card);
+  }
+  relicEl.classList.add("open");
 };
 
 document.getElementById("tb-wave").addEventListener("click", () => game.startWave());

@@ -123,6 +123,8 @@ export class CombatSystem {
     const splashMult = m.splashMult || 1;
     const slowMult = m.slowMult || 1;
     const critAdd = m.critAdd || 0;
+    const relicSlow = (state.relics && state.relics.slowMult) || 1;
+    const relicBurn = (state.relics && state.relics.burnMult) || 1;
     const p = this.pool.pop();
     if (p) {
       p.x = tower.x;
@@ -132,8 +134,8 @@ export class CombatSystem {
       p.damage = tower.damage * dmgMult;
       p.splash = tower.splash * splashMult;
       p.slow = tower.slow;
-      p.slowDur = (tower.slow > 0 ? 90 : 0) * slowMult;
-      p.burn = tower.burn;
+      p.slowDur = (tower.slow > 0 ? 90 : 0) * slowMult * relicSlow;
+      p.burn = tower.burn * relicBurn;
       p.burnTime = tower.burnTime;
       p.crit = Math.min(1, (tower.crit || 0) + critAdd);
       p.color = tower.proj;
