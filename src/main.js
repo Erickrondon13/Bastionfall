@@ -4,15 +4,20 @@ import { Renderer } from "./render/Renderer.js";
 import { Hud } from "./ui/Hud.js";
 import { Input } from "./ui/Input.js";
 import { Overlay } from "./ui/Overlay.js";
+import { Progression } from "./core/Progression.js";
+import { TechMenu } from "./ui/TechMenu.js";
 
 const canvas = document.getElementById("game");
-const game = new Game(canvas);
+const progression = new Progression();
+const game = new Game(canvas, progression);
 
 const renderer = new Renderer(canvas);
 const hud = new Hud(game);
 const overlay = new Overlay(game);
 const input = new Input(game, canvas);
+const techMenu = new TechMenu(progression);
 
+input.onToggleTech = () => techMenu.toggle();
 game.onRestart = () => overlay.hide();
 
 const loop = new GameLoop(

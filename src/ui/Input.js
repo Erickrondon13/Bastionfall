@@ -13,7 +13,9 @@ export class Input {
     this.buttons = [...document.querySelectorAll(".tower-btn")];
     this.buttons.forEach(b => {
       b.addEventListener("click", () => {
-        game.state.selectedTower = +b.dataset.tower;
+        const idx = +b.dataset.tower;
+        if (game.state.unlocked && !game.state.unlocked[idx]) { game.setFlash("Torre bloqueada"); return; }
+        game.state.selectedTower = idx;
         game.state.selectedTowerEntity = null;
       });
     });
@@ -44,13 +46,19 @@ export class Input {
   onKey(ev) {
     const g = this.game;
     const s = g.state;
-    if (ev.code === "Digit1") { s.selectedTower = 0; s.selectedTowerEntity = null; }
-    else if (ev.code === "Digit2") { s.selectedTower = 1; s.selectedTowerEntity = null; }
-    else if (ev.code === "Digit3") { s.selectedTower = 2; s.selectedTowerEntity = null; }
-    else if (ev.code === "Digit4") { s.selectedTower = 3; s.selectedTowerEntity = null; }
+    const pick = (idx) => {
+      if (s.unlocked && !s.unlocked[idx]) { g.setFlash("Torre bloqueada"); return; }
+      s.selectedTower = idx;
+      s.selectedTowerEntity = null;
+    };
+    if (ev.code === "Digit1") pick(0);
+    else if (ev.code === "Digit2") pick(1);
+    else if (ev.code === "Digit3") pick(2);
+    else if (ev.code === "Digit4") pick(3);
     else if (ev.code === "Space") { ev.preventDefault(); g.startWave(); }
     else if (ev.code === "KeyU") { g.upgradeSelected(); }
     else if (ev.code === "KeyX") { g.sellSelected(); }
     else if (ev.code === "KeyR") { g.restart(); }
+    else if (ev.code === "KeyP") { ev.preventDefault(); this.onToggleTech && this.onToggleTech(); }
   }
 }

@@ -25,8 +25,21 @@ Luego abre `http://localhost:8000`.
 | Click en una torre | La selecciona |
 | `U` | Mejora la torre seleccionada (3 niveles) |
 | `X` | Vende la torre seleccionada (60% del oro invertido) |
+| `P` | Abre el panel de **Progresión** (árbol de tecnología) |
 | `Espacio` | Inicia la siguiente oleada |
 | `R` | Reinicia la partida |
+
+## Progresión persistente
+
+Al terminar cada partida (victoria o derrota) ganas **esencia** según las oleadas
+superadas. Con esa esencia desbloqueas mejoras permanentes en el panel `P`:
+
+- 🔥 Desbloquear la torre **Fuego**.
+- 💰 Oro inicial y ❤️ vida inicial extra.
+- 🏹 Bonos de daño por torre y de alcance global.
+
+El progreso se guarda en `localStorage` (`bastionfall.save.v1`), así que persiste
+entre sesiones. Ver `docs/FASES.md` (Fase 6 y Fase 12).
 
 ## Mecánicas
 
@@ -57,6 +70,6 @@ solo lee el estado. Ver `docs/ARCHITECTURE.md` para el diseño completo.
 
 ## Roadmap (`docs/FASES.md`)
 
-Implementado hasta la **Fase 5** (enemigos avanzados). Próximas: progresión
-persistente, estrellas, campaña, jefes adicionales, audio/efectos, menús, guardado
-(`localStorage`), balance, arte, optimización, móvil y pulido.
+Implementado hasta la **Fase 6** (progresión persistente) y guardado básico
+(`localStorage`, Fase 12). Próximas: estrellas, campaña, jefes adicionales,
+audio/efectos, menús, balance, arte, optimización, móvil y pulido.

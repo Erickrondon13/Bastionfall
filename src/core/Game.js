@@ -5,13 +5,14 @@ import { MovementSystem } from "../systems/MovementSystem.js";
 import { CombatSystem } from "../systems/CombatSystem.js";
 import { EconomySystem } from "../systems/EconomySystem.js";
 import { buildWave, TOTAL_WAVES } from "../config/waves.js";
-import { towerStats } from "../config/towers.js";
+import { towerStats, TOWER_TYPES } from "../config/towers.js";
 import { createTower, upgradeTower, towerUpgradeCost } from "../entities/Tower.js";
 import { EventBus } from "./EventBus.js";
 
 export class Game {
-  constructor(canvas) {
+  constructor(canvas, progression) {
     this.canvas = canvas;
+    this.progression = progression || null;
     this.events = new EventBus();
     this.systems = [
       new SpawnSystem(),
@@ -21,9 +22,19 @@ export class Game {
     ];
     this.onVictory = null;
     this.onGameOver = null;
-    this.events.on("game:victory", () => this.onVictory && this.onVictory());
-    this.events.on("game:over", () => this.onGameOver && this.onGameOver());
+    this.events.on("game:victory", () => {
+      this.award();
+      if (this.onVictory) this.onVictory();
+    });
+    this.events.on("game:over", () => {
+      this.award();
+      if (this.onGameOver) this.onGameOver();
+    });
     this.loadMap("llanura");
+  }
+
+  mods() {
+    return this.progression ? this.progression.mods() : { dmg: { arco: 1, cañon: 1, hielo: 1, fuego: 1 }, range: 1 };
   }
 
   loadMap(id) {
@@ -34,12 +45,29 @@ export class Game {
   newGame() {
     this.state = createState(this.map);
     this.state.totalOleadas = TOTAL_WAVES;
+    this._awarded = false;
+    if (this.progression) {
+      const bonus = this.progression.startBonus();
+      this.state.oro += bonus.gold;
+      this.state.vida += bonus.life;
+      this.state.vidaMax = this.state.vida;
+      this.state.unlocked = TOWER_TYPES.map(t => this.progression.isTowerUnlocked(t.key));
+    } else {
+      this.state.unlocked = TOWER_TYPES.map(() => true);
+    }
     this.setFlash(`Mapa: ${this.map.name}`);
   }
 
   restart() {
     this.newGame();
     if (this.onRestart) this.onRestart();
+  }
+
+  award() {
+    if (!this.progression || this._awarded) return;
+    this._awarded = true;
+    const gain = this.progression.award(this.state.oleada, this.state.victory);
+    this.setFlash(`+${gain} esencia`);
   }
 
   setFlash(msg) {
@@ -58,6 +86,7 @@ export class Game {
 
   tryPlaceTower(c, r) {
     const s = this.state;
+    if (!s.unlocked[s.selectedTower]) { this.setFlash("Torre bloqueada"); return false; }
     const key = `${c},${r}`;
     if (s.blocked.has(key)) { this.setFlash("No se puede construir en la ruta"); return false; }
     if (c < 0 || r < 0 || c >= s.map.cols || r >= s.map.rows) return false;
@@ -65,7 +94,7 @@ export class Game {
     const stats = towerStats(s.selectedTower, 0);
     if (s.oro < stats.cost) { this.setFlash("Oro insuficiente"); return false; }
     s.oro -= stats.cost;
-    s.torres.push(createTower(s.selectedTower, c, r, s.map.tile));
+    s.torres.push(createTower(s.selectedTower, c, r, s.map.tile, this.mods()));
     return true;
   }
 
@@ -84,7 +113,7 @@ export class Game {
     if (cost == null) { this.setFlash("Nivel máximo"); return false; }
     if (s.oro < cost) { this.setFlash("Oro insuficiente para mejorar"); return false; }
     s.oro -= cost;
-    upgradeTower(t);
+    upgradeTower(t, this.mods());
     this.setFlash(`${t.name} → nivel ${t.level + 1}`);
     return true;
   }

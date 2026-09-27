@@ -1,8 +1,10 @@
 import { TOWER_TYPES, towerStats } from "../config/towers.js";
 
-export function createTower(typeIndex, c, r, tile) {
+export function createTower(typeIndex, c, r, tile, mods) {
   const type = TOWER_TYPES[typeIndex];
   const stats = towerStats(typeIndex, 0);
+  mods = mods || { dmg: { arco: 1, cañon: 1, hielo: 1, fuego: 1 }, range: 1 };
+  const dmgMult = mods.dmg[type.key] || 1;
   return {
     typeIndex,
     key: type.key,
@@ -15,8 +17,8 @@ export function createTower(typeIndex, c, r, tile) {
     x: c * tile + tile / 2,
     y: r * tile + tile / 2,
     level: 0,
-    range: stats.range,
-    damage: stats.damage,
+    range: Math.round(stats.range * mods.range),
+    damage: Math.round(stats.damage * dmgMult),
     cooldown: stats.cooldown,
     splash: stats.splash,
     slow: stats.slow,
@@ -34,13 +36,15 @@ export function towerUpgradeCost(tower) {
   return next ? next.cost : null;
 }
 
-export function upgradeTower(tower) {
+export function upgradeTower(tower, mods) {
   const type = TOWER_TYPES[tower.typeIndex];
   const next = type.levels[tower.level + 1];
   if (!next) return false;
+  mods = mods || { dmg: { arco: 1, cañon: 1, hielo: 1, fuego: 1 }, range: 1 };
+  const dmgMult = mods.dmg[tower.key] || 1;
   tower.level++;
-  tower.range = next.range;
-  tower.damage = next.damage;
+  tower.range = Math.round(next.range * mods.range);
+  tower.damage = Math.round(next.damage * dmgMult);
   tower.cooldown = next.cooldown;
   tower.splash = next.splash;
   tower.slow = next.slow;

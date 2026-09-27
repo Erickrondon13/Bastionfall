@@ -53,9 +53,42 @@
   .tower-btn:hover { transform: translateY(-2px); }
   .tower-btn.active { border-color: var(--accent); }
   .tower-btn.disabled { opacity: .5; }
+  .tower-btn.locked { opacity: .4; border-color: var(--danger); }
   .tower-btn .name { font-weight: 700; }
   .tower-btn .cost { color: var(--gold); font-size: 12px; }
   .tower-btn .desc { color: var(--muted); font-size: 11px; }
+  .menu-btn {
+    background: var(--panel); border: 2px solid transparent; border-radius: 10px;
+    padding: 8px 14px; color: var(--text); cursor: pointer; font-weight: 700;
+    transition: border-color .15s, transform .1s; align-self: center;
+  }
+  .menu-btn:hover { transform: translateY(-2px); border-color: var(--accent); }
+  #tech {
+    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+    background: rgba(8,11,16,.85); z-index: 10;
+  }
+  #tech.open { display: flex; }
+  .tech-panel {
+    background: var(--panel); padding: 22px 26px; border-radius: 14px; max-width: 640px; width: 92%;
+    box-shadow: 0 20px 60px rgba(0,0,0,.6);
+  }
+  .tech-panel h2 { margin: 0 0 6px; font-size: 20px; }
+  .tech-esencia { color: var(--muted); margin: 0 0 14px; }
+  .tech-esencia b { color: var(--ok); }
+  #tech-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tech-node {
+    background: #212a3a; border: 1px solid #2e3a4d; border-radius: 10px; padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .tech-node .tname { font-weight: 700; }
+  .tech-node .tdesc { color: var(--muted); font-size: 12px; }
+  .tech-node button {
+    margin-top: 4px; background: var(--accent); color: #08121a; border: none; padding: 6px 10px;
+    border-radius: 6px; font-weight: 700; cursor: pointer;
+  }
+  .tech-node.owned { border-color: var(--ok); }
+  .tech-node.owned button { background: var(--ok); cursor: default; }
+  .tech-node.cant button { background: #3a4658; color: var(--muted); cursor: not-allowed; }
   #hint { color: var(--muted); font-size: 13px; text-align: center; max-width: 760px; }
   kbd {
     background: #2a3342; border-radius: 4px; padding: 1px 6px; font-size: 12px;
@@ -81,6 +114,7 @@
     <span>Oro <b class="stat-oro" id="hud-oro">120</b></span>
     <span>Oleada <b class="stat-oleada" id="hud-oleada">0 / 0</b></span>
     <span>Enemigos <b id="hud-enemigos">0</b></span>
+    <span>Esencia <b class="stat-oleada" id="hud-esencia">0</b></span>
   </div>
 
   <div id="sel">
@@ -114,12 +148,22 @@
       <div class="name">4 · Fuego <span class="cost">$90</span></div>
       <div class="desc">Quemadura continua (DoT)</div>
     </button>
+    <button class="menu-btn" id="btn-tech">Progresión (P)</button>
   </div>
 
   <div id="hint">
     Click en terreno libre para construir. Click en una torre para seleccionarla y
     <kbd>U</kbd> mejorar / <kbd>X</kbd> vender. <kbd>1</kbd>–<kbd>4</kbd> elegir torre ·
-    <kbd>Espacio</kbd> siguiente oleada · <kbd>R</kbd> reiniciar.
+    <kbd>Espacio</kbd> siguiente oleada · <kbd>P</kbd> progresión · <kbd>R</kbd> reiniciar.
+  </div>
+
+  <div id="tech">
+    <div class="tech-panel">
+      <h2>Progresión — Árbol de tecnología</h2>
+      <p class="tech-esencia">Esencia disponible: <b id="tech-esencia">0</b></p>
+      <div id="tech-list"></div>
+      <button class="menu-btn" id="tech-close">Cerrar (P)</button>
+    </div>
   </div>
 
   <script type="module" src="./src/main.js"></script>

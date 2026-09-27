@@ -8,6 +8,7 @@ export class Hud {
       oro: document.getElementById("hud-oro"),
       oleada: document.getElementById("hud-oleada"),
       enemigos: document.getElementById("hud-enemigos"),
+      esencia: document.getElementById("hud-esencia"),
       selName: document.getElementById("hud-sel-name"),
       selInfo: document.getElementById("hud-sel-info"),
     };
@@ -20,12 +21,15 @@ export class Hud {
     this.el.oro.textContent = s.oro;
     this.el.oleada.textContent = `${s.oleada} / ${s.totalOleadas}`;
     this.el.enemigos.textContent = s.enemigos.length;
+    this.el.esencia.textContent = this.game.progression ? this.game.progression.esencia() : 0;
 
     this.buttons.forEach(b => {
       const idx = +b.dataset.tower;
-      b.classList.toggle("active", idx === s.selectedTower && !s.selectedTowerEntity);
+      const unlocked = s.unlocked ? s.unlocked[idx] : true;
+      b.classList.toggle("active", unlocked && idx === s.selectedTower && !s.selectedTowerEntity);
       const cost = TOWER_TYPES[idx].levels[0].cost;
       b.classList.toggle("disabled", s.oro < cost);
+      b.classList.toggle("locked", !unlocked);
     });
 
     const t = s.selectedTowerEntity;
