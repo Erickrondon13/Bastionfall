@@ -769,15 +769,17 @@ y se marca aquí antes de pasar a la siguiente.
       **Coloso** (invoca minions en fases 2/3, furia en fase 3), **Madre Enjambre** (spawnea divisores,
       deshabilita una torre temporalmente, teletransporta por el camino), **Caminante del Vacío** (se vuelve
       invisible, teletransporta y desactiva las habilidades del jugador). El boss cíclico se elige con `bossTypeFor`.
+- [x] **3g — Eventos durante las oleadas (§9):** `src/config/events.js` + `src/systems/EventSystem.js`;
+      desde la oleada 4 hay ~40% de probabilidad de un evento aleatorio: **Tormenta** (proyectiles -30% velocidad),
+      **Lluvia de meteoros** (daño aleatorio a enemigos) y **Eclipse** (enemigos +25% velocidad). Barra de evento en HUD.
 
 ### Pendiente (orden sugerido)
-1. **Eventos durante las oleadas (§9):** Tormenta, Meteor Shower, Eclipse.
-2. **Economía más interesante (§12):** intereses, racha, bonus perfecto.
-3. **Tutorial (§15):** primeros pasos en el mapa 1.
-4. **Guardado de partida a medias (§16):** "Continuar partida".
-5. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
-6. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
-7. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
+1. **Economía más interesante (§12):** intereses, racha, bonus perfecto.
+2. **Tutorial (§15):** primeros pasos en el mapa 1.
+3. **Guardado de partida a medias (§16):** "Continuar partida".
+4. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
+5. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
+6. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
 
 > Criterio del documento: priorizar **identidad estratégica de las 4 torres**
 > (ramas, sinergias, estadísticas, habilidades) antes de añadir más torres.

@@ -1,9 +1,9 @@
-function applyStatus(e) {
+function applyStatus(e, evMul) {
   if (e.slowTimer > 0) {
     e.slowTimer--;
-    e.speed = e.baseSpeed * 0.45;
+    e.speed = e.baseSpeed * 0.45 * evMul;
   } else {
-    e.speed = e.baseSpeed;
+    e.speed = e.baseSpeed * evMul;
   }
 
   if (e.burnTimer > 0) {
@@ -50,7 +50,8 @@ export class MovementSystem {
       const e = enemigos[i];
       if (e.hp <= 0) continue; // la muerte la gestiona EconomySystem
 
-      applyStatus(e);
+      const evMul = (state.eventMods && state.eventMods.enemySpeedMult) || 1;
+      applyStatus(e, evMul);
 
       const arrived = e.flying ? moveFlying(e, base) : moveAlongPath(e, pathPoints);
       if (arrived) {

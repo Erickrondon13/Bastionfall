@@ -134,7 +134,7 @@ export class CombatSystem {
       p.x = tower.x;
       p.y = tower.y;
       p.target = target;
-      p.speed = tower.projSpeed;
+      p.speed = tower.projSpeed * ((state.eventMods && state.eventMods.projSpeedMult) || 1);
       p.damage = tower.damage * dmgMult;
       p.splash = tower.splash * splashMult;
       p.slow = tower.slow;

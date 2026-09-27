@@ -19,6 +19,7 @@ export class Hud {
       synergyBar: document.getElementById("synergy-bar"),
       modBar: document.getElementById("mod-bar"),
       relicBar: document.getElementById("relic-bar"),
+      eventBar: document.getElementById("event-bar"),
     };
     this.buttons = [...document.querySelectorAll(".tower-btn")];
     this.abilities = [...document.querySelectorAll(".ability-btn")];
@@ -65,6 +66,7 @@ export class Hud {
     this.updateSynergies(s);
     this.updateMods(s);
     this.updateRelics(s);
+    this.updateEvent(s);
   }
 
   updateAbilityBar(s) {
@@ -155,5 +157,16 @@ export class Hud {
         return `<span class="relic-chip">${r.icon} ${r.name}</span>`;
       })
       .join("");
+  }
+
+  updateEvent(s) {
+    const ev = s.activeEvent;
+    if (!ev) {
+      this.el.eventBar.innerHTML = "";
+      return;
+    }
+    const secs = Math.ceil(ev.timer / 60);
+    const def = ev.def || {};
+    this.el.eventBar.innerHTML = `<span class="event-chip">${def.icon || "⚡"} ${def.name || ev.id} · ${secs}s</span>`;
   }
 }

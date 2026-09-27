@@ -9,8 +9,10 @@ import { EnemySystem } from "../systems/EnemySystem.js";
 import { AbilitySystem } from "../systems/AbilitySystem.js";
 import { SynergySystem } from "../systems/SynergySystem.js";
 import { HazardSystem } from "../systems/HazardSystem.js";
+import { EventSystem } from "../systems/EventSystem.js";
 import { MODIFIERS, baseMods, modifierById } from "../config/modifiers.js";
 import { relicById, randomRelics } from "../config/relics.js";
+import { randomEvent, EVENTS } from "../config/events.js";
 import { buildWave, TOTAL_WAVES } from "../config/waves.js";
 import { MODES, getMode } from "../config/modes.js";
 import { generateCavern, tierLabel } from "../config/mapgen.js";
@@ -44,6 +46,7 @@ export class Game {
       new EconomySystem(),
       new AbilitySystem(),
       new HazardSystem(),
+      new EventSystem(),
     ];
     this.frameBudgetMs = 12;
     this.awardGuard = new IdempotencyGuard();
@@ -211,6 +214,8 @@ export class Game {
     this.state.activeModIds = [...this.pendingMods];
     this.state.relics = { dmgMult: 1, goldMult: 1, slowMult: 1, cdMult: 1, rangeMult: 1, burnMult: 1, critAdd: 0 };
     this.state.relicIds = [];
+    this.state.eventMods = { projSpeedMult: 1, enemySpeedMult: 1 };
+    this.state.activeEvent = null;
     this.pendingRelic = false;
     for (const id of this.pendingMods) {
       const m = modifierById(id);
@@ -334,6 +339,15 @@ export class Game {
     if (s.endless && s.oleada % 10 === 0) s.spawnQueue.push({ type: "jefe", delay: 40 });
     s.spawnTimer = 0;
     s.oleadaActiva = true;
+    if (s.oleada >= 4 && Math.random() < 0.4) this.startEvent(randomEvent());
+  }
+
+  startEvent(def) {
+    if (!def || this.state.activeEvent) return;
+    this.state.eventMods = { projSpeedMult: 1, enemySpeedMult: 1 };
+    this.state.activeEvent = { id: def.id, def, timer: def.duration, tick: 0 };
+    def.start(this.state);
+    this.setFlash(`Evento: ${def.icon} ${def.name}`);
   }
 
   useAbility(id) {

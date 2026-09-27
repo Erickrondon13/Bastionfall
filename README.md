@@ -136,6 +136,9 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   **Coloso** (invoca refuerzos en fase 2/3 y entra en furia en fase 3), **Madre Enjambre** (spawnea divisores,
   deshabilita una torre temporalmente y se teletransporta), **Caminante del Vacío** (se vuelve invisible,
   teletransporta y desactiva tus habilidades). Ver `fases/fase 3 profundida.md` §8.
+- **Eventos durante las oleadas (§9):** desde la oleada 4 hay ~40% de probabilidad de un evento aleatorio:
+  **Tormenta** (proyectiles -30% velocidad), **Lluvia de meteoros** (daño aleatorio a enemigos) y
+  **Eclipse** (enemigos +25% velocidad). Ver `fases/fase 3 profundida.md` §9.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)
