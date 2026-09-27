@@ -13,7 +13,7 @@ import { generateCavern, tierLabel } from "../config/mapgen.js";
 import { ABILITIES, getAbility } from "../config/abilities.js";
 import { ACHIEVEMENTS } from "../config/achievements.js";
 import { towerStats, TOWER_TYPES } from "../config/towers.js";
-import { createTower, upgradeTower, towerUpgradeCost } from "../entities/Tower.js";
+import { createTower, upgradeTower, towerUpgradeCost, chooseBranch } from "../entities/Tower.js";
 import { computeStars } from "../config/stars.js";
 import { EventBus } from "./EventBus.js";
 import { CircuitBreaker, IdempotencyGuard, TimeoutError, now } from "./resilience.js";
@@ -337,6 +337,10 @@ export class Game {
     const s = this.state;
     const t = s.selectedTowerEntity;
     if (!t) return false;
+    if (t.level === 1 && t.branch == null) {
+      this.setFlash("Elige una rama (Q/E o botones)");
+      return false;
+    }
     const cost = towerUpgradeCost(t);
     if (cost == null) { this.setFlash("Nivel máximo"); return false; }
     if (s.oro < cost) { this.setFlash("Oro insuficiente para mejorar"); return false; }
@@ -344,6 +348,23 @@ export class Game {
     s.stats.goldSpent += cost;
     upgradeTower(t, this.mods());
     this.setFlash(`${t.name} → nivel ${t.level + 1}`);
+    return true;
+  }
+
+  chooseBranch(which) {
+    const s = this.state;
+    const t = s.selectedTowerEntity;
+    if (!t || t.branch != null || t.level !== 1) return false;
+    const b = TOWER_TYPES[t.typeIndex].branches[which];
+    if (!b) return false;
+    if (s.oro < b.levels[0].cost) {
+      this.setFlash("Oro insuficiente para la rama");
+      return false;
+    }
+    s.oro -= b.levels[0].cost;
+    s.stats.goldSpent += b.levels[0].cost;
+    chooseBranch(t, which, this.mods());
+    this.setFlash(`${t.name} → rama ${b.name}`);
     return true;
   }
 

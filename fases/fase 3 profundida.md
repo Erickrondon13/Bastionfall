@@ -740,8 +740,24 @@ evitar código frágil). Archivos nuevos/modificados:
 - `Renderer`/`art`/`Effects`: daño flotante, rango, escudo base, indicadores de élite/escudo, feedback de habilidades.
 - `Hud`/`Overlay`/`index.html`/`main.js`: barra de habilidades, panel de stats/DPS, stats de partida y logros.
 
-**Pendiente del documento (no implementado aún):** árbol A/B de mejoras por torre,
-sinergias entre torres, modificadores de partida roguelite, reliquias, eventos
-meteor/shield durante oleadas, bosses con mecánicas únicas, tutoriales, guardado
-de partida a medias, música por ambiente, y campaña de mundos 1-2-3. Cada uno puede
-ser una fase independiente.
+**Pendiente del documento (no implementado aún):** sinergias entre torres,
+modificadores de partida roguelite, reliquias, eventos meteor/shield durante
+oleadas, bosses con mecánicas únicas, tutoriales, guardado de partida a medias,
+música por ambiente, y campaña de mundos 1-2-3. Cada uno puede ser una fase
+independiente.
+
+### Árbol de mejoras A/B (implementado como Fase 3b)
+
+Cada torre ahora tiene una **rama de especialización** a elegir tras el primer
+nivel, siguiendo la recomendación del documento ("4 torres que generen 20
+estrategias" en vez de más torres):
+
+- **Arco**: `A` Francotirador (alcance + crítico) · `B` Tirador rápido (cadencia).
+- **Cañón**: `A` Artillería (área masiva) · `B` Demoledor (daño directo).
+- **Hielo**: `A` Criostasis (ralentización extrema) · `B` Tormenta (rango + velocidad).
+- **Fuego**: `A` Piroclasto (quemadura intensa) · `B` Incendiario (proyectil rápido).
+
+Flujo: subir a nivel 1 (común) → elegir rama (`Q`/`E` o botones en pantalla) →
+subir a nivel 2 y 3 de la rama. El panel de estadísticas muestra la rama activa.
+Archivos: `src/config/towers.js` (branches), `src/entities/Tower.js` (applyStats /
+chooseBranch), `Game.chooseBranch`, `Hud.updateBranch`, teclas `Q`/`E` en `Input`.

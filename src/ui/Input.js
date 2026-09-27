@@ -66,6 +66,8 @@ export class Input {
     else if (ev.code === "KeyH") { g.useAbility("freeze"); }
     else if (ev.code === "KeyB") { g.useAbility("gold"); }
     else if (ev.code === "KeyN") { g.useAbility("shield"); }
+    else if (ev.code === "KeyQ") { g.chooseBranch("A"); }
+    else if (ev.code === "KeyE") { g.chooseBranch("B"); }
     else if (ev.code === "KeyP") { ev.preventDefault(); this.onToggleTech && this.onToggleTech(); }
     else if (ev.code === "KeyC") { ev.preventDefault(); this.onToggleCampaign && this.onToggleCampaign(); }
     else if (ev.code === "Escape") { ev.preventDefault(); this.game.togglePause(); }

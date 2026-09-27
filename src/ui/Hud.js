@@ -13,9 +13,11 @@ export class Hud {
       selName: document.getElementById("hud-sel-name"),
       selInfo: document.getElementById("hud-sel-info"),
       towerStats: document.getElementById("tower-stats"),
+      towerBranch: document.getElementById("tower-branch"),
     };
     this.buttons = [...document.querySelectorAll(".tower-btn")];
     this.abilities = [...document.querySelectorAll(".ability-btn")];
+    this._branchSig = "";
   }
 
   update() {
@@ -54,6 +56,7 @@ export class Hud {
 
     this.updateAbilityBar(s);
     this.updateTowerStats(s);
+    this.updateBranch(s);
   }
 
   updateAbilityBar(s) {
@@ -87,6 +90,27 @@ export class Hud {
       this.el.towerStats.innerHTML =
         `Construir <b>${type.name}</b> · Daño <b>${lv.damage}</b> · Vel <b>${(lv.cooldown / 60).toFixed(2)}s</b> · ` +
         `Alcance <b>${(lv.range / 40).toFixed(1)}</b> · Crít <b>${(lv.crit * 100).toFixed(0)}%</b> · DPS <b>${dps}</b>`;
+    }
+  }
+
+  updateBranch(s) {
+    const t = s.selectedTowerEntity;
+    let html = "";
+    if (t && t.level === 1 && !t.branch) {
+      const b = TOWER_TYPES[t.typeIndex].branches;
+      html =
+        `<span class="branch-label">Rama:</span>` +
+        Object.entries(b)
+          .map(([k, v]) => `<button class="branch-btn" data-branch="${k}">${v.name} <span class="ab-key">$${v.levels[0].cost}</span></button>`)
+          .join("");
+    }
+    this.el.towerBranch.style.display = html ? "flex" : "none";
+    if (html !== this._branchSig) {
+      this._branchSig = html;
+      this.el.towerBranch.innerHTML = html;
+      this.el.towerBranch.querySelectorAll(".branch-btn").forEach((btn) => {
+        btn.addEventListener("click", () => this.game.chooseBranch(btn.dataset.branch));
+      });
     }
   }
 }

@@ -114,6 +114,10 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   (oleadas, kills, jefes, daño, oro) en el overlay de victoria/derrota; persisten
   en `localStorage`.
 - **Endless mejorado**: jefe cada 10 oleadas + leaderboard local de mejor oleada.
+- **Árbol de mejoras A/B por torre**: tras el nivel 1 eliges una rama de
+  especialización (p. ej. Arco → Francotirador/Tirador rápido; Cañón →
+  Artillería/Demoledor; Hielo → Criostasis/Tormenta; Fuego → Piroclasto/Incendiario)
+  con teclas `Q`/`E` o botones en pantalla. Ver `fases/fase 3 profundida.md`.
 
 ## Cavernas aleatorias y llaves (Fase 2)
 
