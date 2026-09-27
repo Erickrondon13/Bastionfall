@@ -3,6 +3,10 @@
 Roadmap para convertir el prototipo (`index.html`) en un juego más completo.
 Cada fase es independiente: implementar → probar → corregir → commit → siguiente.
 
+> **Estado:** todas las fases (0–17) implementadas ✅. El juego es jugable en
+> escritorio y móvil con campaña, progresión, jefes, audio, efectos, arte y
+> resiliencia. Ver `README.md` para el detalle.
+
 ```
 FASE 0  → Prototipo jugable
    ↓

@@ -31,16 +31,20 @@ export function drawTerrain(ctx, W, H, tile, state) {
 export function drawPath(ctx, pts) {
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
-  ctx.strokeStyle = "#2a2018";
-  ctx.lineWidth = 30;
+  ctx.strokeStyle = "#3c2f22";
+  ctx.lineWidth = 32;
   tracePath(ctx, pts);
   ctx.stroke();
-  ctx.strokeStyle = "#3a2c20";
-  ctx.lineWidth = 22;
+  ctx.strokeStyle = "#8a6a45";
+  ctx.lineWidth = 24;
   tracePath(ctx, pts);
   ctx.stroke();
-  ctx.strokeStyle = "rgba(255,209,102,.10)";
-  ctx.lineWidth = 6;
+  ctx.strokeStyle = "#a9855a";
+  ctx.lineWidth = 16;
+  tracePath(ctx, pts);
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(255,235,200,.12)";
+  ctx.lineWidth = 5;
   tracePath(ctx, pts);
   ctx.stroke();
 }
