@@ -7,6 +7,7 @@ import { EconomySystem } from "../systems/EconomySystem.js";
 import { BossSystem } from "../systems/BossSystem.js";
 import { buildWave, TOTAL_WAVES } from "../config/waves.js";
 import { MODES, getMode } from "../config/modes.js";
+import { generateCavern, tierLabel } from "../config/mapgen.js";
 import { towerStats, TOWER_TYPES } from "../config/towers.js";
 import { createTower, upgradeTower, towerUpgradeCost } from "../entities/Tower.js";
 import { computeStars } from "../config/stars.js";
@@ -29,10 +30,26 @@ export class Game {
     this.awardGuard = new IdempotencyGuard();
     this.onVictory = null;
     this.onGameOver = null;
+    this.onCavernNext = null;
+    this.cavern = null;
+    this._pendingCavernAdvance = false;
+    this._lastRewards = null;
     this.events.on("game:victory", () => {
       this.award();
       this.recordResult();
-      if (this.onVictory) this.onVictory();
+      const rewards = this.progression ? this.progression.addKey() : { keys: 0, chest: false };
+      this._lastRewards = { keys: rewards.keys, chest: rewards.chest };
+      if (this.cavern && this.cavern.index < this.cavern.maps.length - 1) {
+        this._pendingCavernAdvance = true;
+      } else {
+        if (this.cavern) {
+          const cav = this.progression
+            ? this.progression.recordCavernComplete(this.cavern.label)
+            : { count: 0, milestone: false };
+          this._lastRewards.cavern = cav;
+        }
+        if (this.onVictory) this.onVictory();
+      }
     });
     this.events.on("game:over", () => {
       this.award();
@@ -65,6 +82,7 @@ export class Game {
 
   loadMap(id) {
     this.stage = null;
+    this.cavern = null;
     this.map = buildMap(id);
     this.buildGuards();
     this.newGame();
@@ -72,10 +90,31 @@ export class Game {
 
   loadStage(stage) {
     this.stage = stage;
+    this.cavern = null;
     this.map = buildMap(stage.map);
     this.buildGuards();
     this.newGame();
     this.state.stageId = stage.id;
+  }
+
+  startCavern(tier) {
+    this.stage = null;
+    this.mode = MODES[0];
+    this.cavern = generateCavern(tier);
+    this.loadGenMap(0);
+    this.paused = false;
+    if (this.onPause) this.onPause(false);
+  }
+
+  loadGenMap(i) {
+    const m = this.cavern.maps[i];
+    this.map = m;
+    this.buildGuards();
+    this.newGame();
+    this.state.stageId = `caverna-${this.cavern.tier}-${i}`;
+    this.state.cavernIndex = i;
+    this.state.cavernLabel = this.cavern.label;
+    this.state.cavernTotal = this.cavern.maps.length;
   }
 
   buildGuards() {
@@ -90,9 +129,10 @@ export class Game {
     this.state = createState(this.map);
     this.state.totalOleadas = this.mode && this.mode.endless
       ? Infinity
-      : (this.stage ? this.stage.waves : TOTAL_WAVES);
+      : (this.map.waves || (this.stage ? this.stage.waves : TOTAL_WAVES));
     this.state.endless = !!(this.mode && this.mode.endless);
     this.state.mode = this.mode.id;
+    this.state.hpMult = 1 + ((this.map.tier || 1) - 1) * 0.25;
     this.awardGuard.reset();
     this.systemGuards.forEach((g) => g.cb.reset());
     this.state.vidaMax = this.state.vida;
@@ -110,6 +150,13 @@ export class Game {
   }
 
   restart() {
+    if (this.cavern) {
+      this.cavern.index = 0;
+      this.loadGenMap(0);
+      this.paused = false;
+      if (this.onRestart) this.onRestart();
+      return;
+    }
     this.newGame();
     this.paused = false;
     if (this.onRestart) this.onRestart();
@@ -216,6 +263,16 @@ export class Game {
       if (!ok && g.cb.tripped) {
         this.setFlash(`Sistema ${g.name} desactivado (fallo)`);
       }
+    }
+
+    if (this._pendingCavernAdvance && this.cavern) {
+      this._pendingCavernAdvance = false;
+      this.cavern.index++;
+      this.loadGenMap(this.cavern.index);
+      this.setFlash(
+        `Caverna ${this.cavern.label}: mapa ${this.cavern.index + 1}/${this.cavern.maps.length} completado`
+      );
+      if (this.onCavernNext) this.onCavernNext(this.cavern);
     }
   }
 }

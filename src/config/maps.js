@@ -32,23 +32,22 @@ export const MAPS = {
   },
 };
 
-export function buildMap(id) {
-  const m = MAPS[id] || MAPS.llanura;
+export function assembleMap(m) {
   const t = m.tile;
   const pathPoints = m.path.map(([c, r]) => ({ x: c * t + t / 2, y: r * t + t / 2 }));
   const blocked = new Set(m.path.map(([c, r]) => `${c},${r}`));
   const base = pathPoints[pathPoints.length - 1];
   return {
-    id: m.id,
-    name: m.name,
-    cols: m.cols,
-    rows: m.rows,
-    tile: t,
-    path: m.path,
+    ...m,
     pathPoints,
     blocked,
     base,
     startGold: m.startGold,
     startLife: m.startLife,
   };
+}
+
+export function buildMap(id) {
+  const m = MAPS[id] || MAPS.llanura;
+  return assembleMap(m);
 }

@@ -32,17 +32,20 @@ export class Hud {
       b.classList.toggle("locked", !unlocked);
     });
 
+    const caveTag = s.cavernLabel
+      ? `Caverna ${s.cavernLabel} (${s.cavernIndex + 1}/${s.cavernTotal}) · `
+      : "";
     const t = s.selectedTowerEntity;
     if (t) {
       const type = TOWER_TYPES[t.typeIndex];
       const next = type.levels[t.level + 1];
-      this.el.selName.textContent = `${t.name} (nivel ${t.level + 1})`;
+      this.el.selName.textContent = `${caveTag}${t.name} (nivel ${t.level + 1})`;
       this.el.selInfo.textContent = next
         ? `Mejorar: $${next.cost} · Vender: $${Math.round(t.invested * 0.6)}`
         : `Nivel máximo · Vender: $${Math.round(t.invested * 0.6)}`;
     } else {
       const type = TOWER_TYPES[s.selectedTower];
-      this.el.selName.textContent = `Construir: ${type.name}`;
+      this.el.selName.textContent = `${caveTag}Construir: ${type.name}`;
       this.el.selInfo.textContent = `Costo: $${type.levels[0].cost}`;
     }
   }

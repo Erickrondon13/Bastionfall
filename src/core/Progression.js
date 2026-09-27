@@ -22,6 +22,9 @@ export class Progression {
         stars: parsed.stars || {},
         campaign: parsed.campaign || {},
         settings: parsed.settings || { sound: true },
+        keys: parsed.keys || 0,
+        chests: parsed.chests || 0,
+        caverns: parsed.caverns || {},
       };
     } catch {
       return defaultSave();
@@ -89,6 +92,44 @@ export class Progression {
     }
     this.save();
     return stars;
+  }
+
+  // --- Sistema de llaves y cofres ---
+  addKey() {
+    this.data.keys = (this.data.keys || 0) + 1;
+    let chest = false;
+    if (this.data.keys % 5 === 0) {
+      this.data.chests = (this.data.chests || 0) + 1;
+      this.data.esencia += 40;
+      chest = true;
+    }
+    this.save();
+    return { keys: this.data.keys, chest };
+  }
+
+  keys() {
+    return this.data.keys || 0;
+  }
+
+  chests() {
+    return this.data.chests || 0;
+  }
+
+  // --- Sistema de cavernas (recompensa por 5 completadas) ---
+  recordCavernComplete(label) {
+    this.data.caverns = this.data.caverns || {};
+    this.data.caverns[label] = (this.data.caverns[label] || 0) + 1;
+    let milestone = false;
+    if (this.data.caverns[label] % 5 === 0) {
+      milestone = true;
+      this.data.esencia += 200;
+    }
+    this.save();
+    return { count: this.data.caverns[label], milestone };
+  }
+
+  cavernCount(label) {
+    return (this.data.caverns && this.data.caverns[label]) || 0;
   }
 
   isStageUnlocked(index) {

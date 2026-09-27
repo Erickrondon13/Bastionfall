@@ -122,6 +122,22 @@
     background: rgba(8,11,16,.85); z-index: 10;
   }
   #campaign.open { display: flex; }
+  #cavern {
+    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+    background: rgba(8,11,16,.85); z-index: 10;
+  }
+  #cavern.open { display: flex; }
+  .cavern-tier {
+    background: #212a3a; border: 1px solid #2e3a4d; border-radius: 10px; padding: 12px 16px;
+    color: var(--text); text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 4px;
+    width: 100%;
+  }
+  .cavern-tier:hover { border-color: var(--accent); }
+  .cavern-tier .ct-name { font-weight: 700; font-size: 16px; }
+  .cavern-tier .ct-desc { color: var(--muted); font-size: 12px; }
+  .cavern-tier .ct-stats { color: var(--ok); font-size: 12px; }
+  .cavern-keys { display: flex; gap: 16px; justify-content: center; margin: 6px 0 12px; color: var(--muted); font-size: 13px; }
+  .cavern-keys b { color: var(--gold); }
   #campaign-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
   .camp-title { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0 4px; }
   .camp-stage {
@@ -143,7 +159,7 @@
     flex-direction: column; background: rgba(8,11,16,.82); text-align: center; gap: 10px;
   }
   #overlay h2 { margin: 0; font-size: 34px; }
-  #overlay p { margin: 0; color: var(--muted); }
+  #overlay p { margin: 0; color: var(--muted); white-space: pre-line; }
   #overlay button {
     margin-top: 8px; background: var(--accent); color: #08121a; border: none;
     padding: 10px 22px; border-radius: 8px; font-weight: 700; cursor: pointer;
@@ -226,6 +242,19 @@
     </div>
   </div>
 
+  <div id="cavern">
+    <div class="tech-panel">
+      <h2>Cavernas aleatorias</h2>
+      <p class="tech-esencia">Cada caverna son 5 mapas generados (básico → avanzado). Gana llaves y abre cofres.</p>
+      <div class="cavern-keys">
+        <span>Llaves: <b id="cavern-keys">0</b></span>
+        <span>Cofres: <b id="cavern-chests">0</b></span>
+      </div>
+      <div id="cavern-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;"></div>
+      <button class="menu-btn" id="cavern-close">Cerrar</button>
+    </div>
+  </div>
+
   <div id="menu">
     <div class="tech-panel menu-panel">
       <h1 class="menu-title">Bastionfall</h1>
@@ -238,6 +267,7 @@
           <button class="menu-btn mode-btn" id="menu-mode-endless">Infinito</button>
         </div>
         <button class="menu-btn" id="menu-restart">Reiniciar</button>
+        <button class="menu-btn" id="menu-caverns">Cavernas</button>
         <button class="menu-btn" id="menu-campaign">Campaña (C)</button>
         <button class="menu-btn" id="menu-tech">Progresión (P)</button>
         <button class="menu-btn" id="menu-sound">Sonido: On</button>

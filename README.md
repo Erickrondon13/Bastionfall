@@ -93,6 +93,21 @@ entre sesiones. Ver `docs/FASES.md` (Fase 6 y Fase 12).
 - **Campaña (Fase 8):** abre el panel `C` para elegir etapas. Cada etapa desbloquea
   la siguiente al completarla; el progreso de la campaña también persiste.
 
+## Cavernas aleatorias y llaves (Fase 2)
+
+- **Cavernas (menú Cavernas):** generador de mapas procedural tipo "cueva" con 4
+  dificultades: **básico, medio, experto, avanzado**. Cada caverna son **5 mapas
+  generados al azar** que rampanean de básico a avanzado; el modo se fuerza a
+  campaña (finito) durante la caverna.
+- **Llaves y cofres:** cada **victoria** otorga **1 llave**. Cada **5 llaves** se
+  abre un **cofre** (+40 esencia). El contador persiste en `localStorage`.
+- **Recompensa por cavernas:** completar **5 cavernas de un mismo nivel** (p. ej.
+  5 cavernas básicas) dispara un **hito** (+200 esencia). El progreso de cavernas
+  por nivel también se guarda.
+- El generador vive en `src/config/mapgen.js` y el estado en `Game.cavern`; las
+  recompensas se gestionan en `Progression` (llaves/cofres/cavernas). Ver
+  `fases/fase 2.md`.
+
 ## Audio (Fase 10)
 
 Efectos de sonido generados con WebAudio (sin archivos): disparos, oleada,

@@ -49,6 +49,47 @@ document.getElementById("menu-campaign").addEventListener("click", () => {
   setMenu(false);
   levelSelect.toggle();
 });
+
+const cavernEl = document.getElementById("cavern");
+const cavernList = document.getElementById("cavern-list");
+const cavernKeys = document.getElementById("cavern-keys");
+const cavernChests = document.getElementById("cavern-chests");
+const TIER_DEFS = [
+  { tier: 1, desc: "5 mapas sencillos. Ideal para farmear llaves." },
+  { tier: 2, desc: "Más enemigos y rutas más largas." },
+  { tier: 3, desc: "Blindados frecuentes y más HP." },
+  { tier: 4, desc: "Máxima dificultad: mucho HP y oleadas largas." },
+];
+function refreshCavern() {
+  cavernKeys.textContent = progression.keys();
+  cavernChests.textContent = progression.chests();
+  cavernList.innerHTML = "";
+  for (const t of TIER_DEFS) {
+    const label = ["básico", "medio", "experto", "avanzado"][t.tier - 1];
+    const btn = document.createElement("button");
+    btn.className = "cavern-tier";
+    btn.innerHTML =
+      `<span class="ct-name">${label.charAt(0).toUpperCase() + label.slice(1)}</span>` +
+      `<span class="ct-desc">${t.desc}</span>` +
+      `<span class="ct-stats">Completadas: ${progression.cavernCount(label)} · Llaves por victoria: 1</span>`;
+    btn.addEventListener("click", () => {
+      cavernEl.classList.remove("open");
+      game.startCavern(t.tier);
+    });
+    cavernList.appendChild(btn);
+  }
+}
+function toggleCavern(force) {
+  const open = force !== undefined ? force : !cavernEl.classList.contains("open");
+  cavernEl.classList.toggle("open", open);
+  if (open) {
+    setMenu(false);
+    refreshCavern();
+  }
+}
+document.getElementById("menu-caverns").addEventListener("click", () => toggleCavern(true));
+document.getElementById("cavern-close").addEventListener("click", () => toggleCavern(false));
+input.onToggleCaverns = () => toggleCavern();
 document.getElementById("menu-tech").addEventListener("click", () => {
   setMenu(false);
   techMenu.toggle();

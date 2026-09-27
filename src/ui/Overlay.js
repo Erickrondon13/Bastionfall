@@ -15,7 +15,14 @@ export class Overlay {
       const best = game.progression
         ? (s.stageId ? game.progression.bestStars(s.stageId) : game.progression.bestStars(s.map.id))
         : earned;
-      this.show("Victoria", `Sobreviviste las ${s.totalOleadas} oleadas. Oro final: ${s.oro}`);
+      const lines = [`Sobreviviste las ${s.totalOleadas} oleadas. Oro final: ${s.oro}`];
+      const r = game._lastRewards;
+      if (r) {
+        lines.push(`Llaves totales: ${r.keys}`);
+        if (r.chest) lines.push("¡Cofre abierto! (+40 esencia)");
+        if (r.cavern && r.cavern.milestone) lines.push(`¡Hito! 5 cavernas ${s.cavernLabel} completadas (+200 esencia)`);
+      }
+      this.show("Victoria", lines.join("\n"));
       this.stars.textContent = `${starsToString(earned)}  (mejor: ${starsToString(best)})`;
       this.stars.style.display = "block";
     };

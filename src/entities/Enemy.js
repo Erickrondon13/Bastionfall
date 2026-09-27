@@ -1,9 +1,10 @@
 import { ENEMY_TYPES, MAX_HP_SCALE } from "../config/enemies.js";
 
-export function createEnemy(typeKey, wave, start) {
+export function createEnemy(typeKey, wave, start, hpMult = 1) {
   const t = ENEMY_TYPES[typeKey];
   const hpScale = 1 + (wave - 1) * MAX_HP_SCALE;
-  const hp = Math.round(t.hp * (t.boss ? 1 + (wave - 1) * 0.4 : hpScale));
+  const baseHp = t.hp * (t.boss ? 1 + (wave - 1) * 0.4 : hpScale);
+  const hp = Math.round(baseHp * (hpMult || 1));
   return {
     type: typeKey,
     name: t.name,

@@ -8,7 +8,7 @@ export class SpawnSystem {
       state.spawnTimer--;
       if (state.spawnTimer <= 0) {
         const item = state.spawnQueue.shift();
-        const enemy = createEnemy(item.type, state.oleada, state.pathPoints[0]);
+        const enemy = createEnemy(item.type, state.oleada, state.pathPoints[0], state.hpMult);
         state.enemigos.push(enemy);
         if (item.type === "jefe") events.emit("boss:spawn", { enemy });
         state.spawnTimer = item.delay;
