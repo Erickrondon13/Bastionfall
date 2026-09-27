@@ -6,6 +6,7 @@ import { CombatSystem } from "../systems/CombatSystem.js";
 import { EconomySystem } from "../systems/EconomySystem.js";
 import { BossSystem } from "../systems/BossSystem.js";
 import { buildWave, TOTAL_WAVES } from "../config/waves.js";
+import { MODES, getMode } from "../config/modes.js";
 import { towerStats, TOWER_TYPES } from "../config/towers.js";
 import { createTower, upgradeTower, towerUpgradeCost } from "../entities/Tower.js";
 import { computeStars } from "../config/stars.js";
@@ -37,8 +38,14 @@ export class Game {
       this.award();
       if (this.onGameOver) this.onGameOver();
     });
+    this.mode = MODES[0];
     this.loadMap("llanura");
     this.paused = true;
+  }
+
+  setMode(modeId) {
+    this.mode = getMode(modeId);
+    this.newGame();
   }
 
   togglePause() {
@@ -81,7 +88,11 @@ export class Game {
 
   newGame() {
     this.state = createState(this.map);
-    this.state.totalOleadas = this.stage ? this.stage.waves : TOTAL_WAVES;
+    this.state.totalOleadas = this.mode && this.mode.endless
+      ? Infinity
+      : (this.stage ? this.stage.waves : TOTAL_WAVES);
+    this.state.endless = !!(this.mode && this.mode.endless);
+    this.state.mode = this.mode.id;
     this.awardGuard.reset();
     this.systemGuards.forEach((g) => g.cb.reset());
     this.state.vidaMax = this.state.vida;

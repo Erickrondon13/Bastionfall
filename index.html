@@ -100,6 +100,10 @@
   .menu-sub { color: var(--muted); margin: 0 0 18px; }
   .menu-buttons { display: flex; flex-direction: column; gap: 10px; }
   .menu-buttons .menu-btn { width: 100%; padding: 12px; font-size: 15px; }
+  .menu-modes { display: flex; align-items: center; gap: 8px; justify-content: center; }
+  .menu-modes-label { color: var(--muted); font-size: 13px; }
+  .menu-modes .mode-btn { width: auto; padding: 8px 12px; min-width: 110px; }
+  .menu-modes .mode-btn.active { border-color: var(--accent); }
   .menu-hint { color: var(--muted); font-size: 12px; margin: 16px 0 0; }
   #touchbar {
     display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
@@ -228,6 +232,11 @@
       <p class="menu-sub" id="menu-sub">Defiende tu base de las oleadas.</p>
       <div class="menu-buttons">
         <button class="menu-btn" id="menu-resume">Jugar</button>
+        <div class="menu-modes">
+          <span class="menu-modes-label">Modo:</span>
+          <button class="menu-btn mode-btn" id="menu-mode-campaign">Campaña</button>
+          <button class="menu-btn mode-btn" id="menu-mode-endless">Infinito</button>
+        </div>
         <button class="menu-btn" id="menu-restart">Reiniciar</button>
         <button class="menu-btn" id="menu-campaign">Campaña (C)</button>
         <button class="menu-btn" id="menu-tech">Progresión (P)</button>

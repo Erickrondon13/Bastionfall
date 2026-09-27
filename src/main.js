@@ -62,7 +62,19 @@ soundBtn.addEventListener("click", () => {
   sfx.setMuted(!on);
   refreshSound();
 });
+const modeBtns = {
+  campaign: document.getElementById("menu-mode-campaign"),
+  endless: document.getElementById("menu-mode-endless"),
+};
+function refreshMode() {
+  for (const [id, btn] of Object.entries(modeBtns)) {
+    btn.classList.toggle("active", game.mode.id === id);
+  }
+}
+modeBtns.campaign.addEventListener("click", () => { game.setMode("campaign"); refreshMode(); });
+modeBtns.endless.addEventListener("click", () => { game.setMode("endless"); refreshMode(); });
 refreshSound();
+refreshMode();
 setMenu(true);
 
 document.getElementById("tb-wave").addEventListener("click", () => game.startWave());

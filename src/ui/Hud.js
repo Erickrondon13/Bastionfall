@@ -19,7 +19,7 @@ export class Hud {
     const s = this.game.state;
     this.el.vida.textContent = s.vida;
     this.el.oro.textContent = s.oro;
-    this.el.oleada.textContent = `${s.oleada} / ${s.totalOleadas}`;
+    this.el.oleada.textContent = `${s.oleada} / ${Number.isFinite(s.totalOleadas) ? s.totalOleadas : "∞"}`;
     this.el.enemigos.textContent = s.enemigos.length;
     this.el.esencia.textContent = this.game.progression ? this.game.progression.esencia() : 0;
 
