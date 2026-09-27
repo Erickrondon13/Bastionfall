@@ -27,6 +27,7 @@ export class Progression {
         caverns: parsed.caverns || {},
         achievements: parsed.achievements || {},
         endless: parsed.endless || { bestWave: 0, bestTime: 0 },
+        tutorialDone: !!parsed.tutorialDone,
       };
     } catch {
       return defaultSave();
@@ -47,6 +48,15 @@ export class Progression {
 
   has(nodeId) {
     return !!this.data.nodes[nodeId];
+  }
+
+  tutorialDone() {
+    return !!this.data.tutorialDone;
+  }
+
+  setTutorialDone() {
+    this.data.tutorialDone = true;
+    this.save();
   }
 
   esencia() {

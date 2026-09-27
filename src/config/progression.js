@@ -12,5 +12,5 @@ export const TECH_NODES = [
 export const SAVE_KEY = "bastionfall.save.v1";
 
 export function defaultSave() {
-  return { esencia: 0, nodes: {} };
+  return { esencia: 0, nodes: {}, tutorialDone: false };
 }

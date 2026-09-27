@@ -13,6 +13,13 @@ import { EventSystem } from "../systems/EventSystem.js";
 import { MODIFIERS, baseMods, modifierById } from "../config/modifiers.js";
 import { relicById, randomRelics } from "../config/relics.js";
 import { randomEvent, EVENTS } from "../config/events.js";
+
+const TUTORIAL_STEPS = [
+  { text: "PASO 1: Haz clic en una casilla libre para colocar tu primera torre.", done: (s) => s.torres.length > 0 },
+  { text: "PASO 2: Pulsa ESPACIO (o el botón Oleada) para iniciar la oleada.", done: (s) => s.oleadaActiva },
+  { text: "PASO 3: Selecciona tu torre y pulsa U para mejorarla.", done: (s) => s.torres.some((t) => t.level >= 1) },
+  { text: "PASO 4: ¡Derrota a los enemigos y sobrevive! Tu base tiene 20 de vida.", done: (s) => s.stats.kills > 0 },
+];
 import { buildWave, TOTAL_WAVES } from "../config/waves.js";
 import { MODES, getMode } from "../config/modes.js";
 import { generateCavern, tierLabel } from "../config/mapgen.js";
@@ -98,6 +105,7 @@ export class Game {
     this.pendingMods = [];
     this.pendingRelic = false;
     this.relicChoices = [];
+    this.tutorial = { active: false, step: 0 };
     this.loadMap("llanura");
     this.paused = true;
   }
@@ -169,6 +177,33 @@ export class Game {
     this.setFlash(`Reliquia: ${r.icon} ${r.name}`);
   }
 
+  startTutorial() {
+    this.mode = MODES[0];
+    this.tutorial = { active: true, step: 0 };
+    this.loadMap("llanura");
+    this.state.tutorial = { active: true, step: 0, text: TUTORIAL_STEPS[0].text };
+    this.paused = false;
+    if (this.onPause) this.onPause(false);
+    this.setFlash(TUTORIAL_STEPS[0].text);
+  }
+
+  advanceTutorial() {
+    const tut = this.state.tutorial;
+    const step = TUTORIAL_STEPS[tut.step];
+    if (step && step.done(this.state)) {
+      tut.step++;
+      if (tut.step >= TUTORIAL_STEPS.length) {
+        tut.active = false;
+        this.tutorial.active = false;
+        this.setFlash("¡Tutorial completado! Ya dominas Bastionfall.");
+        if (this.progression) this.progression.setTutorialDone();
+      } else {
+        tut.text = TUTORIAL_STEPS[tut.step].text;
+        this.setFlash(TUTORIAL_STEPS[tut.step].text);
+      }
+    }
+  }
+
   loadMap(id) {
     this.stage = null;
     this.cavern = null;
@@ -222,6 +257,7 @@ export class Game {
     this.state.relicIds = [];
     this.state.eventMods = { projSpeedMult: 1, enemySpeedMult: 1 };
     this.state.activeEvent = null;
+    this.state.tutorial = { active: this.tutorial.active, step: this.tutorial.step };
     this.state.streak = 0;
     this.state.waveLivesLost = 0;
     this.state.totalLivesLost = 0;
@@ -524,6 +560,8 @@ export class Game {
       this.setFlash("Sinergia: " + syn.join(", "));
     }
     this._lastSynergies = syn;
+
+    if (this.state.tutorial && this.state.tutorial.active) this.advanceTutorial();
 
     if (this._pendingCavernAdvance && this.cavern) {
       this._pendingCavernAdvance = false;

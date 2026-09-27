@@ -775,13 +775,15 @@ y se marca aquí antes de pasar a la siguiente.
 - [x] **3h — Economía más interesante (§12):** al completar oleada se suma **interés** (+5% del oro restante,
       tope 100), **racha perfecta** (sin perder vidas acumula bonus creciente, se resetea al fallar) y
       **bonus perfecto** por oleada sin fugas. Indicador de racha en HUD y resumen en el flash de oleada.
+- [x] **3i — Tutorial (§15):** tutorial guiado de 4 pasos (colocar torre → iniciar oleada → mejorar →
+      derrotar enemigo) con banner instructivo, botón de menú y autoarranque la primera vez (guardado en
+      `Progression.tutorialDone`).
 
 ### Pendiente (orden sugerido)
-1. **Tutorial (§15):** primeros pasos en el mapa 1.
-2. **Guardado de partida a medias (§16):** "Continuar partida".
-3. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
-4. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
-5. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
+1. **Guardado de partida a medias (§16):** "Continuar partida".
+2. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
+3. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
+4. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
 
 > Criterio del documento: priorizar **identidad estratégica de las 4 torres**
 > (ramas, sinergias, estadísticas, habilidades) antes de añadir más torres.

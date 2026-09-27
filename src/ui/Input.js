@@ -71,6 +71,7 @@ export class Input {
     else if (ev.code === "KeyP") { ev.preventDefault(); this.onToggleTech && this.onToggleTech(); }
     else if (ev.code === "KeyC") { ev.preventDefault(); this.onToggleCampaign && this.onToggleCampaign(); }
     else if (ev.code === "KeyM") { ev.preventDefault(); this.onToggleMods && this.onToggleMods(); }
+    else if (ev.code === "KeyT") { ev.preventDefault(); this.onToggleTutorial && this.onToggleTutorial(); }
     else if (ev.code === "Escape") { ev.preventDefault(); this.game.togglePause(); }
   }
 }

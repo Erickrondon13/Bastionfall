@@ -131,6 +131,9 @@ modeBtns.endless.addEventListener("click", () => { game.setMode("endless"); refr
 refreshSound();
 refreshMode();
 setMenu(true);
+if (progression && !progression.tutorialDone()) {
+  game.startTutorial();
+}
 
 const modEl = document.getElementById("modifiers");
 const modList = document.getElementById("mod-list");
@@ -173,6 +176,12 @@ input.onToggleMods = () => {
   if (modEl.classList.contains("open")) toggleMods(false);
   else toggleMods(true);
 };
+
+document.getElementById("menu-tutorial").addEventListener("click", () => {
+  setMenu(false);
+  game.startTutorial();
+});
+input.onToggleTutorial = () => game.startTutorial();
 
 const relicEl = document.getElementById("relic");
 const relicCards = document.getElementById("relic-cards");

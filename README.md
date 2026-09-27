@@ -142,6 +142,9 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
 - **Economía más interesante (§12):** al completar oleada suma **interés** (+5% del oro restante, tope 100),
   **racha perfecta** (oleadas sin perder vidas acumulan bonus creciente, se resetea al fallar) y
   **bonus perfecto** por oleada sin fugas. Ver `fases/fase 3 profundida.md` §12.
+- **Tutorial (§15):** la primera vez se abre un tutorial guiado de 4 pasos (colocar torre → iniciar oleada →
+  mejorar → derrotar enemigo) con banner instructivo; también accesible desde el menú (tecla `T`). Ver
+  `fases/fase 3 profundida.md` §15.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

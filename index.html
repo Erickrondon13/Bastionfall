@@ -189,6 +189,12 @@
   .relic-chip { background: rgba(155,93,229,.18); border: 1px solid #9b5de5; color: #d9b8ff; border-radius: 8px; padding: 4px 10px; font-size: 12px; }
   #event-bar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; max-width: 760px; width: 100%; min-height: 0; }
   .event-chip { background: rgba(255,158,0,.18); border: 1px solid #ff9e00; color: #ffc266; border-radius: 8px; padding: 4px 10px; font-size: 12px; }
+  #tutorial-banner {
+    display: none; width: 100%; max-width: 760px; margin: 0 auto;
+    background: rgba(76,201,240,.16); border: 1px solid var(--accent); color: var(--accent);
+    border-radius: 8px; padding: 8px 14px; font-size: 14px; text-align: center; font-weight: 600;
+  }
+  #tutorial-banner.active { display: block; }
   #modifiers {
     position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
     background: rgba(8,11,16,.85); z-index: 10;
@@ -281,6 +287,7 @@
   <div id="mod-bar"></div>
   <div id="relic-bar"></div>
   <div id="event-bar"></div>
+  <div id="tutorial-banner"></div>
 
   <div id="hint">
     Click en terreno libre para construir. Click en una torre para seleccionarla y
@@ -360,6 +367,7 @@
         <button class="menu-btn" id="menu-campaign">Campaña (C)</button>
         <button class="menu-btn" id="menu-tech">Progresión (P)</button>
         <button class="menu-btn" id="menu-mods">Modificadores (M)</button>
+        <button class="menu-btn" id="menu-tutorial">Tutorial (T)</button>
         <button class="menu-btn" id="menu-sound">Sonido: On</button>
       </div>
       <p class="menu-hint">Pausa con <kbd>Esc</kbd> · Sugerencia: abre Progresión y Campaña para desbloquear mejoras.</p>

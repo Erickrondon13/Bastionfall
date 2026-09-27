@@ -21,6 +21,7 @@ export class Hud {
       modBar: document.getElementById("mod-bar"),
       relicBar: document.getElementById("relic-bar"),
       eventBar: document.getElementById("event-bar"),
+      tutorial: document.getElementById("tutorial-banner"),
     };
     this.buttons = [...document.querySelectorAll(".tower-btn")];
     this.abilities = [...document.querySelectorAll(".ability-btn")];
@@ -69,6 +70,7 @@ export class Hud {
     this.updateMods(s);
     this.updateRelics(s);
     this.updateEvent(s);
+    this.updateTutorial(s);
   }
 
   updateAbilityBar(s) {
@@ -170,5 +172,12 @@ export class Hud {
     const secs = Math.ceil(ev.timer / 60);
     const def = ev.def || {};
     this.el.eventBar.innerHTML = `<span class="event-chip">${def.icon || "⚡"} ${def.name || ev.id} · ${secs}s</span>`;
+  }
+
+  updateTutorial(s) {
+    const tut = s.tutorial;
+    const on = !!(tut && tut.active);
+    this.el.tutorial.textContent = on ? (tut.text || "") : "";
+    this.el.tutorial.classList.toggle("active", on);
   }
 }
