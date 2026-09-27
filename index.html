@@ -89,6 +89,17 @@
   .tech-node.owned { border-color: var(--ok); }
   .tech-node.owned button { background: var(--ok); cursor: default; }
   .tech-node.cant button { background: #3a4658; color: var(--muted); cursor: not-allowed; }
+  #menu {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(8,11,16,.88); z-index: 20;
+  }
+  #menu.hidden { display: none; }
+  .menu-panel { text-align: center; max-width: 420px; }
+  .menu-title { margin: 0 0 4px; font-size: 38px; letter-spacing: 2px; color: var(--accent); }
+  .menu-sub { color: var(--muted); margin: 0 0 18px; }
+  .menu-buttons { display: flex; flex-direction: column; gap: 10px; }
+  .menu-buttons .menu-btn { width: 100%; padding: 12px; font-size: 15px; }
+  .menu-hint { color: var(--muted); font-size: 12px; margin: 16px 0 0; }
   #campaign {
     position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
     background: rgba(8,11,16,.85); z-index: 10;
@@ -188,6 +199,21 @@
       <h2>Selecciona una etapa</h2>
       <div id="campaign-list"></div>
       <button class="menu-btn" id="campaign-close">Cerrar (C)</button>
+    </div>
+  </div>
+
+  <div id="menu">
+    <div class="tech-panel menu-panel">
+      <h1 class="menu-title">Bastionfall</h1>
+      <p class="menu-sub" id="menu-sub">Defiende tu base de las oleadas.</p>
+      <div class="menu-buttons">
+        <button class="menu-btn" id="menu-resume">Jugar</button>
+        <button class="menu-btn" id="menu-restart">Reiniciar</button>
+        <button class="menu-btn" id="menu-campaign">Campaña (C)</button>
+        <button class="menu-btn" id="menu-tech">Progresión (P)</button>
+        <button class="menu-btn" id="menu-sound">Sonido: On</button>
+      </div>
+      <p class="menu-hint">Pausa con <kbd>Esc</kbd> · Sugerencia: abre Progresión y Campaña para desbloquear mejoras.</p>
     </div>
   </div>
 

@@ -1,13 +1,23 @@
 export class Sfx {
-  constructor(events) {
+  constructor(events, options = {}) {
     this.events = events;
     this.ctx = null;
     this.master = null;
     this.enabled = true;
+    this.muted = !!options.muted;
+    this.onMuteChange = options.onMuteChange || null;
     this.bind();
     const wake = () => this.ensure();
     window.addEventListener("pointerdown", wake, { once: true });
     window.addEventListener("keydown", wake, { once: true });
+  }
+
+  setMuted(m) {
+    this.muted = m;
+    if (this.master && this.ctx) {
+      this.master.gain.value = m ? 0 : 0.18;
+    }
+    if (this.onMuteChange) this.onMuteChange(m);
   }
 
   ensure() {
@@ -37,7 +47,7 @@ export class Sfx {
   }
 
   blip(freq, dur, type = "sine", gain = 0.06) {
-    if (!this.enabled) return;
+    if (!this.enabled || this.muted) return;
     this.ensure();
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
@@ -54,7 +64,7 @@ export class Sfx {
   }
 
   arpeggio(notes, step) {
-    if (!this.enabled) return;
+    if (!this.enabled || this.muted) return;
     this.ensure();
     if (!this.ctx) return;
     notes.forEach((f, i) => {

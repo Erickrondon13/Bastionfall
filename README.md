@@ -26,8 +26,17 @@ Luego abre `http://localhost:8000`.
 | `U` | Mejora la torre seleccionada (3 niveles) |
 | `X` | Vende la torre seleccionada (60% del oro invertido) |
 | `P` | Abre el panel de **Progresión** (árbol de tecnología) |
+| `C` | Abre la **Campaña** (selección de etapas) |
+| `Esc` | Pausa / reanuda (menú) |
 | `Espacio` | Inicia la siguiente oleada |
 | `R` | Reinicia la partida |
+
+## Menús (Fase 11)
+
+- **Inicio y pausa**: al cargar y con `Esc` se muestra un menú con Jugar, Reiniciar,
+  Campaña, Progresión y ajustes de sonido.
+- **Ajustes**: el sonido se puede silenciar; la preferencia se guarda en `localStorage`.
+- Las pantallas de **victoria/derrota** permiten reiniciar la partida.
 
 ## Progresión persistente
 
@@ -98,6 +107,6 @@ solo lee el estado. Ver `docs/ARCHITECTURE.md` para el diseño completo.
 
 ## Roadmap (`docs/FASES.md`)
 
-Implementado hasta la **Fase 10** (audio) más guardado (`localStorage`, Fase 12) y
-resiliencia. Próximas: menús completos (Fase 11), balance (Fase 13), arte (Fase 14),
-optimización (Fase 15), móvil (Fase 16) y pulido (Fase 17).
+Implementado hasta la **Fase 11** (menús) más guardado (`localStorage`, Fase 12) y
+resiliencia. Próximas: balance (Fase 13), arte (Fase 14), optimización (Fase 15),
+móvil (Fase 16) y pulido (Fase 17).

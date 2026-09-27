@@ -21,6 +21,7 @@ export class Progression {
         nodes: parsed.nodes || {},
         stars: parsed.stars || {},
         campaign: parsed.campaign || {},
+        settings: parsed.settings || { sound: true },
       };
     } catch {
       return defaultSave();
@@ -98,6 +99,15 @@ export class Progression {
 
   isStageCompleted(stageId) {
     return !!(this.data.campaign && this.data.campaign[stageId]);
+  }
+
+  soundEnabled() {
+    return !this.data.settings || this.data.settings.sound !== false;
+  }
+
+  setSound(on) {
+    this.data.settings = { ...(this.data.settings || {}), sound: on };
+    this.save();
   }
 
   // --- Derivar modificadores para una partida ---

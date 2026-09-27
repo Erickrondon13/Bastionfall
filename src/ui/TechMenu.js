@@ -16,6 +16,14 @@ export class TechMenu {
     this.open = !this.open;
     this.root.classList.toggle("open", this.open);
     if (this.open) this.render();
+    else if (this.onClose) this.onClose();
+  }
+
+  close() {
+    if (!this.open) return;
+    this.open = false;
+    this.root.classList.remove("open");
+    if (this.onClose) this.onClose();
   }
 
   render() {

@@ -19,11 +19,49 @@ const overlay = new Overlay(game);
 const input = new Input(game, canvas);
 const techMenu = new TechMenu(progression);
 const levelSelect = new LevelSelect(game, progression);
-const sfx = new Sfx(game.events);
+const sfx = new Sfx(game.events, { muted: !progression.soundEnabled() });
 
-input.onToggleTech = () => techMenu.toggle();
-input.onToggleCampaign = () => levelSelect.toggle();
+const menuEl = document.getElementById("menu");
+const soundBtn = document.getElementById("menu-sound");
+function setMenu(show) {
+  menuEl.classList.toggle("hidden", !show);
+}
+
 game.onRestart = () => overlay.hide();
+game.onPause = (paused) => {
+  if (!game.state.gameOver && !game.state.victory) setMenu(paused);
+};
+
+input.onToggleTech = () => { setMenu(false); techMenu.toggle(); };
+input.onToggleCampaign = () => { setMenu(false); levelSelect.toggle(); };
+techMenu.onClose = () => { if (game.paused) setMenu(true); };
+levelSelect.onClose = () => { if (game.paused) setMenu(true); };
+
+document.getElementById("menu-resume").addEventListener("click", () => game.start());
+document.getElementById("menu-restart").addEventListener("click", () => {
+  techMenu.close();
+  levelSelect.close();
+  game.restart();
+});
+document.getElementById("menu-campaign").addEventListener("click", () => {
+  setMenu(false);
+  levelSelect.toggle();
+});
+document.getElementById("menu-tech").addEventListener("click", () => {
+  setMenu(false);
+  techMenu.toggle();
+});
+function refreshSound() {
+  soundBtn.textContent = "Sonido: " + (progression.soundEnabled() ? "On" : "Off");
+}
+soundBtn.addEventListener("click", () => {
+  const on = !progression.soundEnabled();
+  progression.setSound(on);
+  sfx.setMuted(!on);
+  refreshSound();
+});
+refreshSound();
+setMenu(true);
 
 const loop = new GameLoop(
   (dt) => {

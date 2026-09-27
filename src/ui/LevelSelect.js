@@ -17,6 +17,7 @@ export class LevelSelect {
     this.open = !this.open;
     this.root.classList.toggle("open", this.open);
     if (this.open) this.render();
+    else if (this.onClose) this.onClose();
   }
 
   render() {

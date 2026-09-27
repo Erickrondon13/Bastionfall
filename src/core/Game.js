@@ -38,6 +38,18 @@ export class Game {
       if (this.onGameOver) this.onGameOver();
     });
     this.loadMap("llanura");
+    this.paused = true;
+  }
+
+  togglePause() {
+    if (this.state.gameOver || this.state.victory) return;
+    this.paused = !this.paused;
+    if (this.onPause) this.onPause(this.paused);
+  }
+
+  start() {
+    this.paused = false;
+    if (this.onPause) this.onPause(false);
   }
 
   mods() {
@@ -88,6 +100,7 @@ export class Game {
 
   restart() {
     this.newGame();
+    this.paused = false;
     if (this.onRestart) this.onRestart();
   }
 
@@ -114,7 +127,7 @@ export class Game {
 
   startWave() {
     const s = this.state;
-    if (s.oleadaActiva || s.gameOver || s.victory) return;
+    if (this.paused || s.oleadaActiva || s.gameOver || s.victory) return;
     s.oleada++;
     s.spawnQueue = buildWave(s.oleada, s.totalOleadas);
     s.spawnTimer = 0;
@@ -169,6 +182,7 @@ export class Game {
 
   update(dt) {
     const s = this.state;
+    if (this.paused) return;
     if (s.flash.timer > 0) s.flash.timer--;
     if (!s.gameOver && !s.victory) s.time += 1;
 
