@@ -182,6 +182,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   conectada a eventos de combate y rastro de fuego por quemadura. Ver `fases/visual/README.md`.
 - **Fase 29 — HUD (§29):** barra superior dark-fantasy (pills con glow), tarjeta de selección y chips con resplandor;
   popups de daño con contorno/escala de crítico. Ver `fases/visual/README.md`.
+- **Fase 30 — Menús (§30):** estética dark-fantasy para menú principal, progresión, campaña, cavernas, modificadores y
+  tienda de reliquias (paneles con borde dorado/glow, título con gradiente). Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

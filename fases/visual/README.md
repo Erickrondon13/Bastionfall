@@ -143,7 +143,11 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
       blur, bordes dorados y pills con glow por recurso), tarjeta `#sel` y chips de sinergia/modificador/relic/evento
       con resplandor. Popups de daño en canvas mejorados (`drawFloaters`): contorno, fuente resaltada, escala de
       crítico y `Camera.scale`. `Camera` ahora expone `scale`.
+- [x] **Fase 30 — Menús y pantallas**: estética dark-fantasy para `.tech-panel` (degradado, borde dorado, glow),
+      título `Bastionfall` con gradiente y glow, botones `.menu-btn` con borde/hover dorado, modo activo resaltado,
+      `#overlay` (victoria/derrota) con radial + blur y título dorado, y realces para relic/mod/tech cards. Aplica a
+      menú principal, progresión, campaña, cavernas, modificadores y tienda de reliquias.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 30 — Menús y pantallas**: rediseñar el menú principal, pantallas de victoria/derrota, progresión
-y tienda con la estética dark-fantasy. No avanzar a Fase 31 hasta completar, probar y documentar Fase 30.
+Implementar **Fase 31 — Mapa de campaña**: pantalla de selección de mundo/etapa con la nueva estética (ya iniciada en
+§20) y conexiones visuales entre etapas. No avanzar a Fase 32 hasta completar, probar y documentar Fase 31.
