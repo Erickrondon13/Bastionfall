@@ -54,19 +54,32 @@ function buildZones(path, cols, rows, types) {
   return res;
 }
 
-const GRID = { cols: 24, rows: 16, tile: 40 };
+const GRID = { cols: 26, rows: 18, tile: 40 };
 
-function makeMap(id, name, seed, startGold, startLife, types) {
+function makeMap(id, name, seed, startGold, startLife, types, ambientTheme) {
   const rng = mulberry32(seed);
   const path = genPath(GRID.rows, GRID.cols, rng);
   const zones = buildZones(path, GRID.cols, GRID.rows, types);
-  return { id, name, ...GRID, path, zones, startGold, startLife };
+  return {
+    id,
+    name,
+    ...GRID,
+    path,
+    zones,
+    startGold,
+    startLife,
+    theme: ambientTheme || "dark_cave",
+    lighting: {
+      ambientColor: "#111016",
+      torchPoints: path.filter((_, index) => index % 5 === 0),
+    },
+  };
 }
 
 export const MAPS = {
-  llanura: makeMap("llanura", "Llanura Asediada", 1234, 120, 20, ["pantano", "montana"]),
-  cañon: makeMap("cañon", "Garganta del Cañón", 5678, 140, 18, ["lava", "montana", "bosque"]),
-  cienagas: makeMap("cienagas", "Ciénagas Putrefactas", 9012, 130, 20, ["pantano", "lava", "bosque"]),
+  llanura: makeMap("llanura", "Mina del Eco Profundo", 1234, 120, 20, ["pantano", "montana"], "crystal_mine"),
+  cañon: makeMap("cañon", "Garganta del Magma", 5678, 140, 18, ["lava", "montana", "bosque"], "volcanic_cave"),
+  cienagas: makeMap("cienagas", "Abismo de los Cristales", 9012, 130, 20, ["pantano", "lava", "bosque"], "deep_abyss"),
 };
 
 export function assembleMap(m) {
@@ -90,32 +103,32 @@ export function buildMap(id) {
 }
 
 export const ZONE_TYPES = {
-  pantano: { 
-    name: "Grieta Mágica", 
-    color: "#2a1b3d", // Tono morado oscuro de cueva
-    glowColor: "#b55fe6", // Brillo de cristal morado similar a la referencia
+  pantano: {
+    name: "Grieta Mágica",
+    color: "#2a1b3d",
+    glowColor: "#b55fe6",
     enemySlow: 0.55,
-    texture: "crystal_cluster" 
+    texture: "crystal_cluster",
   },
-  montana: { 
-    name: "Plataforma de Piedra", 
-    color: "#3e434f", // Piedra minera robusta
+  montana: {
+    name: "Plataforma de Piedra",
+    color: "#3e434f",
     towerRange: 1.3,
-    texture: "stone_block" 
+    texture: "stone_block",
   },
-  lava: { 
-    name: "Veta de Magma", 
-    color: "#8a2b0d", 
-    glowColor: "#ff4500", // Luz cálida de fuego
-    enemyDps: 8, 
+  lava: {
+    name: "Veta de Magma",
+    color: "#8a2b0d",
+    glowColor: "#ff4500",
+    enemyDps: 8,
     interval: 20,
-    texture: "magma_vent"
+    texture: "magma_vent",
   },
-  bosque: { 
-    name: "Soporte de Madera", 
-    color: "#4a3319", // Madera de mina / andamio
+  bosque: {
+    name: "Soporte de Madera",
+    color: "#4a3319",
     towerRange: 0.75,
-    texture: "wood_scaffolding"
+    texture: "wood_scaffolding",
   },
 };
 

@@ -63,8 +63,8 @@ function generatePath(rows, cols, rng, tier) {
 }
 
 export function generateCaveMap(tier, rng = Math.random) {
-  const cols = 24;
-  const rows = 16;
+  const cols = 26;
+  const rows = 18;
   const tile = 40;
   const waves = 4 + tier;
   const path = generatePath(rows, cols, rng, tier);

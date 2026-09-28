@@ -11,9 +11,10 @@ function outline(ctx, color = "rgba(8,12,18,.5)", w = 1.5) {
 }
 
 export function drawTerrain(ctx, W, H, tile, state) {
+  const amb = (state.map && state.map.lighting && state.map.lighting.ambientColor) || "#111016";
   const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, "#16161b");
-  g.addColorStop(1, "#0c0c10");
+  g.addColorStop(0, "#16141b");
+  g.addColorStop(1, amb);
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 
@@ -217,6 +218,27 @@ export function drawCaveGlow(ctx, state, time) {
   }
   const cols = state.map.cols;
   const rows = state.map.rows;
+
+  const tps = (state.map.lighting && state.map.lighting.torchPoints) || [];
+  for (const [c, r] of tps) {
+    const x = c * tile + tile / 2;
+    const y = r * tile + tile / 2;
+    const flick = 0.5 + 0.5 * Math.sin(time / 9 + c * 1.3 + r);
+    const R = 32 + flick * 14;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, R);
+    g.addColorStop(0, `rgba(255,170,60,${0.28 * flick + 0.08})`);
+    g.addColorStop(1, "rgba(255,170,60,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(x - R, y - R, R * 2, R * 2);
+    ctx.fillStyle = `rgba(255,${150 + Math.floor(70 * flick)},40,0.85)`;
+    ctx.beginPath();
+    ctx.moveTo(x - 3, y + 4);
+    ctx.quadraticCurveTo(x - 4, y - 6, x, y - 11 * (0.7 + flick * 0.5));
+    ctx.quadraticCurveTo(x + 4, y - 6, x + 3, y + 4);
+    ctx.closePath();
+    ctx.fill();
+  }
+
   const torchSpots = [
     [Math.floor(cols * 0.15), 0], [Math.floor(cols * 0.85), 0],
     [0, Math.floor(rows * 0.5)], [cols - 1, Math.floor(rows * 0.5)],
