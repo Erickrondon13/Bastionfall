@@ -115,7 +115,12 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
       camino y dibuja cada uno como "tierra" con conexiones a sus vecinos (rectas/esquinas) y un pequeño margen de
       césped en los bordes, integrándose con el terreno en vez de superponerse. Añade un anillo de spawn en el
       inicio. Mantiene ambas cámaras.
+- [x] **Fase 23 — Torres**: `art.drawTower` rediseñado con volumen (plinto de piedra + sombra), forma distintiva
+      por tipo — **arco** (ballesta de madera), **cañón** (bloque de piedra + cañón orientado al ángulo),
+      **hielo** (espiga de cristal con brillo), **fuego** (torre metálica con núcleo y llama) — y 3 niveles que
+      crecen en tamaño/detalle. Pulso idle sutil. Procedural y sin assets; respeta la profundidad de Fase 20.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 23 — Torres**: rediseñar las 4 torres con volumen, sombra y niveles (procedural, sin assets),
-respetando la profundidad de Fase 20. No avanzar a Fase 24 hasta completar, probar y documentar Fase 23.
+Implementar **Fase 24 — Enemigos**: rediseñar los enemigos (básico, volador, blindado, divisor, élite, boss) con
+identidad visual propia, manteniendo las siluetas actuales como base. No avanzar a Fase 25 hasta completar, probar y
+documentar Fase 24.

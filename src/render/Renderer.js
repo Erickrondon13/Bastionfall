@@ -41,7 +41,7 @@ export class Renderer {
       drawables.push({
         y: t.y,
         fn: () => {
-          art.drawTower(ctx, t);
+          art.drawTower(ctx, t, time);
           if (t.disabledTimer > 0) {
             ctx.strokeStyle = "rgba(239,71,111,.9)";
             ctx.lineWidth = 2;
