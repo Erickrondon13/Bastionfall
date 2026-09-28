@@ -12,20 +12,20 @@ function outline(ctx, color = "rgba(8,12,18,.5)", w = 1.5) {
 
 export function drawTerrain(ctx, W, H, tile, state) {
   const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, "#1c1814");
-  g.addColorStop(1, "#0c0a08");
+  g.addColorStop(0, "#16161b");
+  g.addColorStop(1, "#0c0c10");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 
-  const tones = ["#2a2622", "#322c26", "#262220", "#38322b", "#2e2925", "#221e1a"];
+  const tones = ["#141418", "#181820", "#101014", "#1a1a22", "#121216", "#0e0e12"];
   for (let r = 0; r < state.map.rows; r++) {
     for (let c = 0; c < state.map.cols; c++) {
       const x = c * tile;
       const y = r * tile;
       if (state.blocked.has(`${c},${r}`)) {
-        ctx.fillStyle = "#3a322a";
+        ctx.fillStyle = "#0e0e12";
         ctx.fillRect(x, y, tile, tile);
-        ctx.fillStyle = "rgba(255,255,255,.05)";
+        ctx.fillStyle = "rgba(255,255,255,.04)";
         ctx.fillRect(x, y, tile, 2);
         ctx.fillStyle = "rgba(0,0,0,.30)";
         ctx.fillRect(x, y + tile - 3, tile, 3);
@@ -37,7 +37,7 @@ export function drawTerrain(ctx, W, H, tile, state) {
       const h2 = hash(c * 3 + 1, r * 7 + 5);
       ctx.fillStyle = tones[Math.floor(h1 * tones.length) % tones.length];
       ctx.fillRect(x, y, tile, tile);
-      ctx.fillStyle = "rgba(255,255,255,.05)";
+      ctx.fillStyle = "rgba(255,255,255,.04)";
       ctx.fillRect(x, y, tile, 2);
       ctx.fillStyle = "rgba(0,0,0,.22)";
       ctx.fillRect(x, y + tile - 3, tile, 3);
@@ -51,6 +51,21 @@ export function drawTerrain(ctx, W, H, tile, state) {
         ctx.stroke();
       }
       if (hash(c * 7 + 2, r * 5 + 3) >= 0.94) drawCrystalStatic(ctx, x, y, tile, c, r);
+
+      const hp = hash(c * 13 + 1, r * 17 + 3);
+      if (hp > 0.92) {
+        const px = x + 5 + hash(c + 1, r) * (tile - 10);
+        const py = y + 5 + hash(c, r + 1) * (tile - 10);
+        const gold = hash(c * 2, r) > 0.5;
+        const col = gold ? "255,214,120" : "220,235,255";
+        const R = 3.5 + hash(c, r * 2) * 3;
+        const pg = ctx.createRadialGradient(px, py, 0, px, py, R);
+        pg.addColorStop(0, `rgba(${col},0.95)`);
+        pg.addColorStop(0.4, `rgba(${col},0.35)`);
+        pg.addColorStop(1, `rgba(${col},0)`);
+        ctx.fillStyle = pg;
+        ctx.fillRect(px - R, py - R, R * 2, R * 2);
+      }
     }
   }
 }
@@ -141,34 +156,32 @@ export function drawPath(ctx, pts, state) {
     const [c, r] = k.split(",").map(Number);
     const x = c * tile;
     const y = r * tile;
-    const cx = x + tile / 2;
-    const cy = y + tile / 2;
-    const N = isPath(c, r - 1);
-    const S = isPath(c, r + 1);
-    const E = isPath(c + 1, r);
-    const W = isPath(c - 1, r);
 
-    ctx.fillStyle = "#15110d";
-    roundRect(ctx, x, y, tile, tile, 7);
+    ctx.fillStyle = "rgba(0,0,0,.55)";
+    roundRect(ctx, x + 1, y + tile - 6, tile - 2, 7, 4);
     ctx.fill();
 
-    ctx.fillStyle = "#4a4138";
-    roundRect(ctx, x + 2, y + 2, tile - 4, tile - 4, 6);
+    ctx.fillStyle = "#2f2820";
+    roundRect(ctx, x + 1, y + tile - 5, tile - 2, 5, 3);
     ctx.fill();
 
     ctx.fillStyle = "#5a5046";
-    const w = 14;
-    if (N) ctx.fillRect(cx - w / 2, y + 2, w, tile / 2 - 2);
-    if (S) ctx.fillRect(cx - w / 2, cy, w, tile / 2 - 2);
-    if (W) ctx.fillRect(x + 2, cy - w / 2, tile / 2 - 2, w);
-    if (E) ctx.fillRect(cx, cy - w / 2, tile / 2 - 2, w);
-
-    ctx.fillStyle = "rgba(255,240,210,.10)";
-    roundRect(ctx, x + 5, y + 5, tile - 10, tile - 10, 4);
+    roundRect(ctx, x + 2, y + 2, tile - 4, tile - 7, 5);
     ctx.fill();
-    ctx.strokeStyle = "rgba(0,0,0,.4)";
+
+    const hs = hash(c * 9 + 3, r * 11 + 2);
+    if (hs > 0.55) {
+      ctx.fillStyle = "rgba(0,0,0,.18)";
+      ctx.fillRect(x + 4 + hs * (tile - 10), y + 5 + hs * (tile - 12), 2, 2);
+    }
+
+    ctx.fillStyle = "rgba(255,240,210,.14)";
+    roundRect(ctx, x + 3, y + 2, tile - 6, 3, 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(0,0,0,.5)";
     ctx.lineWidth = 1;
-    roundRect(ctx, x + 2, y + 2, tile - 4, tile - 4, 6);
+    roundRect(ctx, x + 2, y + 2, tile - 4, tile - 7, 5);
     ctx.stroke();
   }
 
