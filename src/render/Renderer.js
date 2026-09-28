@@ -12,6 +12,23 @@ export class Renderer {
     this.ambient = [];
     const W = canvas.width, H = canvas.height;
     for (let i = 0; i < 46; i++) this.ambient.push(this._newEmber(W, H));
+    this.terrainCanvas = null;
+    this._terrainKey = null;
+  }
+
+  _ensureTerrain(state, tile, W, H) {
+    const key = (state.map && state.map.id) || (W + "x" + H);
+    if (this._terrainKey === key && this.terrainCanvas) return;
+    this._terrainKey = key;
+    if (typeof document === "undefined") { this.terrainCanvas = null; return; }
+    const c = document.createElement("canvas");
+    c.width = W;
+    c.height = H;
+    const tctx = c.getContext("2d");
+    art.drawTerrain(tctx, W, H, tile, state);
+    this.drawZones(tctx, state, tile);
+    art.drawPath(tctx, state.pathPoints, state);
+    this.terrainCanvas = c;
   }
 
   _newEmber(W, H) {
@@ -45,9 +62,13 @@ export class Renderer {
     const shake = this.effects ? this.effects.shakeOffset() : { x: 0, y: 0 };
     ctx.translate(shake.x, shake.y);
 
-    art.drawTerrain(ctx, W, H, tile, state);
-    this.drawZones(state, tile);
-    art.drawPath(ctx, state.pathPoints, state);
+    this._ensureTerrain(state, tile, W, H);
+    if (this.terrainCanvas) ctx.drawImage(this.terrainCanvas, 0, 0);
+    else {
+      art.drawTerrain(ctx, W, H, tile, state);
+      this.drawZones(ctx, state, tile);
+      art.drawPath(ctx, state.pathPoints, state);
+    }
     this.drawHazards(state);
     this.drawShadows(state);
     this.drawHover(state, tile);
@@ -192,8 +213,7 @@ export class Renderer {
     }
   }
 
-  drawZones(state, tile) {
-    const ctx = this.ctx;
+  drawZones(ctx, state, tile) {
     if (!state.map || !state.map.zones) return;
     for (const z of state.map.zones) {
       const def = ZONE_TYPES[z.type];

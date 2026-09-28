@@ -190,6 +190,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   fase. Ver `fases/visual/README.md`.
 - **Fase 33 — Assets/pulido (§33):** ambiente procedural (brasas a la deriva) y gancho `renderConfig` para sprites
   futuros. Ver `fases/visual/README.md`.
+- **Fase 34 — Optimización (§34):** cache de terreno (terrain+zonas+path) en canvas offscreen, regenerado solo al
+  cambiar de mapa. Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

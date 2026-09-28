@@ -156,7 +156,10 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
 - [x] **Fase 33 — Assets / pulido procedural**: sin assets externos, se añade **ambiente procedural** (brasas a la
       deriva en espacio de pantalla con `globalCompositeOperation="lighter"`) en `Renderer.drawAmbient`, gestionado por
       `renderConfig.ambient` y `renderConfig.artStyle` (gancho para sprites futuros). El arte procedural se mantiene.
+- [x] **Fase 34 — Optimización**: el terreno estático (terrain + zonas + path) se cachea en un canvas offscreen
+      (`Renderer._ensureTerrain`) y se vuelca con `drawImage` bajo la transformación de cámara; se regenera solo al
+      cambiar de mapa (`map.id`). En entornos sin `document` se dibuja directo (fallback). Reduce el sobre-dibujado.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 34 — Optimización**: evitar sobre-dibujado (cache de terreno/zonas), limitar partículas y usar
-`requestAnimationFrame`/dirty flags donde aplique. No avanzar a Fase 35 hasta completar, probar y documentar Fase 34.
+Implementar **Fase 35 — Responsive / adaptación**: que el canvas y la UI escalen a distintos tamaños de pantalla
+(móvil/escritorio) manteniendo legibilidad. No avanzar a Fase 36 hasta completar, probar y documentar Fase 35.
