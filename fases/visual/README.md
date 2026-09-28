@@ -150,7 +150,10 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
 - [x] **Fase 31 — Mapa de campaña**: `LevelSelect` agrupa las etapas de cada mundo en `.camp-world-group` y se dibuja
       un **camino** con conector vertical y **nodos** por etapa (color según estado: bloqueado/completado/jefe). El
       encabezado de mundo lleva icono ◆ y las etapas jefe tienen tag `☠ JEFE` y estilo propio. CSS nuevo en index.html.
+- [x] **Fase 32 — Boss cinematográfico**: overlay `#boss-intro` (DOM) con nombre del jefe al spawnear (fade-in/out),
+      `drawBossBar` con **indicador de fase** (3 pips) y flash de texto `¡FASE N!` en `boss:phase` (más shake existente).
+      Conectado en `main.js` vía `boss:spawn`/`boss:phase`.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 32 — Boss cinematográfico**: pantalla de introducción del jefe, barra de fase, y efectos al entrar/
-salir de fase. No avanzar a Fase 33 hasta completar, probar y documentar Fase 32.
+Implementar **Fase 33 — Assets / Sprites**: sustituir el arte procedural por sprites (si se añaden assets) o pulir el
+procedural. No avanzar a Fase 34 hasta completar, probar y documentar Fase 33.

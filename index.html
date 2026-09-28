@@ -322,6 +322,28 @@
   }
   .camp-stage.boss { border-width: 2px; background: linear-gradient(180deg, rgba(60,20,26,.6), rgba(30,14,18,.7)); }
   .camp-stage.boss:hover:not(:disabled) { border-color: #ff6b78; box-shadow: 0 0 16px rgba(178,58,72,.5); }
+  /* === Fase 32: Boss cinematográfico === */
+  #boss-intro {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    pointer-events: none; z-index: 40; opacity: 0; transition: opacity .4s ease;
+    background: radial-gradient(800px 420px at 50% 50%, rgba(178,58,72,.18), rgba(8,11,16,0));
+  }
+  #boss-intro.show { opacity: 1; }
+  .bi-frame {
+    text-align: center; padding: 22px 50px; border-radius: 14px;
+    background: linear-gradient(180deg, rgba(27,34,48,.85), rgba(16,21,30,.85));
+    border: 1px solid rgba(178,58,72,.6); box-shadow: 0 0 40px rgba(178,58,72,.45), inset 0 0 30px rgba(178,58,72,.12);
+    transform: scale(.92); transition: transform .4s ease;
+  }
+  #boss-intro.show .bi-frame { transform: scale(1); }
+  .bi-kicker { color: #ff9aa6; letter-spacing: 6px; font-weight: 700; font-size: 14px; text-shadow: 0 0 12px rgba(178,58,72,.9); }
+  .bi-name {
+    font-size: 40px; font-weight: 800; letter-spacing: 2px; margin: 6px 0;
+    background: linear-gradient(90deg, #ffd166, #ff6b78, #b23a48);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 0 30px rgba(255,107,120,.4);
+  }
+  .bi-sub { color: var(--muted); font-size: 14px; letter-spacing: 1px; }
 </style>
 </head>
 <body>
@@ -349,6 +371,14 @@
       <div id="overlay-stats"></div>
       <div id="overlay-ach"></div>
       <button id="overlay-btn">Reiniciar (R)</button>
+    </div>
+  </div>
+
+  <div id="boss-intro">
+    <div class="bi-frame">
+      <div class="bi-kicker">⚔ JEFE ⚔</div>
+      <div class="bi-name" id="boss-intro-name"></div>
+      <div class="bi-sub">Una amenaza se aproxima</div>
     </div>
   </div>
 

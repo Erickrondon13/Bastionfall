@@ -44,7 +44,20 @@ const music = new Music(sfx);
 music.setTrack("menu");
 
 game.events.on("wave:start", () => music.setTrack("gameplay"));
-game.events.on("boss:spawn", () => music.setTrack("boss"));
+game.events.on("boss:spawn", (e) => {
+  music.setTrack("boss");
+  const intro = document.getElementById("boss-intro");
+  const nameEl = document.getElementById("boss-intro-name");
+  if (nameEl) nameEl.textContent = e && e.enemy ? e.enemy.name : "El Devorador";
+  if (intro) {
+    intro.classList.add("show");
+    clearTimeout(intro._t);
+    intro._t = setTimeout(() => intro.classList.remove("show"), 2400);
+  }
+});
+game.events.on("boss:phase", (e) => {
+  game.setFlash(`¡FASE ${e ? e.phase : 2}!`);
+});
 game.events.on("wave:complete", () => music.setTrack("gameplay"));
 game.events.on("game:victory", () => music.setTrack("victory"));
 game.events.on("game:over", () => music.setTrack("defeat"));

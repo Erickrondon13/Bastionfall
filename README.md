@@ -186,6 +186,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   tienda de reliquias (paneles con borde dorado/glow, título con gradiente). Ver `fases/visual/README.md`.
 - **Fase 31 — Mapa de campaña (§31):** etapas agrupadas en un camino con conector vertical y nodos por estado, tag de
   jefe y encabezados de mundo con icono. Ver `fases/visual/README.md`.
+- **Fase 32 — Boss cinematográfico (§32):** intro overlay del jefe, barra con indicador de fase y flash al cambiar de
+  fase. Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

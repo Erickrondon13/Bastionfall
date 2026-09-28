@@ -236,6 +236,14 @@ export class Renderer {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(`JEFE — fase ${boss.phase}${boss.shieldTimer > 0 ? " (escudo)" : ""}`, W / 2, y + 6);
+
+    const phases = 3;
+    const pw = bw / phases;
+    for (let i = 0; i < phases; i++) {
+      const on = boss.phase >= i + 1;
+      ctx.fillStyle = on ? "#b7179e" : "rgba(255,255,255,.15)";
+      ctx.fillRect(x + i * pw + 2, y - 7, pw - 4, 4);
+    }
   }
 
   drawHover(state, tile) {
