@@ -33,6 +33,7 @@ export class Renderer {
     this.drawZones(state, tile);
     art.drawPath(ctx, state.pathPoints, state);
     this.drawHazards(state);
+    this.drawShadows(state);
     this.drawHover(state, tile);
 
     const drawables = [];
@@ -70,6 +71,23 @@ export class Renderer {
     this.drawVignette();
     this.drawBossBar(state);
     this.drawFlash(state);
+  }
+
+  drawShadows(state) {
+    const ctx = this.ctx;
+    ctx.fillStyle = "rgba(0,0,0,.25)";
+    const ell = (x, y, rx, ry) => {
+      ctx.beginPath();
+      ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+    };
+    ell(state.base.x, state.base.y + 12, 26, 10);
+    for (const t of state.torres) ell(t.x, t.y + 11, 14, 5);
+    for (const e of state.enemigos) {
+      if (e.flying) ell(e.x, e.y + e.radius * 0.6, e.radius * 0.7, e.radius * 0.3);
+      else ell(e.x, e.y + 6, e.radius * 0.9, e.radius * 0.4);
+    }
+    for (const p of state.proyectiles) ell(p.x, p.y + 5, 4, 2);
   }
 
   drawLighting(state, time) {

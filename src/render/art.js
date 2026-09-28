@@ -207,11 +207,6 @@ export function drawTower(ctx, t, time = 0) {
   const recoil = Math.max(0, ratio);
   const firing = ratio > 0.82;
 
-  ctx.fillStyle = "rgba(0,0,0,.28)";
-  ctx.beginPath();
-  ctx.ellipse(x, y + 11, 14, 5, 0, 0, Math.PI * 2);
-  ctx.fill();
-
   ctx.save();
   ctx.translate(x, y);
   ctx.fillStyle = "#3a4456";
@@ -343,13 +338,6 @@ export function drawEnemy(ctx, e, time) {
   const x = e.x;
   const y = e.y + bob;
   const r = e.radius;
-
-  if (!e.flying) {
-    ctx.fillStyle = "rgba(0,0,0,.22)";
-    ctx.beginPath();
-    ctx.ellipse(e.x, e.y + 6, r * 0.9, r * 0.4, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
 
   ctx.save();
   ctx.globalAlpha = e.invisible ? 0.4 : 1;

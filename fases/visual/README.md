@@ -131,8 +131,11 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
       — halo cálido en torre de **fuego**, halo frío en **hielo**, resplandor naranja en enemigos **quemando** y aura
       púrpura pulsante en **boss** — más una viñeta ambiental (`drawVignette`) en espacio de pantalla. Todo con
       gradientes radiales, sin assets.
+- [x] **Fase 27 — Sombras y profundidad**: las sombras de contacto se centralizan en `Renderer.drawShadows` (capa
+      propia, bajo las entidades) para **base, torres, enemigos** (suelo y voladores) y **proyectiles**. Se separa el
+      orden de capas: fondo → terreno → zonas → camino → sombras → hover → entidades (z-sorted) → luces → rangos →
+      UI. Las sombras inline previas en `drawTower`/`drawEnemy` se eliminan para evitar duplicidad.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 27 — Sombras y profundidad**: separar capas (fondo/terreno/decoración/sombras/estructuras/unidades/
-efectos/UI) y añadir sombras proyectadas a torres/enemigos/proyectiles. No avanzar a Fase 28 hasta completar, probar y
-documentar Fase 27.
+Implementar **Fase 28 — Efectos visuales**: biblioteca de efectos (explosión, hielo, fuego, humo, impacto, muerte)
+procedural y conectada a los eventos de combate. No avanzar a Fase 29 hasta completar, probar y documentar Fase 28.

@@ -176,6 +176,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   enemigos. Ver `fases/visual/README.md`.
 - **Fase 26 — Iluminación (§26):** halos aditivos para fuego/hielo/enemigos quemándose/boss y viñeta ambiental.
   Ver `fases/visual/README.md`.
+- **Fase 27 — Sombras (§27):** capa de sombras de contacto centralizada (base, torres, enemigos, proyectiles) y
+  separación de capas de render. Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)
