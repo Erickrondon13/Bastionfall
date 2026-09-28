@@ -1,71 +1,72 @@
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function genPath(rows, cols, rng) {
+  const visited = new Set();
+  const path = [];
+  const push = (c, r) => { path.push([c, r]); visited.add(c + "," + r); };
+  let c = 0;
+  let r = 1 + Math.floor(rng() * (rows - 2));
+  push(c, r);
+  let guard = 0;
+  const wig = 0.5;
+  while (c < cols - 1 && guard++ < 5000) {
+    const opts = [];
+    const right = [c + 1, r];
+    const up = [c, r - 1];
+    const down = [c, r + 1];
+    if (c + 1 < cols && !visited.has(right[0] + "," + right[1])) opts.push(right);
+    if (r - 1 > 0 && !visited.has(c + "," + (r - 1)) && rng() < wig) opts.push(up);
+    if (r + 1 < rows - 1 && !visited.has(c + "," + (r + 1)) && rng() < wig) opts.push(down);
+    if (!opts.length) {
+      if (c + 1 < cols && !visited.has(right[0] + "," + right[1])) opts.push(right);
+      else break;
+    }
+    const [nc, nr] = opts[Math.floor(rng() * opts.length)];
+    c = nc; r = nr; push(c, r);
+  }
+  while (c < cols - 1) { c++; push(c, r); }
+  return path;
+}
+
+function buildZones(path, cols, rows, types) {
+  const blocked = new Set(path.map(([c, r]) => c + "," + r));
+  const res = [];
+  const step = Math.max(1, Math.floor(path.length / (types.length + 1)));
+  types.forEach((type, i) => {
+    const idx = Math.min(path.length - 2, (i + 1) * step);
+    const [pc, pr] = path[idx];
+    const neigh = [
+      [pc + 1, pr], [pc - 1, pr], [pc, pr + 1], [pc, pr - 1],
+      [pc + 1, pr + 1], [pc - 1, pr - 1], [pc + 1, pr - 1], [pc - 1, pr + 1],
+    ];
+    const cell = neigh.find(
+      ([nc, nr]) => nc > 0 && nc < cols - 1 && nr > 0 && nr < rows - 1 && !blocked.has(nc + "," + nr)
+    );
+    if (cell) res.push({ c: cell[0], r: cell[1], type });
+  });
+  return res;
+}
+
+const GRID = { cols: 24, rows: 16, tile: 40 };
+
+function makeMap(id, name, seed, startGold, startLife, types) {
+  const rng = mulberry32(seed);
+  const path = genPath(GRID.rows, GRID.cols, rng);
+  const zones = buildZones(path, GRID.cols, GRID.rows, types);
+  return { id, name, ...GRID, path, zones, startGold, startLife };
+}
+
 export const MAPS = {
-  llanura: {
-    id: "llanura",
-    name: "Llanura Asediada",
-    cols: 19,
-    rows: 13,
-    tile: 40,
-    startGold: 120,
-    startLife: 20,
-    path: [
-      [0, 2], [1, 2], [2, 2], [2, 3], [2, 4], [2, 5], [3, 5], [4, 5], [5, 5], [5, 6],
-      [5, 7], [5, 8], [5, 9], [6, 9], [7, 9], [8, 9], [8, 8], [8, 7], [8, 6], [8, 5],
-      [9, 5], [10, 5], [11, 5], [11, 6], [11, 7], [11, 8], [11, 9], [11, 10], [11, 11], [12, 11],
-      [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11],
-    ],
-    zones: [
-      { c: 2, r: 4, type: "pantano" },
-      { c: 2, r: 5, type: "pantano" },
-      { c: 5, r: 7, type: "pantano" },
-      { c: 6, r: 4, type: "montana" },
-    ],
-  },
-
-  cañon: {
-    id: "cañon",
-    name: "Garganta del Cañón",
-    cols: 19,
-    rows: 13,
-    tile: 40,
-    startGold: 140,
-    startLife: 18,
-    path: [
-      [0, 6], [1, 6], [2, 6], [3, 6], [3, 5], [3, 4], [4, 4], [5, 4], [6, 4], [6, 5],
-      [6, 6], [6, 7], [6, 8], [7, 8], [8, 8], [9, 8], [9, 7], [9, 6], [9, 5], [9, 4],
-      [10, 4], [11, 4], [12, 4], [12, 5], [12, 6], [12, 7], [12, 8], [13, 8], [14, 8], [15, 8],
-      [16, 8], [17, 8], [18, 8],
-    ],
-    zones: [
-      { c: 9, r: 8, type: "lava" },
-      { c: 10, r: 8, type: "lava" },
-      { c: 12, r: 6, type: "bosque" },
-      { c: 11, r: 7, type: "bosque" },
-    ],
-  },
-
-  cienagas: {
-    id: "cienagas",
-    name: "Ciénagas Putrefactas",
-    cols: 19,
-    rows: 13,
-    tile: 40,
-    startGold: 130,
-    startLife: 20,
-    path: [
-      [0, 2], [1, 2], [2, 2], [2, 3], [2, 4], [2, 5], [3, 5], [4, 5], [5, 5], [5, 6],
-      [5, 7], [5, 8], [5, 9], [6, 9], [7, 9], [8, 9], [8, 8], [8, 7], [8, 6], [8, 5],
-      [9, 5], [10, 5], [11, 5], [11, 6], [11, 7], [11, 8], [11, 9], [11, 10], [11, 11], [12, 11],
-      [13, 11], [14, 11], [15, 11], [16, 11], [17, 11], [18, 11],
-    ],
-    zones: [
-      { c: 2, r: 4, type: "pantano" },
-      { c: 2, r: 5, type: "pantano" },
-      { c: 8, r: 7, type: "lava" },
-      { c: 8, r: 8, type: "lava" },
-      { c: 4, r: 3, type: "montana" },
-      { c: 10, r: 4, type: "bosque" },
-    ],
-  },
+  llanura: makeMap("llanura", "Llanura Asediada", 1234, 120, 20, ["pantano", "montana"]),
+  cañon: makeMap("cañon", "Garganta del Cañón", 5678, 140, 18, ["lava", "montana", "bosque"]),
+  cienagas: makeMap("cienagas", "Ciénagas Putrefactas", 9012, 130, 20, ["pantano", "lava", "bosque"]),
 };
 
 export function assembleMap(m) {
@@ -89,10 +90,33 @@ export function buildMap(id) {
 }
 
 export const ZONE_TYPES = {
-  pantano: { name: "Pantano", color: "#3a7d44", enemySlow: 0.55 },
-  montana: { name: "Montaña", color: "#8d99ae", towerRange: 1.3 },
-  lava: { name: "Lava", color: "#e63946", enemyDps: 8, interval: 20 },
-  bosque: { name: "Bosque", color: "#2a4d2e", towerRange: 0.75 },
+  pantano: { 
+    name: "Grieta Mágica", 
+    color: "#2a1b3d", // Tono morado oscuro de cueva
+    glowColor: "#b55fe6", // Brillo de cristal morado similar a la referencia
+    enemySlow: 0.55,
+    texture: "crystal_cluster" 
+  },
+  montana: { 
+    name: "Plataforma de Piedra", 
+    color: "#3e434f", // Piedra minera robusta
+    towerRange: 1.3,
+    texture: "stone_block" 
+  },
+  lava: { 
+    name: "Veta de Magma", 
+    color: "#8a2b0d", 
+    glowColor: "#ff4500", // Luz cálida de fuego
+    enemyDps: 8, 
+    interval: 20,
+    texture: "magma_vent"
+  },
+  bosque: { 
+    name: "Soporte de Madera", 
+    color: "#4a3319", // Madera de mina / andamio
+    towerRange: 0.75,
+    texture: "wood_scaffolding"
+  },
 };
 
 export function zoneAt(map, x, y) {

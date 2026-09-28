@@ -19,8 +19,8 @@ import { Camera } from "./render/Camera.js";
 const canvas = document.getElementById("game");
 
 function resize() {
-  const WORLD_W = 760;
-  const WORLD_H = 520;
+  const WORLD_W = 960;
+  const WORLD_H = 640;
   const availW = window.innerWidth - 32;
   const availH = window.innerHeight - 230;
   const ar = WORLD_W / WORLD_H;

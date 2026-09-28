@@ -68,6 +68,107 @@ export function drawTerrain(ctx, W, H, tile, state) {
       }
     }
   }
+  drawCaveFrame(ctx, W, H, tile, state);
+}
+
+function drawCaveFrame(ctx, W, H, tile, state) {
+  const cols = Math.round(W / tile);
+  const rows = Math.round(H / tile);
+  const wallTones = ["#23202a", "#2a2632", "#1d1b24", "#26222e"];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const border = c === 0 || c === cols - 1 || r === 0 || r === rows - 1;
+      if (!border) continue;
+      const x = c * tile, y = r * tile;
+      const h = hash(c * 7 + 3, r * 5 + 9);
+      ctx.fillStyle = wallTones[Math.floor(h * 4) % 4];
+      ctx.fillRect(x, y, tile, tile);
+      ctx.fillStyle = "rgba(255,255,255,.05)";
+      ctx.fillRect(x, y, tile, 3);
+      ctx.fillStyle = "rgba(0,0,0,.5)";
+      ctx.fillRect(x, y + tile - 4, tile, 4);
+      if (hash(c + 1, r + 2) > 0.7) {
+        ctx.strokeStyle = "rgba(0,0,0,.45)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x + tile * 0.4, y + 4);
+        ctx.lineTo(x + tile * 0.6, y + tile - 4);
+        ctx.stroke();
+      }
+    }
+  }
+
+  ctx.fillStyle = "#1c1922";
+  for (let c = 0; c < cols; c++) {
+    const h = hash(c, 99);
+    if (h > 0.6) {
+      const x = c * tile;
+      const drop = 6 + h * 14;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x + tile, 0);
+      ctx.lineTo(x + tile * 0.5, drop);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  const beamCols = [0, Math.floor(cols / 2), cols - 1];
+  for (const c of beamCols) {
+    const x = c * tile + tile / 2 - 4;
+    ctx.fillStyle = "#4a3322";
+    ctx.fillRect(x, 0, 8, H);
+    ctx.fillStyle = "rgba(255,255,255,.06)";
+    ctx.fillRect(x, 0, 2, H);
+    ctx.fillStyle = "rgba(0,0,0,.35)";
+    ctx.fillRect(x + 6, 0, 2, H);
+    for (let yy = 40; yy < H; yy += 90) {
+      ctx.fillStyle = "#2e2013";
+      ctx.fillRect(x - 2, yy, 12, 6);
+    }
+  }
+  ctx.fillStyle = "#4a3322";
+  ctx.fillRect(0, 0, W, 8);
+  ctx.fillStyle = "rgba(255,255,255,.06)";
+  ctx.fillRect(0, 0, W, 2);
+
+  const crystalSpots = [
+    [0, Math.floor(rows * 0.3)], [0, Math.floor(rows * 0.7)],
+    [cols - 1, Math.floor(rows * 0.25)], [cols - 1, Math.floor(rows * 0.6)],
+    [Math.floor(cols * 0.25), 0], [Math.floor(cols * 0.75), rows - 1],
+  ];
+  for (const [c, r] of crystalSpots) {
+    const x = c * tile + tile / 2;
+    const y = r * tile + tile / 2;
+    const magenta = hash(c + r, r + c) > 0.5;
+    const col = magenta ? "224,92,255" : "183,23,158";
+    const glow = ctx.createRadialGradient(x, y, 0, x, y, 26);
+    glow.addColorStop(0, `rgba(${col},0.5)`);
+    glow.addColorStop(1, `rgba(${col},0)`);
+    ctx.fillStyle = glow;
+    ctx.fillRect(x - 26, y - 26, 52, 52);
+    ctx.fillStyle = magenta ? "#e05cff" : "#b7179e";
+    ctx.beginPath();
+    ctx.moveTo(x, y - 9); ctx.lineTo(x + 4, y); ctx.lineTo(x, y + 4); ctx.lineTo(x - 4, y);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.5)";
+    ctx.beginPath();
+    ctx.moveTo(x, y - 9); ctx.lineTo(x, y + 4); ctx.lineTo(x - 4, y);
+    ctx.closePath(); ctx.fill();
+  }
+
+  const torchSpots = [
+    [Math.floor(cols * 0.15), 0], [Math.floor(cols * 0.85), 0],
+    [0, Math.floor(rows * 0.5)], [cols - 1, Math.floor(rows * 0.5)],
+  ];
+  for (const [c, r] of torchSpots) {
+    const x = c * tile + tile / 2;
+    const y = r * tile + (r === 0 ? tile - 6 : 6);
+    ctx.fillStyle = "#2a2422";
+    ctx.fillRect(x - 2, y - 6, 4, 10);
+    ctx.fillStyle = "#1a1614";
+    ctx.fillRect(x - 5, y - 8, 10, 4);
+  }
 }
 
 function drawCrystalStatic(ctx, x, y, tile, c, r) {
@@ -114,19 +215,30 @@ export function drawCaveGlow(ctx, state, time) {
       ctx.fillRect(x - R, y - R, R * 2, R * 2);
     }
   }
-  const torches = [
-    { x: tile * 1.5, y: tile * 1.5 },
-    { x: W - tile * 1.5, y: tile * 1.5 },
-    { x: state.base.x, y: state.base.y },
+  const cols = state.map.cols;
+  const rows = state.map.rows;
+  const torchSpots = [
+    [Math.floor(cols * 0.15), 0], [Math.floor(cols * 0.85), 0],
+    [0, Math.floor(rows * 0.5)], [cols - 1, Math.floor(rows * 0.5)],
+    [Math.floor(cols * 0.5), rows - 1],
   ];
-  for (const t of torches) {
-    const pulse = 0.6 + 0.4 * Math.sin(time / 10 + t.x);
-    const R = 26 + pulse * 10;
-    const g = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, R);
-    g.addColorStop(0, `rgba(255,170,60,${0.4 * pulse + 0.15})`);
+  for (const [c, r] of torchSpots) {
+    const x = c * tile + tile / 2;
+    const y = r * tile + (r === 0 ? tile - 6 : 6);
+    const flick = 0.5 + 0.5 * Math.sin(time / 9 + c + r * 2) * Math.sin(time / 13 + r);
+    const R = 30 + flick * 14;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, R);
+    g.addColorStop(0, `rgba(255,170,60,${0.35 * flick + 0.12})`);
     g.addColorStop(1, "rgba(255,170,60,0)");
     ctx.fillStyle = g;
-    ctx.fillRect(t.x - R, t.y - R, R * 2, R * 2);
+    ctx.fillRect(x - R, y - R, R * 2, R * 2);
+    ctx.fillStyle = `rgba(255,${150 + Math.floor(70 * flick)},40,0.9)`;
+    ctx.beginPath();
+    ctx.moveTo(x - 3, y + 4);
+    ctx.quadraticCurveTo(x - 4, y - 6, x, y - 12 * (0.7 + flick * 0.5));
+    ctx.quadraticCurveTo(x + 4, y - 6, x + 3, y + 4);
+    ctx.closePath();
+    ctx.fill();
   }
   ctx.restore();
 }
@@ -169,19 +281,30 @@ export function drawPath(ctx, pts, state) {
     roundRect(ctx, x + 2, y + 2, tile - 4, tile - 7, 5);
     ctx.fill();
 
+    ctx.fillStyle = "rgba(255,240,210,.18)";
+    ctx.beginPath();
+    ctx.moveTo(x + 2, y + tile - 5);
+    ctx.lineTo(x + 5, y + 4);
+    ctx.lineTo(x + tile - 5, y + 4);
+    ctx.lineTo(x + tile - 2, y + tile - 5);
+    ctx.closePath();
+    ctx.fill();
+
     const hs = hash(c * 9 + 3, r * 11 + 2);
     if (hs > 0.55) {
       ctx.fillStyle = "rgba(0,0,0,.18)";
       ctx.fillRect(x + 4 + hs * (tile - 10), y + 5 + hs * (tile - 12), 2, 2);
     }
 
-    ctx.fillStyle = "rgba(255,240,210,.14)";
-    roundRect(ctx, x + 3, y + 2, tile - 6, 3, 2);
-    ctx.fill();
-
     ctx.strokeStyle = "rgba(0,0,0,.5)";
     ctx.lineWidth = 1;
     roundRect(ctx, x + 2, y + 2, tile - 4, tile - 7, 5);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(255,240,210,.22)";
+    ctx.beginPath();
+    ctx.moveTo(x + 3, y + tile - 5);
+    ctx.lineTo(x + 5, y + 4);
+    ctx.lineTo(x + tile - 5, y + 4);
     ctx.stroke();
   }
 
@@ -255,8 +378,18 @@ export function drawTower(ctx, t, time = 0) {
   ctx.translate(x, y);
   ctx.fillStyle = "rgba(0,0,0,.35)";
   ctx.beginPath();
-  ctx.ellipse(0, 4, 12, 4, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 6, 13, 4, 0, 0, Math.PI * 2);
   ctx.fill();
+  ctx.fillStyle = "#3a342c";
+  roundRect(ctx, -11, 1, 22, 7, 3);
+  ctx.fill();
+  ctx.fillStyle = "#4a4338";
+  roundRect(ctx, -10, 1, 20, 3, 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(0,0,0,.4)";
+  ctx.lineWidth = 1;
+  roundRect(ctx, -11, 1, 22, 7, 3);
+  ctx.stroke();
 
   switch (t.typeIndex) {
     case 0: drawArco(ctx, lvl, pulse, recoil, firing, t.angle, time); break;
