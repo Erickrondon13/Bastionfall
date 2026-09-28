@@ -162,6 +162,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
 - **Fase 19 — Cámara 2.5D (§19):** capa `Camera` que traduce píxel-mundo ↔ pantalla, con toggle `topdown` (por
   defecto, idéntico al anterior) / `isometric` (vista inclinada 2.5D). Botón "Vista" en el menú y tecla `V`.
   La lógica de juego queda intacta. Ver `fases/visual/README.md`.
+- **Fase 20 — Profundidad/orden (§20):** entidades (base, torres, enemigos, proyectiles) dibujadas en orden por
+  `y` de profundidad, así los objetos cercanos solapan a los lejanos en ambas cámaras. Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

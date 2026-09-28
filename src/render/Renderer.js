@@ -33,22 +33,33 @@ export class Renderer {
     this.drawZones(state, tile);
     art.drawPath(ctx, state.pathPoints);
     this.drawHazards(state);
-    art.drawBase(ctx, state.base, time);
     this.drawHover(state, tile);
-    for (const t of state.torres) art.drawTower(ctx, t);
+
+    const drawables = [];
+    drawables.push({ y: state.base.y, fn: () => art.drawBase(ctx, state.base, time) });
     for (const t of state.torres) {
-      if (t.disabledTimer > 0) {
-        ctx.strokeStyle = "rgba(239,71,111,.9)";
-        ctx.lineWidth = 2;
-        ctx.setLineDash([3, 3]);
-        ctx.beginPath();
-        ctx.arc(t.x, t.y, 18, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
+      drawables.push({
+        y: t.y,
+        fn: () => {
+          art.drawTower(ctx, t);
+          if (t.disabledTimer > 0) {
+            ctx.strokeStyle = "rgba(239,71,111,.9)";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.arc(t.x, t.y, 18, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+        },
+      });
     }
-    for (const e of state.enemigos) art.drawEnemy(ctx, e, time);
-    for (const p of state.proyectiles) art.drawProjectile(ctx, p);
+    for (const e of state.enemigos) drawables.push({ y: e.y, fn: () => art.drawEnemy(ctx, e, time) });
+    for (const p of state.proyectiles) drawables.push({ y: p.y, fn: () => art.drawProjectile(ctx, p) });
+
+    drawables.sort((a, b) => a.y - b.y);
+    for (const d of drawables) d.fn();
+
     if (this.effects) this.effects.draw(ctx);
     this.drawSelectedRange(state);
     this.drawBaseShield(state);

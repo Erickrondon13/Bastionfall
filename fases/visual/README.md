@@ -102,8 +102,13 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
       `Renderer` (capa mundo transformada + UI fija en pantalla) e `Input` (inversa `screenToWorld`). Botón "Vista"
       en el menú y tecla `V` alternan `topdown`/`isometric` en caliente para comparar. `topdown` es idéntico al
       render anterior (sin regresión); `isometric` aplica tilt Y (0.62) + centrado y mantiene el input correcto.
+- [x] **Fase 20 — Proyección isométrica y profundidad**: en `Renderer.draw` las entidades (base, torres, enemigos,
+      proyectiles) se recogen en una lista y se dibujan **ordenadas por profundidad** (`y` de mundo; bajo la
+      proyección 2.5D eso equivale a `y` de pantalla), de modo que los objetos cercanos siempre solapan a los lejanos
+      en ambas cámaras. El `screen→tile` para hover/selección/rango ya usa la inversa de la cámara, así que la
+      elección de casillas es correcta en isométrico. La rotación 45° en diamante queda para Fase 21 (terreno).
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 20 — Proyección isométrica y profundidad**: añadir z-sorting por `tile`/`y` y refinar la
-proyección (rotación 45° en diamante opcional) sobre la base de la cámara de Fase 19. No avanzar a Fase 21 hasta
-completar, probar y documentar Fase 20.
+Implementar **Fase 21 — Terreno isométrico**: dibujar tiles con variación, bordes y transiciones (procedural, sin
+assets), y activar opcionalmente la proyección en diamante (rotación 45°) sobre la cámara de Fase 19/20. No avanzar
+a Fase 22 hasta completar, probar y documentar Fase 21.
