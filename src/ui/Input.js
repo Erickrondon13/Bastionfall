@@ -1,10 +1,11 @@
 import { TOWER_TYPES } from "../config/towers.js";
 
 export class Input {
-  constructor(game, canvas, camera) {
+  constructor(game, canvas, camera, renderer) {
     this.game = game;
     this.canvas = canvas;
     this.camera = camera || null;
+    this.renderer = renderer || null;
     this.tile = () => game.state.map.tile;
 
     canvas.addEventListener("mousemove", (ev) => this.onMove(ev));
@@ -25,6 +26,10 @@ export class Input {
   }
 
   cellFromEvent(ev) {
+    if (this.renderer && this.renderer.screenToCell) {
+      const cell = this.renderer.screenToCell(ev.clientX, ev.clientY);
+      if (cell) return cell;
+    }
     const rect = this.canvas.getBoundingClientRect();
     const x = (ev.clientX - rect.left) * (this.canvas.width / rect.width);
     const y = (ev.clientY - rect.top) * (this.canvas.height / rect.height);
@@ -79,6 +84,12 @@ export class Input {
     else if (ev.code === "KeyM") { ev.preventDefault(); this.onToggleMods && this.onToggleMods(); }
     else if (ev.code === "KeyT") { ev.preventDefault(); this.onToggleTutorial && this.onToggleTutorial(); }
     else if (ev.code === "KeyV") { ev.preventDefault(); this.onToggleView && this.onToggleView(); }
+    else if (ev.code === "KeyW") {
+      const order = ["clear", "rain", "storm"];
+      const i = order.indexOf(s.weather.type);
+      s.weather.type = order[(i + 1) % order.length];
+      g.setFlash("Clima: " + s.weather.type);
+    }
     else if (ev.code === "Escape") { ev.preventDefault(); this.game.togglePause(); }
   }
 }

@@ -35,6 +35,33 @@ function genPath(rows, cols, rng) {
   return path;
 }
 
+function cellHash(c, r) {
+  const n = Math.sin(c * 127.1 + r * 311.7) * 43758.5453;
+  return n - Math.floor(n);
+}
+
+function buildDecorations(m) {
+  const t = m.tile;
+  const blocked = new Set(m.path.map(([c, r]) => `${c},${r}`));
+  const bx = m.base ? Math.round((m.base.x - t / 2) / t) : -99;
+  const by = m.base ? Math.round((m.base.y - t / 2) / t) : -99;
+  const out = [];
+  for (let r = 0; r < m.rows; r++) {
+    for (let c = 0; c < m.cols; c++) {
+      const key = `${c},${r}`;
+      if (blocked.has(key)) continue;
+      if (Math.abs(c - bx) <= 1 && Math.abs(r - by) <= 1) continue;
+      const h = cellHash(c * 3 + 1, r * 5 + 2);
+      if (h < 0.18) {
+        const type = (Math.floor(cellHash(c * 1.7 + 3, r * 2.3 + 7) * 4) % 4) + 1;
+        const scale = 0.6 + cellHash(c * 9 + 2, r * 4 + 1) * 0.6;
+        out.push({ x: c * t + t / 2, y: r * t + t / 2, type, scale });
+      }
+    }
+  }
+  return out;
+}
+
 function buildZones(path, cols, rows, types) {
   const blocked = new Set(path.map(([c, r]) => c + "," + r));
   const res = [];
@@ -59,10 +86,10 @@ const GRID = { cols: 26, rows: 18, tile: 40 };
 export const THEMES = {
   forest: {
     ambientColor: "#0e1710",
-    bgTop: "#2c4626",
-    bgBottom: "#16241a",
-    terrainLow: "#2c4622",
-    terrainHigh: "#7a9a44",
+    bgTop: "#dff0cf",
+    bgBottom: "#a9d49a",
+    terrainLow: "#5f8a3e",
+    terrainHigh: "#9bc060",
     pathDirt: "rgba(150,120,60,0.32)",
     pathCenter: "#d4b248",
     pathEdge: "#b8912f",
@@ -139,6 +166,7 @@ export function assembleMap(m) {
     blocked,
     base,
     buildSlots,
+    decorations: buildDecorations(m),
     startGold: m.startGold,
     startLife: m.startLife,
   };

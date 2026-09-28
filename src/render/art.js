@@ -1,4 +1,6 @@
 import { THEMES } from "../config/maps.js";
+import { sprites } from "./sprites.js";
+import { towerSpriteKey, decoSpriteKey, enemySpriteKey, terrainKey, starSpriteKey } from "../config/sprites.js";
 
 function hash(c, r) {
   let h = (c * 73856093) ^ (r * 19349663);
@@ -24,40 +26,71 @@ function hillAt(c, r) {
   const v = (Math.sin(c * 0.45) + Math.cos(r * 0.5) + Math.sin((c + r) * 0.28)) / 3;
   return (v + 1) / 2;
 }
-
+let _terrainBuf = null;
 export function drawTerrain(ctx, W, H, tile, state) {
   const theme = (THEMES[state.map.theme] || THEMES.forest);
-  const g = ctx.createLinearGradient(0, 0, 0, H);
+  const groundFile = terrainKey(state);
+  const gimg = sprites.get(groundFile);
+  if (gimg) {
+    // Suelo con tile real del pack (hierba o piedra de caverna).
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    const jx = gimg.width, jy = gimg.height;
+    for (let y = 0; y < H; y += tile) {
+      for (let x = 0; x < W; x += tile) {
+        const ox = (((x * 7 + y * 3) % 3) - 1) * (jx * 0.04);
+        const oy = (((x * 5 + y * 11) % 3) - 1) * (jy * 0.04);
+        ctx.drawImage(gimg, x + ox, y + oy, tile + 1, tile + 1);
+      }
+    }
+    ctx.restore();
+    drawForestFrame(ctx, W, H, tile, state, theme);
+    return;
+  }
+
+  // Renderiza el terreno a baja resolución y lo escala con suavizado para
+  // difuminar las costuras de los cuadros (más barato y compatible que blur).
+  const s = 0.5;
+  if (!_terrainBuf) _terrainBuf = document.createElement("canvas");
+  const buf = _terrainBuf;
+  const bw = Math.max(1, Math.round(W * s)), bh = Math.max(1, Math.round(H * s));
+  if (buf.width !== bw || buf.height !== bh) { buf.width = bw; buf.height = bh; }
+  const b = buf.getContext("2d");
+  b.setTransform(s, 0, 0, s, 0, 0);
+  b.clearRect(0, 0, W, H);
+
+  const g = b.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, theme.bgTop);
   g.addColorStop(1, theme.bgBottom);
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, W, H);
+  b.fillStyle = g;
+  b.fillRect(0, 0, W, H);
 
   const cols = state.map.cols, rows = state.map.rows;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const x = c * tile, y = r * tile;
       if (state.blocked.has(`${c},${r}`)) continue;
-      const hill = Math.max(0, Math.min(1, hillAt(c, r) + (hash(c * 3 + 1, r * 7 + 5) - 0.5) * 0.18));
+      const hill = Math.max(0, Math.min(1, hillAt(c, r) + (hash(c * 3 + 1, r * 7 + 5) - 0.5) * 0.12));
       const base = lerpColor(theme.terrainLow, theme.terrainHigh, hill);
-      const vg = ctx.createLinearGradient(0, y, 0, y + tile);
+      const vg = b.createLinearGradient(0, y, 0, y + tile);
       vg.addColorStop(0, shade(base, 12));
       vg.addColorStop(1, shade(base, -10));
-      ctx.fillStyle = vg;
-      ctx.fillRect(x, y, tile, tile);
-      const hd = hash(c * 11 + 3, r * 13 + 7);
-      if (hd > 0.96) drawTreeVariant(ctx, x + tile / 2, y + tile * 0.7, 0.5 + hash(c, r) * 0.4, (Math.floor(hash(c * 2, r) * 4) % 4) + 1, theme);
-      else if (hd > 0.9) drawTreeVariant(ctx, x + tile / 2, y + tile * 0.8, 0.4 + hash(c, r) * 0.3, 3, theme);
-      else if (hd > 0.86) drawRockCluster(ctx, x + tile / 2, y + tile / 2, 0.5 + hash(c * 2, r) * 0.5, theme);
-      else if (hd > 0.82) drawFlowers(ctx, x + tile / 2, y + tile / 2);
-      else if (hd > 0.78) drawGrass(ctx, x + tile / 2, y + tile / 2);
+      b.fillStyle = vg;
+      b.fillRect(x - 0.5, y - 0.5, tile + 1, tile + 1);
     }
   }
+
+  ctx.save();
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(buf, 0, 0, bw, bh, 0, 0, W, H);
+  ctx.restore();
 
   const hillSpots = [
     [cols * 0.2, rows * 0.3, 1], [cols * 0.72, rows * 0.22, 0],
     [cols * 0.5, rows * 0.72, 1], [cols * 0.85, rows * 0.62, 0], [cols * 0.3, rows * 0.82, 1],
   ];
+
   for (const [hc, hr, light] of hillSpots) {
     const cx = hc * tile, cy = hr * tile, R = tile * 7;
     const hg = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
@@ -218,9 +251,17 @@ function drawGrass(ctx, x, y) {
 }
 
 function shade(hex, amt) {
-  const n = parseInt(hex.slice(1), 16);
-  let r = (n >> 16) + amt, g = ((n >> 8) & 255) + amt, b = (n & 255) + amt;
-  r = Math.max(0, Math.min(255, r)); g = Math.max(0, Math.min(255, g)); b = Math.max(0, Math.min(255, b));
+  let r, g, b;
+  if (hex.startsWith("rgb")) {
+    const m = hex.match(/\d+/g);
+    r = +m[0]; g = +m[1]; b = +m[2];
+  } else {
+    const n = parseInt(hex.slice(1), 16);
+    r = (n >> 16) & 255; g = (n >> 8) & 255; b = n & 255;
+  }
+  r = Math.max(0, Math.min(255, r + amt));
+  g = Math.max(0, Math.min(255, g + amt));
+  b = Math.max(0, Math.min(255, b + amt));
   return `rgb(${r},${g},${b})`;
 }
 
@@ -450,6 +491,40 @@ export function drawPath(ctx, pts, state) {
   ctx.stroke();
 }
 
+export function drawDecorations(ctx, state) {
+  const theme = (THEMES[state.map.theme] || THEMES.forest);
+  const decos = state.map.decorations || [];
+  for (const d of decos) {
+    const key = decoSpriteKey(d.type, d.variant || Math.floor(d.x + d.y));
+    const img = sprites.get(key);
+    if (img) {
+      const size = (d.scale || 1) * 40;
+      const s = size / Math.max(1, img.width);
+      ctx.save();
+      ctx.translate(d.x, d.y);
+      ctx.drawImage(img, (-img.width * s) / 2, (-img.height * s) / 2, img.width * s, img.height * s);
+      ctx.restore();
+      continue;
+    }
+    ctx.save();
+    ctx.translate(d.x, d.y);
+    const s = d.scale || 1;
+    if (d.type === 1) drawPine(ctx, 0, 0, s, theme);
+    else if (d.type === 2) drawRoundAutumn(ctx, 0, 0, s, theme);
+    else if (d.type === 3) drawBushCluster(ctx, 0, 0, s, theme);
+    else drawRockCluster(ctx, 0, 0, s, theme);
+    ctx.restore();
+  }
+}
+
+// --- Dibujo de mapa orgánico: pradera con gradiente, camino continuo y
+// decoraciones variadas (pino / otoño / arbusto / rocas) ---
+export function drawOrganicMap(ctx, state, W, H, tile) {
+  drawTerrain(ctx, W, H, tile, state);
+  drawPath(ctx, state.pathPoints, state);
+  drawDecorations(ctx, state);
+}
+
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -508,31 +583,50 @@ export function drawTower(ctx, t, time = 0) {
   const recoil = Math.max(0, ratio);
   const firing = ratio > 0.82;
 
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.fillStyle = "rgba(0,0,0,.35)";
-  ctx.beginPath();
-  ctx.ellipse(0, 6, 13, 4, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#3a342c";
-  roundRect(ctx, -11, 1, 22, 7, 3);
-  ctx.fill();
-  ctx.fillStyle = "#4a4338";
-  roundRect(ctx, -10, 1, 20, 3, 2);
-  ctx.fill();
-  ctx.strokeStyle = "rgba(0,0,0,.4)";
-  ctx.lineWidth = 1;
-  roundRect(ctx, -11, 1, 22, 7, 3);
-  ctx.stroke();
+  const spriteFile = towerSpriteKey(t.typeIndex, t.level);
+  const img = sprites.get(spriteFile);
 
-  switch (t.typeIndex) {
-    case 0: drawArco(ctx, lvl, pulse, recoil, firing, t.angle, time); break;
-    case 1: drawCanon(ctx, lvl, pulse, recoil, firing, t.angle); break;
-    case 2: drawHielo(ctx, lvl, pulse, time); break;
-    case 3: drawFuego(ctx, lvl, pulse, time); break;
-    default: drawArco(ctx, lvl, pulse, recoil, firing, t.angle, time);
+  if (img) {
+    const size = 44;
+    const s = size / Math.max(1, img.width);
+    ctx.save();
+    ctx.translate(x, y + 9);
+    ctx.drawImage(img, (-img.width * s) / 2, -img.height * s, img.width * s, img.height * s);
+    if (firing) {
+      ctx.globalCompositeOperation = "lighter";
+      ctx.fillStyle = "rgba(255,180,80,.25)";
+      ctx.beginPath();
+      ctx.arc(0, -size * 0.3, 12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  } else {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = "rgba(0,0,0,.35)";
+    ctx.beginPath();
+    ctx.ellipse(0, 6, 13, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#3a342c";
+    roundRect(ctx, -11, 1, 22, 7, 3);
+    ctx.fill();
+    ctx.fillStyle = "#4a4338";
+    roundRect(ctx, -10, 1, 20, 3, 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,.4)";
+    ctx.lineWidth = 1;
+    roundRect(ctx, -11, 1, 22, 7, 3);
+    ctx.stroke();
+
+    switch (t.typeIndex) {
+      case 0: drawArco(ctx, lvl, pulse, recoil, firing, t.angle, time); break;
+      case 1: drawCanon(ctx, lvl, pulse, recoil, firing, t.angle); break;
+      case 2: drawHielo(ctx, lvl, pulse, time); break;
+      case 3: drawFuego(ctx, lvl, pulse, time); break;
+      default: drawArco(ctx, lvl, pulse, recoil, firing, t.angle, time);
+    }
+    ctx.restore();
   }
-  ctx.restore();
 
   ctx.fillStyle = "#ffd166";
   ctx.font = "9px sans-serif";
@@ -742,21 +836,35 @@ export function drawEnemy(ctx, e, time) {
   const y = e.y + bob;
   const r = e.radius;
 
-  ctx.save();
-  ctx.globalAlpha = e.invisible ? 0.4 : 1;
-  ctx.translate(x, y);
+  const spriteFile = enemySpriteKey(e.type);
+  const img = sprites.get(spriteFile);
 
-  switch (e.type) {
-    case "rapido": drawRapido(ctx, r, time, x); break;
-    case "tanque": drawTanque(ctx, r); break;
-    case "blindado": drawBlindado(ctx, r); break;
-    case "volador": drawVolador(ctx, r, time, x); break;
-    case "divisor": drawDivisor(ctx, r); break;
-    case "jefe": drawJefe(ctx, r, e); break;
-    default: drawBasico(ctx, r);
+  if (img) {
+    const size = r * 2.3;
+    const s = size / Math.max(1, img.width);
+    ctx.save();
+    ctx.globalAlpha = e.invisible ? 0.4 : 1;
+    ctx.translate(x, y);
+    if (e.flying) ctx.translate(0, -4);
+    ctx.drawImage(img, (-img.width * s) / 2, (-img.height * s) / 2, img.width * s, img.height * s);
+    ctx.restore();
+  } else {
+    ctx.save();
+    ctx.globalAlpha = e.invisible ? 0.4 : 1;
+    ctx.translate(x, y);
+
+    switch (e.type) {
+      case "rapido": drawRapido(ctx, r, time, x); break;
+      case "tanque": drawTanque(ctx, r); break;
+      case "blindado": drawBlindado(ctx, r); break;
+      case "volador": drawVolador(ctx, r, time, x); break;
+      case "divisor": drawDivisor(ctx, r); break;
+      case "jefe": drawJefe(ctx, r, e); break;
+      default: drawBasico(ctx, r);
+    }
+
+    ctx.restore();
   }
-
-  ctx.restore();
 
   if (e.hitFlash > 0) {
     ctx.save();
@@ -770,21 +878,27 @@ export function drawEnemy(ctx, e, time) {
 
   if (e.shield > 0) ring(ctx, x, y, r + 4, "#4cc9f0");
   if (e.elite) {
-    ctx.fillStyle = "#ffd166";
-    ctx.font = "bold 10px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("★", x, y - r - 9);
+    const star = sprites.get(starSpriteKey());
+    if (star) {
+      const ss = 11 / Math.max(1, star.width);
+      ctx.drawImage(star, x - (star.width * ss) / 2, y - r - 13, star.width * ss, star.height * ss);
+    } else {
+      ctx.fillStyle = "#ffd166";
+      ctx.font = "bold 10px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("★", x, y - r - 9);
+    }
   }
-  if (e.invisible) {
+  if (e.invisible && !img) {
     ctx.globalAlpha = 0.4;
-  ctx.fillStyle = "#9b6dde";
-  ctx.beginPath();
-  ctx.arc(0, 0, r * 0.7, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#fff";
-  ctx.beginPath(); ctx.arc(-r * 0.2, -r * 0.1, 1.6, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(r * 0.2, -r * 0.1, 1.6, 0, Math.PI * 2); ctx.fill();
-}
+    ctx.fillStyle = "#9b6dde";
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.beginPath(); ctx.arc(-r * 0.2, -r * 0.1, 1.6, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(r * 0.2, -r * 0.1, 1.6, 0, Math.PI * 2); ctx.fill();
+  }
 
   if (e.burnTimer > 0) ring(ctx, x, y, r, "#ff9e00");
   else if (e.slowTimer > 0) ring(ctx, x, y, r, "#a0c4ff");

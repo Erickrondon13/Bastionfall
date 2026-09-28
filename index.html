@@ -558,6 +558,37 @@
     </div>
   </div>
 
+  <script>
+    // Diagnóstico: detecta si los módulos no cargan (p.ej. abrir por file://).
+    window.addEventListener("error", function (e) {
+      if (e && e.target && e.target.tagName === "SCRIPT") {
+        diag("No se pudo cargar un script: " + (e.target.src || ""));
+      } else {
+        diag("Error: " + (e.message || (e.error && e.error.stack) || e));
+      }
+    });
+    function diag(msg) {
+      var el = document.getElementById("diag");
+      if (!el) {
+        el = document.createElement("div");
+        el.id = "diag";
+        el.style.cssText = "position:fixed;left:12px;top:12px;right:12px;z-index:99999;" +
+          "background:rgba(120,0,30,.95);color:#fff;font:13px/1.5 monospace;padding:12px 14px;" +
+          "border-radius:8px;white-space:pre-wrap";
+        document.body.appendChild(el);
+      }
+      el.textContent = msg;
+    }
+    setTimeout(function () {
+      if (!window.__appStarted) {
+        diag("La aplicación no inició.\n" +
+          "Causa más probable: abriste el archivo directamente (file://) y los módulos ES no cargan.\n" +
+          "Solución: ejecuta el servidor en la carpeta del proyecto:\n" +
+          "   node server.mjs\n" +
+          "y abre  http://localhost:8000");
+      }
+    }, 3000);
+  </script>
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>

@@ -15,8 +15,11 @@ import { MODIFIERS } from "./config/modifiers.js";
 import { RELICS, relicById } from "./config/relics.js";
 import { renderConfig } from "./config/render.js";
 import { Camera } from "./render/Camera.js";
+import { Renderer3D } from "./render/Renderer3D.js";
 
-const canvas = document.getElementById("game");
+window.__appStarted = true;
+
+let canvas = document.getElementById("game");
 
 function resize() {
   const WORLD_W = 1040;
@@ -42,10 +45,11 @@ const game = new Game(canvas, progression);
 
 const effects = new Effects(game.events);
 const camera = new Camera(renderConfig);
-const renderer = new Renderer(canvas, effects, camera);
+let renderer = null;
+let input = null;
+let currentMode = null;
 const hud = new Hud(game);
 const overlay = new Overlay(game);
-const input = new Input(game, canvas, camera);
 const techMenu = new TechMenu(progression);
 const levelSelect = new LevelSelect(game, progression);
 
@@ -89,10 +93,79 @@ function setMenu(show) {
   menuEl.classList.toggle("hidden", !show);
 }
 
+function wireInputHandlers(inp) {
+  inp.onToggleTech = () => { setMenu(false); techMenu.toggle(); };
+  inp.onToggleCampaign = () => { setMenu(false); levelSelect.toggle(); };
+  inp.onToggleCaverns = () => toggleCavern();
+  inp.onToggleMods = () => {
+    if (modEl.classList.contains("open")) toggleMods(false);
+    else toggleMods(true);
+  };
+  inp.onToggleTutorial = () => game.startTutorial();
+  inp.onToggleView = () => setRenderMode(currentMode === "3d" ? "2d" : "3d");
+}
+
+function isWebGLAvailable() {
+  try {
+    const c = document.createElement("canvas");
+    return !!(window.WebGLRenderingContext && (c.getContext("webgl") || c.getContext("experimental-webgl")));
+  } catch (_) { return false; }
+}
+
+let webglOK = null;
+function webglSupported() {
+  if (webglOK === null) webglOK = isWebGLAvailable();
+  return webglOK;
+}
+
+let firstModeSwitch = true;
+function setRenderMode(mode) {
+  if (mode === currentMode) return;
+  if (mode === "3d" && !webglSupported()) {
+    if (!firstModeSwitch) game.setFlash("WebGL no disponible en este navegador: usa la vista 2.5D");
+    mode = "2d";
+  }
+  firstModeSwitch = false;
+  if (renderer && renderer.dispose) renderer.dispose();
+
+  const old = document.getElementById("game");
+  const cv = document.createElement("canvas");
+  cv.id = "game";
+  old.parentNode.replaceChild(cv, old);
+  canvas = cv;
+  resize();
+
+  const make2D = () => {
+    renderer = new Renderer(canvas, effects, camera);
+    input = new Input(game, canvas, camera, renderer);
+  };
+  const make3D = () => {
+    renderer = new Renderer3D(canvas);
+    input = new Input(game, canvas, camera, renderer);
+  };
+
+  let finalMode = mode;
+  try {
+    if (mode === "3d") make3D();
+    else make2D();
+  } catch (err) {
+    console.error("3D renderer failed, falling back to 2D:", err);
+    try {
+      make2D();
+      finalMode = "2d";
+      if (mode === "3d") game.setFlash("WebGL no disponible: usando vista 2.5D");
+    } catch (err2) {
+      console.error("2D fallback also failed:", err2);
+      return;
+    }
+  }
+  currentMode = finalMode;
+  wireInputHandlers(input);
+  if (viewBtn) viewBtn.textContent = "Vista: " + (finalMode === "3d" ? "3D" : "2.5D");
+}
+
 viewBtn.addEventListener("click", () => {
-  input.onToggleView && input.onToggleView();
-  const names = { topdown: "Cenital (V)", tilt: "Inclinada (V)", isometric: "Isométrica (V)" };
-  viewBtn.textContent = "Vista: " + names[renderConfig.cameraMode];
+  setRenderMode(currentMode === "3d" ? "2d" : "3d");
 });
 
 game.onRestart = () => overlay.hide();
@@ -102,8 +175,6 @@ game.onPause = (paused) => {
   if (pb) { pb.textContent = paused ? "▶" : "⏸"; pb.classList.toggle("active", paused); }
 };
 
-input.onToggleTech = () => { setMenu(false); techMenu.toggle(); };
-input.onToggleCampaign = () => { setMenu(false); levelSelect.toggle(); };
 techMenu.onClose = () => { if (game.paused) setMenu(true); };
 levelSelect.onClose = () => { if (game.paused) setMenu(true); };
 
@@ -157,7 +228,6 @@ function toggleCavern(force) {
 }
 document.getElementById("menu-caverns").addEventListener("click", () => toggleCavern(true));
 document.getElementById("cavern-close").addEventListener("click", () => toggleCavern(false));
-input.onToggleCaverns = () => toggleCavern();
 document.getElementById("menu-tech").addEventListener("click", () => {
   setMenu(false);
   techMenu.toggle();
@@ -226,23 +296,11 @@ function toggleMods(force) {
 }
 document.getElementById("menu-mods").addEventListener("click", () => toggleMods(true));
 document.getElementById("modifiers-close").addEventListener("click", () => toggleMods(false));
-input.onToggleMods = () => {
-  if (modEl.classList.contains("open")) toggleMods(false);
-  else toggleMods(true);
-};
 
 document.getElementById("menu-tutorial").addEventListener("click", () => {
   setMenu(false);
   game.startTutorial();
 });
-input.onToggleTutorial = () => game.startTutorial();
-input.onToggleView = () => {
-  const order = ["topdown", "tilt", "isometric"];
-  const i = order.indexOf(renderConfig.cameraMode);
-  renderConfig.cameraMode = order[(i + 1) % order.length];
-  const names = { topdown: "Cenital", tilt: "Inclinada 2.5D", isometric: "Isométrica 45°" };
-  game.setFlash("Cámara: " + names[renderConfig.cameraMode]);
-};
 document.getElementById("menu-save").addEventListener("click", () => {
   game.saveRun();
   setMenu(true);
@@ -290,6 +348,23 @@ speedBtn.addEventListener("click", () => {
 });
 settingsBtn.addEventListener("click", () => setMenu(true));
 
+setRenderMode("3d");
+
+function showRenderError(msg) {
+  let el = document.getElementById("render-error");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "render-error";
+    el.style.cssText =
+      "position:fixed;left:12px;bottom:12px;max-width:60%;z-index:9999;background:rgba(120,0,30,.92);" +
+      "color:#fff;font:12px/1.4 monospace;padding:10px 12px;border-radius:8px;white-space:pre-wrap";
+    document.body.appendChild(el);
+  }
+  el.textContent = "Error de render (3D):\n" + msg;
+}
+
+let renderFallbackDone = false;
+let renderEmptyFrames = 0;
 const loop = new GameLoop(
   (dt) => {
     for (let i = 0; i < speed; i++) {
@@ -299,7 +374,26 @@ const loop = new GameLoop(
     overlay.el.style.display = game.state.gameOver || game.state.victory ? "flex" : "none";
   },
   () => {
-    renderer.draw(game.state);
+    try {
+      renderer.draw(game.state);
+    } catch (err) {
+      console.error("Render frame error:", err);
+      showRenderError((err && err.stack) || String(err));
+      if (!renderFallbackDone && currentMode === "3d") {
+        renderFallbackDone = true;
+        try { setRenderMode("2d"); } catch (_) {}
+      }
+      hud.update();
+      return;
+    }
+    if (currentMode === "3d" && renderer.renderer) {
+      const tris = (renderer.renderer.info.render.triangles) || 0;
+      if (tris === 0) {
+        if (++renderEmptyFrames > 90) showRenderError("El render 3D dibujó 0 triángulos: la cámara no ve geometría o WebGL está limitado en este navegador.");
+      } else {
+        renderEmptyFrames = 0;
+      }
+    }
     hud.update();
   }
 );

@@ -22,6 +22,7 @@ export function createState(map) {
     victory: false,
     hoverCell: null,
     flash: { msg: "", timer: 0 },
+    weather: { type: "clear", t: 0 },
     abilityCd: {},
     baseShield: 0,
     stats: {
