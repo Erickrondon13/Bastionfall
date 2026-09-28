@@ -54,6 +54,7 @@ export class MovementSystem {
 
       const evMul = (state.eventMods && state.eventMods.enemySpeedMult) || 1;
       applyStatus(e, evMul);
+      if (e.hitFlash > 0) e.hitFlash--;
 
       const zt = zoneAt(state.map, e.x, e.y);
       if (zt === "pantano") {

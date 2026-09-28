@@ -5,6 +5,7 @@ function applyStats(tower, next, mods) {
   tower.range = Math.round(next.range * mods.range * (mods.zoneRange || 1));
   tower.damage = Math.round(next.damage * dmgMult);
   tower.cooldown = Math.round(next.cooldown * (mods.cdMult || 1));
+  tower.cooldownMax = Math.round(next.cooldown * (mods.cdMult || 1));
   tower.splash = next.splash;
   tower.slow = next.slow;
   tower.crit = next.crit || 0;
@@ -36,6 +37,7 @@ export function createTower(typeIndex, c, r, tile, mods) {
     range: Math.round(stats.range * mods.range * (mods.zoneRange || 1)),
     damage: Math.round(stats.damage * dmgMult),
     cooldown: Math.round(stats.cooldown * (mods.cdMult || 1)),
+    cooldownMax: Math.round(stats.cooldown * (mods.cdMult || 1)),
     splash: stats.splash,
     slow: stats.slow,
     crit: stats.crit || 0,

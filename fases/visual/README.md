@@ -124,7 +124,10 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
       (caja con remaches y visor), **volador** (murciélago con alas batientes), **divisor** (célula con núcleo),
       **jefe** (masa oscura con cuernos y ojos). Se conservan anillos de estado (escudo/invisible/quemado/lento) y
       barra de vida. Procedural y sin assets.
+- [x] **Fase 25 — Animaciones**: retroceso (recoil) y fogonazo de muzzle en **cañón/arco** según `cooldown/cooldownMax`
+      (sin tocar lógica), y destello blanco de impacto en enemigos (`hitFlash`, fijado en `CombatSystem` al dañar y
+      decaído en `MovementSystem`). Aprovecha el `time` existente para idle/walk. Procedural y sin assets.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 25 — Animaciones**: añadir animaciones idle/ataque/muerte (procedural) para torres y enemigos,
-aprovechando el `time` ya disponible en los draw. No avanzar a Fase 26 hasta completar, probar y documentar Fase 25.
+Implementar **Fase 26 — Iluminación**: realces de luz (gradientes/overlays) para fuego/hielo/boss y atmósfera,
+usando composición de Canvas. No avanzar a Fase 27 hasta completar, probar y documentar Fase 26.

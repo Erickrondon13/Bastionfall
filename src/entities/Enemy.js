@@ -40,6 +40,7 @@ export function createEnemy(typeKey, wave, start, hpMult = 1) {
     shield: 0,
     elite: false,
     affixNames: [],
+    hitFlash: 0,
   };
 }
 

@@ -203,6 +203,9 @@ export function drawTower(ctx, t, time = 0) {
   const y = t.y;
   const lvl = t.level + 1;
   const pulse = 0.5 + 0.5 * Math.sin((time || 0) / 10 + x * 0.02);
+  const ratio = t.cooldownMax ? t.cooldown / t.cooldownMax : 0;
+  const recoil = Math.max(0, ratio);
+  const firing = ratio > 0.82;
 
   ctx.fillStyle = "rgba(0,0,0,.28)";
   ctx.beginPath();
@@ -219,11 +222,11 @@ export function drawTower(ctx, t, time = 0) {
   ctx.fill();
 
   switch (t.typeIndex) {
-    case 0: drawArco(ctx, lvl, pulse); break;
-    case 1: drawCanon(ctx, t.angle, lvl, pulse); break;
+    case 0: drawArco(ctx, lvl, pulse, recoil, t.angle, firing); break;
+    case 1: drawCanon(ctx, t.angle, lvl, pulse, recoil, firing); break;
     case 2: drawHielo(ctx, lvl, pulse); break;
     case 3: drawFuego(ctx, lvl, pulse); break;
-    default: drawArco(ctx, lvl, pulse);
+    default: drawArco(ctx, lvl, pulse, recoil, t.angle, firing);
   }
   ctx.restore();
 
@@ -233,30 +236,37 @@ export function drawTower(ctx, t, time = 0) {
   ctx.fillText("★".repeat(lvl), x, y + 20);
 }
 
-function drawArco(ctx, lvl, pulse) {
+function drawArco(ctx, lvl, pulse, recoil, angle, firing) {
   ctx.fillStyle = "#6b4a2b";
-  roundRect(ctx, -6, -14 - lvl * 2, 12, 18 + lvl * 2, 3);
+  const back = -recoil * 3;
+  roundRect(ctx, -6 + back, -14 - lvl * 2, 12, 18 + lvl * 2, 3);
   ctx.fill();
   ctx.fillStyle = "rgba(255,255,255,.12)";
-  roundRect(ctx, -6, -14 - lvl * 2, 4, 18 + lvl * 2, 2);
+  roundRect(ctx, -6 + back, -14 - lvl * 2, 4, 18 + lvl * 2, 2);
   ctx.fill();
   ctx.strokeStyle = "#caa472";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(0, -12, 10 + lvl, Math.PI * 1.1, Math.PI * 1.9);
+  ctx.arc(back, -12, 10 + lvl, Math.PI * 1.1, Math.PI * 1.9);
   ctx.stroke();
   ctx.strokeStyle = "rgba(230,237,243,.7)";
   ctx.beginPath();
-  ctx.moveTo(0, -12 - (10 + lvl));
-  ctx.lineTo(0, -12 + (10 + lvl));
+  ctx.moveTo(back, -12 - (10 + lvl));
+  ctx.lineTo(back, -12 + (10 + lvl));
   ctx.stroke();
+  if (firing) {
+    ctx.fillStyle = "rgba(255,220,120,.9)";
+    ctx.beginPath();
+    ctx.arc(back + 2, -12, 3 + lvl, 0, Math.PI * 2);
+    ctx.fill();
+  }
   ctx.fillStyle = "#e6edf3";
   ctx.beginPath();
-  ctx.arc(0, -12, 2.5, 0, Math.PI * 2);
+  ctx.arc(back, -12, 2.5, 0, Math.PI * 2);
   ctx.fill();
 }
 
-function drawCanon(ctx, angle, lvl, pulse) {
+function drawCanon(ctx, angle, lvl, pulse, recoil, firing) {
   ctx.fillStyle = "#4a4f57";
   roundRect(ctx, -9, -10 - lvl, 18, 14 + lvl, 3);
   ctx.fill();
@@ -265,13 +275,24 @@ function drawCanon(ctx, angle, lvl, pulse) {
   ctx.fill();
   ctx.save();
   ctx.rotate(angle);
+  const back = -recoil * 5;
   ctx.fillStyle = "#23272e";
-  roundRect(ctx, 0, -5, 18 + lvl * 2, 10, 3);
+  roundRect(ctx, back, -5, 18 + lvl * 2, 10, 3);
   ctx.fill();
   ctx.fillStyle = "#3a3f47";
   ctx.beginPath();
-  ctx.arc(18 + lvl * 2, 0, 5, 0, Math.PI * 2);
+  ctx.arc(back + 18 + lvl * 2, 0, 5, 0, Math.PI * 2);
   ctx.fill();
+  if (firing) {
+    ctx.fillStyle = "rgba(255,200,90,.95)";
+    ctx.beginPath();
+    ctx.arc(back + 20 + lvl * 2, 0, 5 + lvl, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.8)";
+    ctx.beginPath();
+    ctx.arc(back + 20 + lvl * 2, 0, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
   ctx.restore();
 }
 
@@ -345,6 +366,16 @@ export function drawEnemy(ctx, e, time) {
   }
 
   ctx.restore();
+
+  if (e.hitFlash > 0) {
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, e.hitFlash / 5) * 0.7;
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(x, y, r + 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
 
   if (e.shield > 0) ring(ctx, x, y, r + 4, "#4cc9f0");
   if (e.elite) {

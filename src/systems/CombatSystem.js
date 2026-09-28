@@ -66,6 +66,7 @@ function dealDamage(state, e, p) {
     }
   }
   e.hp -= eff;
+  e.hitFlash = 5;
   state.stats.dmgDealt += eff;
   if (p.slow > 0) e.slowTimer = Math.max(e.slowTimer, e.slowResist ? Math.round(p.slowDur / 2) : p.slowDur);
   if (p.burn > 0) {

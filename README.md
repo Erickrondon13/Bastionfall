@@ -172,6 +172,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   assets. Ver `fases/visual/README.md`.
 - **Fase 24 — Enemigos (§24):** `art.drawEnemy` con sombra y forma propia por tipo (básico, rápido, tanque,
   blindado, volador, divisor, jefe). Ver `fases/visual/README.md`.
+- **Fase 25 — Animaciones (§25):** retroceso + fogonazo de muzzle en torres según cooldown y destello de impacto en
+  enemigos. Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)
