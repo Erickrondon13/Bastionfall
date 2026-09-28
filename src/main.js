@@ -182,6 +182,14 @@ document.getElementById("menu-tutorial").addEventListener("click", () => {
   game.startTutorial();
 });
 input.onToggleTutorial = () => game.startTutorial();
+document.getElementById("menu-save").addEventListener("click", () => {
+  game.saveRun();
+  setMenu(true);
+});
+document.getElementById("menu-continue").addEventListener("click", () => {
+  game.continueRun();
+  setMenu(false);
+});
 
 const relicEl = document.getElementById("relic");
 const relicCards = document.getElementById("relic-cards");

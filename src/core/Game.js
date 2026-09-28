@@ -13,6 +13,7 @@ import { EventSystem } from "../systems/EventSystem.js";
 import { MODIFIERS, baseMods, modifierById } from "../config/modifiers.js";
 import { relicById, randomRelics } from "../config/relics.js";
 import { randomEvent, EVENTS } from "../config/events.js";
+import { CAMPAIGN } from "../config/campaign.js";
 
 const TUTORIAL_STEPS = [
   { text: "PASO 1: Haz clic en una casilla libre para colocar tu primera torre.", done: (s) => s.torres.length > 0 },
@@ -95,6 +96,9 @@ export class Game {
       if (perfect) msg += ` · ❤ perfecto +${perfectBonus}`;
       this.setFlash(msg);
     });
+    const clearRun = () => { if (this.progression) this.progression.clearRun(); };
+    this.events.on("game:over", clearRun);
+    this.events.on("game:victory", clearRun);
     this.events.on("enemy:killed", ({ enemy }) => {
       if (enemy && enemy.boss && !this.state.gameOver && !this.state.victory && !this.pendingRelic) {
         this.offerRelic();
@@ -155,9 +159,9 @@ export class Game {
     if (this.onRelicOffer) this.onRelicOffer(this.relicChoices);
   }
 
-  chooseRelic(id) {
+  applyRelicEffect(id) {
     const r = relicById(id);
-    if (!r || !this.pendingRelic) return;
+    if (!r) return;
     const before = { ...this.state.relics };
     r.apply(this.state);
     const dm = this.state.relics.dmgMult / before.dmgMult;
@@ -171,6 +175,12 @@ export class Game {
       t.crit = Math.min(1, (t.crit || 0) + dc);
     }
     this.state.relicIds.push(id);
+  }
+
+  chooseRelic(id) {
+    const r = relicById(id);
+    if (!r || !this.pendingRelic) return;
+    this.applyRelicEffect(id);
     this.pendingRelic = false;
     this.relicChoices = [];
     this.paused = false;
@@ -202,6 +212,76 @@ export class Game {
         this.setFlash(TUTORIAL_STEPS[tut.step].text);
       }
     }
+  }
+
+  saveRun() {
+    const s = this.state;
+    if (!s || s.gameOver || s.victory) {
+      this.setFlash("No hay partida para guardar");
+      return;
+    }
+    if (s.oleadaActiva) {
+      this.setFlash("Termina la oleada para guardar");
+      return;
+    }
+    const snap = {
+      kind: this.cavern ? "cavern" : this.stage ? "stage" : "map",
+      mode: this.mode.id,
+      mapId: this.map.id,
+      stageId: this.stage ? this.stage.id : null,
+      tier: this.cavern ? this.cavern.tier : null,
+      index: this.cavern ? this.cavern.index : null,
+      label: this.cavern ? this.cavern.label : null,
+      oro: s.oro,
+      vida: s.vida,
+      vidaMax: s.vidaMax,
+      oleada: s.oleada,
+      pendingMods: [...this.pendingMods],
+      relicIds: [...s.relicIds],
+      towers: s.torres.map((t) => ({ key: t.typeIndex, c: t.c, r: t.r, level: t.level, branch: t.branch })),
+    };
+    if (this.progression) this.progression.saveRun(snap);
+    this.setFlash("Partida guardada");
+  }
+
+  continueRun() {
+    const snap = this.progression ? this.progression.getRun() : null;
+    if (!snap) {
+      this.setFlash("No hay partida guardada");
+      return;
+    }
+    this.pendingMods = [...(snap.pendingMods || [])];
+    if (snap.kind === "cavern") {
+      this.startCavern(snap.tier);
+      if (snap.index) this.loadGenMap(snap.index);
+    } else if (snap.kind === "stage") {
+      const stage = CAMPAIGN.find((st) => st.id === snap.stageId);
+      if (stage) this.loadStage(stage);
+      else this.loadMap(snap.mapId);
+    } else {
+      this.mode = getMode(snap.mode);
+      this.loadMap(snap.mapId);
+    }
+    for (const id of snap.relicIds || []) this.applyRelicEffect(id);
+    this.state.oleada = snap.oleada || 0;
+    this.state.vida = snap.vida;
+    this.state.vidaMax = snap.vidaMax || snap.vida;
+    this.state.oro = 1e9;
+    for (const t of snap.towers || []) {
+      this.state.selectedTower = t.key;
+      if (!this.tryPlaceTower(t.c, t.r)) continue;
+      this.selectTowerAt(t.c, t.r);
+      if (this.state.selectedTowerEntity.level < 1) this.upgradeSelected();
+      if (t.branch != null && this.state.selectedTowerEntity.level === 1) this.chooseBranch(t.branch);
+      let guard = 0;
+      while (this.state.selectedTowerEntity && this.state.selectedTowerEntity.level < t.level && guard++ < 8) {
+        if (!this.upgradeSelected()) break;
+      }
+    }
+    this.state.oro = snap.oro;
+    this.paused = false;
+    if (this.onPause) this.onPause(false);
+    this.setFlash("Partida continuada");
   }
 
   loadMap(id) {

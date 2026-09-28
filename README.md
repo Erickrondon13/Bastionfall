@@ -148,6 +148,9 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
 - **Mapas con zonas especiales (§1):** casillas con personalidad — **pantano** ralentiza enemigos,
   **lava** daña periódicamente, **montaña** da +30% alcance a torres sobre ella, **bosque** da −25% alcance.
   Nuevo mapa "Ciénagas Putrefactas" en campaña. Ver `fases/fase 3 profundida.md` §1.
+- **Guardado de partida a medias (§16):** botones "Guardar partida" / "Continuar partida" en el menú; se
+  restaura mapa, oleada, oro, vida, torres (nivel y rama) y modificadores/reliquias. Se borra al terminar.
+  Ver `fases/fase 3 profundida.md` §16.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

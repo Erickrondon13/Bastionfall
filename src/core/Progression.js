@@ -28,6 +28,7 @@ export class Progression {
         achievements: parsed.achievements || {},
         endless: parsed.endless || { bestWave: 0, bestTime: 0 },
         tutorialDone: !!parsed.tutorialDone,
+        run: parsed.run || null,
       };
     } catch {
       return defaultSave();
@@ -56,6 +57,20 @@ export class Progression {
 
   setTutorialDone() {
     this.data.tutorialDone = true;
+    this.save();
+  }
+
+  saveRun(obj) {
+    this.data.run = obj;
+    this.save();
+  }
+
+  getRun() {
+    return this.data.run || null;
+  }
+
+  clearRun() {
+    this.data.run = null;
     this.save();
   }
 
