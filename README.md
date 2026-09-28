@@ -151,6 +151,9 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
 - **Guardado de partida a medias (§16):** botones "Guardar partida" / "Continuar partida" en el menú; se
   restaura mapa, oleada, oro, vida, torres (nivel y rama) y modificadores/reliquias. Se borra al terminar.
   Ver `fases/fase 3 profundida.md` §16.
+- **Música por ambiente (§19):** música sintetizada (sin archivos) que cambia según el contexto —
+  menú, combate, jefe (al aparecer un boss), victoria y derrota — compartiendo el control de sonido.
+  Ver `fases/fase 3 profundida.md` §19.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

@@ -466,6 +466,7 @@ export class Game {
     s.spawnTimer = 0;
     s.oleadaActiva = true;
     if (s.oleada >= 4 && Math.random() < 0.4) this.startEvent(randomEvent());
+    this.events.emit("wave:start", { wave: s.oleada });
   }
 
   startEvent(def) {

@@ -8,6 +8,7 @@ import { Progression } from "./core/Progression.js";
 import { TechMenu } from "./ui/TechMenu.js";
 import { LevelSelect } from "./ui/LevelSelect.js";
 import { Sfx } from "./audio/Sfx.js";
+import { Music } from "./audio/Music.js";
 import { ABILITIES } from "./config/abilities.js";
 import { Effects } from "./render/Effects.js";
 import { MODIFIERS } from "./config/modifiers.js";
@@ -36,6 +37,14 @@ for (const a of ABILITIES) {
   abilitiesEl.appendChild(btn);
 }
 const sfx = new Sfx(game.events, { muted: !progression.soundEnabled() });
+const music = new Music(sfx);
+music.setTrack("menu");
+
+game.events.on("wave:start", () => music.setTrack("gameplay"));
+game.events.on("boss:spawn", () => music.setTrack("boss"));
+game.events.on("wave:complete", () => music.setTrack("gameplay"));
+game.events.on("game:victory", () => music.setTrack("victory"));
+game.events.on("game:over", () => music.setTrack("defeat"));
 
 const menuEl = document.getElementById("menu");
 const soundBtn = document.getElementById("menu-sound");

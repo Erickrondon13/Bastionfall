@@ -784,10 +784,12 @@ y se marca aquí antes de pasar a la siguiente.
 - [x] **3k — Guardado de partida a medias (§16):** `Game.saveRun()`/`continueRun()` persisten snapshot
       (mapa/modo/oleada/oro/vida/torres/modificadores/reliquias) en `Progression.data.run`; botones menú
       "Guardar partida" / "Continuar partida". El run se borra al ganar o perder. Solo se guarda entre oleadas.
+- [x] **3l — Música por ambiente (§19):** `src/audio/Music.js` (sintetizada con Web Audio, sin assets):
+      pistas `menu`/`gameplay`/`boss`/`victory`/`defeat` que cambian dinámicamente (a boss al aparecer un jefe,
+      a gameplay al completar oleada, victory/defeat al terminar). Comparte el `AudioContext` y el mute de `Sfx`.
 
 ### Pendiente (orden sugerido)
-1. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
-2. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
+1. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
 
 > Criterio del documento: priorizar **identidad estratégica de las 4 torres**
 > (ramas, sinergias, estadísticas, habilidades) antes de añadir más torres.
