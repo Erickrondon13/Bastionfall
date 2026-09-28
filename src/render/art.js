@@ -36,12 +36,12 @@ export function drawTerrain(ctx, W, H, tile, state) {
       }
       const h1 = hash(c, r);
       const h2 = hash(c * 3 + 1, r * 7 + 5);
-      ctx.fillStyle = tones[Math.floor(h1 * tones.length) % tones.length];
+      const baseTone = 16 + Math.floor(h1 * 10);
+      const g = ctx.createLinearGradient(0, y, 0, y + tile);
+      g.addColorStop(0, `rgb(${baseTone + 5},${baseTone + 3},${baseTone + 9})`);
+      g.addColorStop(1, `rgb(${Math.max(2, baseTone - 5)},${Math.max(2, baseTone - 5)},${baseTone})`);
+      ctx.fillStyle = g;
       ctx.fillRect(x, y, tile, tile);
-      ctx.fillStyle = "rgba(255,255,255,.04)";
-      ctx.fillRect(x, y, tile, 2);
-      ctx.fillStyle = "rgba(0,0,0,.22)";
-      ctx.fillRect(x, y + tile - 3, tile, 3);
       if (h2 > 0.9) {
         ctx.strokeStyle = "rgba(0,0,0,.35)";
         ctx.lineWidth = 1;
@@ -50,6 +50,19 @@ export function drawTerrain(ctx, W, H, tile, state) {
         ctx.lineTo(x + tile * 0.5, y + tile * 0.7);
         ctx.lineTo(x + tile * 0.7, y + tile * 0.4);
         ctx.stroke();
+      }
+      const hr = hash(c * 5 + 2, r * 3 + 1);
+      if (hr > 0.45) {
+        ctx.fillStyle = "rgba(0,0,0,.22)";
+        ctx.beginPath();
+        ctx.arc(x + tile * (0.3 + hr * 0.4), y + tile * (0.35 + hr * 0.3), 7 + hr * 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      if (hr > 0.8) {
+        ctx.fillStyle = "rgba(255,255,255,.05)";
+        ctx.beginPath();
+        ctx.arc(x + tile * (0.2 + hr * 0.5), y + tile * (0.2 + hr * 0.3), 4 + hr * 3, 0, Math.PI * 2);
+        ctx.fill();
       }
       if (hash(c * 7 + 2, r * 5 + 3) >= 0.94) drawCrystalStatic(ctx, x, y, tile, c, r);
 
@@ -148,6 +161,9 @@ function drawCaveFrame(ctx, W, H, tile, state) {
     glow.addColorStop(1, `rgba(${col},0)`);
     ctx.fillStyle = glow;
     ctx.fillRect(x - 26, y - 26, 52, 52);
+    ctx.save();
+    ctx.shadowColor = `rgba(${col},0.9)`;
+    ctx.shadowBlur = 16;
     ctx.fillStyle = magenta ? "#e05cff" : "#b7179e";
     ctx.beginPath();
     ctx.moveTo(x, y - 9); ctx.lineTo(x + 4, y); ctx.lineTo(x, y + 4); ctx.lineTo(x - 4, y);
@@ -156,6 +172,7 @@ function drawCaveFrame(ctx, W, H, tile, state) {
     ctx.beginPath();
     ctx.moveTo(x, y - 9); ctx.lineTo(x, y + 4); ctx.lineTo(x - 4, y);
     ctx.closePath(); ctx.fill();
+    ctx.restore();
   }
 
   const torchSpots = [
@@ -230,6 +247,9 @@ export function drawCaveGlow(ctx, state, time) {
     g.addColorStop(1, "rgba(255,170,60,0)");
     ctx.fillStyle = g;
     ctx.fillRect(x - R, y - R, R * 2, R * 2);
+    ctx.save();
+    ctx.shadowColor = "rgba(255,170,60,0.9)";
+    ctx.shadowBlur = 14;
     ctx.fillStyle = `rgba(255,${150 + Math.floor(70 * flick)},40,0.85)`;
     ctx.beginPath();
     ctx.moveTo(x - 3, y + 4);
@@ -237,6 +257,7 @@ export function drawCaveGlow(ctx, state, time) {
     ctx.quadraticCurveTo(x + 4, y - 6, x + 3, y + 4);
     ctx.closePath();
     ctx.fill();
+    ctx.restore();
   }
 
   const torchSpots = [
@@ -254,6 +275,9 @@ export function drawCaveGlow(ctx, state, time) {
     g.addColorStop(1, "rgba(255,170,60,0)");
     ctx.fillStyle = g;
     ctx.fillRect(x - R, y - R, R * 2, R * 2);
+    ctx.save();
+    ctx.shadowColor = "rgba(255,170,60,0.9)";
+    ctx.shadowBlur = 14;
     ctx.fillStyle = `rgba(255,${150 + Math.floor(70 * flick)},40,0.9)`;
     ctx.beginPath();
     ctx.moveTo(x - 3, y + 4);
@@ -261,6 +285,7 @@ export function drawCaveGlow(ctx, state, time) {
     ctx.quadraticCurveTo(x + 4, y - 6, x + 3, y + 4);
     ctx.closePath();
     ctx.fill();
+    ctx.restore();
   }
   ctx.restore();
 }
@@ -286,48 +311,37 @@ export function drawPath(ctx, pts, state) {
   }
   const isPath = (c, r) => set.has(key(c, r));
 
+  ctx.fillStyle = "rgba(0,0,0,.5)";
   for (const k of set) {
     const [c, r] = k.split(",").map(Number);
-    const x = c * tile;
-    const y = r * tile;
+    const x = c * tile, y = r * tile;
+    ctx.fillRect(x + 2, y + tile - 5, tile - 2, 7);
+    ctx.fillRect(x + tile - 5, y + 2, 7, tile - 2);
+  }
 
-    ctx.fillStyle = "rgba(0,0,0,.55)";
-    roundRect(ctx, x + 1, y + tile - 6, tile - 2, 7, 4);
-    ctx.fill();
-
-    ctx.fillStyle = "#2f2820";
-    roundRect(ctx, x + 1, y + tile - 5, tile - 2, 5, 3);
-    ctx.fill();
-
-    ctx.fillStyle = "#5a5046";
-    roundRect(ctx, x + 2, y + 2, tile - 4, tile - 7, 5);
-    ctx.fill();
-
-    ctx.fillStyle = "rgba(255,240,210,.18)";
-    ctx.beginPath();
-    ctx.moveTo(x + 2, y + tile - 5);
-    ctx.lineTo(x + 5, y + 4);
-    ctx.lineTo(x + tile - 5, y + 4);
-    ctx.lineTo(x + tile - 2, y + tile - 5);
-    ctx.closePath();
-    ctx.fill();
-
+  for (const k of set) {
+    const [c, r] = k.split(",").map(Number);
+    const x = c * tile, y = r * tile;
+    const g = ctx.createLinearGradient(0, y, 0, y + tile);
+    g.addColorStop(0, "#6a6052");
+    g.addColorStop(1, "#40382e");
+    ctx.fillStyle = g;
+    ctx.fillRect(x, y, tile, tile);
     const hs = hash(c * 9 + 3, r * 11 + 2);
     if (hs > 0.55) {
-      ctx.fillStyle = "rgba(0,0,0,.18)";
+      ctx.fillStyle = "rgba(0,0,0,.16)";
       ctx.fillRect(x + 4 + hs * (tile - 10), y + 5 + hs * (tile - 12), 2, 2);
     }
+  }
 
-    ctx.strokeStyle = "rgba(0,0,0,.5)";
-    ctx.lineWidth = 1;
-    roundRect(ctx, x + 2, y + 2, tile - 4, tile - 7, 5);
-    ctx.stroke();
-    ctx.strokeStyle = "rgba(255,240,210,.22)";
-    ctx.beginPath();
-    ctx.moveTo(x + 3, y + tile - 5);
-    ctx.lineTo(x + 5, y + 4);
-    ctx.lineTo(x + tile - 5, y + 4);
-    ctx.stroke();
+  for (const k of set) {
+    const [c, r] = k.split(",").map(Number);
+    const x = c * tile, y = r * tile;
+    const N = isPath(c, r - 1), S = isPath(c, r + 1), E = isPath(c + 1, r), W = isPath(c - 1, r);
+    if (!N) { ctx.fillStyle = "rgba(255,240,210,.32)"; ctx.fillRect(x, y, tile, 3); }
+    if (!W) { ctx.fillStyle = "rgba(255,240,210,.20)"; ctx.fillRect(x, y, 3, tile); }
+    if (!S) { ctx.fillStyle = "rgba(0,0,0,.5)"; ctx.fillRect(x, y + tile - 3, tile, 3); }
+    if (!E) { ctx.fillStyle = "rgba(0,0,0,.5)"; ctx.fillRect(x + tile - 3, y, 3, tile); }
   }
 
   const sp = pts[0];

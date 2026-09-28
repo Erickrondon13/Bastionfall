@@ -193,9 +193,10 @@ export class Renderer {
     const ctx = this.ctx;
     const w = this.canvas.width;
     const h = this.canvas.height;
-    const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.35, w / 2, h / 2, Math.max(w, h) * 0.75);
+    const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.28, w / 2, h / 2, Math.max(w, h) * 0.72);
     g.addColorStop(0, "rgba(0,0,0,0)");
-    g.addColorStop(1, "rgba(0,0,0,0.35)");
+    g.addColorStop(0.7, "rgba(0,0,0,0.12)");
+    g.addColorStop(1, "rgba(0,0,0,0.62)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
   }
