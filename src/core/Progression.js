@@ -121,6 +121,25 @@ export class Progression {
     return stars;
   }
 
+  applyStageReward(stageId) {
+    const stage = CAMPAIGN.find((s) => s.id === stageId);
+    if (!stage || !stage.reward) return null;
+    const r = stage.reward;
+    if (r.type === "tech") {
+      this.data.nodes[r.id] = true;
+      const node = TECH_NODES.find((n) => n.id === r.id);
+      this.save();
+      return { type: r.type, id: r.id, label: node ? node.name : r.id };
+    }
+    if (r.type === "tower") {
+      this.data.nodes["unlock_" + r.id] = true;
+      const names = { arco: "Arco", cañon: "Cañón", hielo: "Hielo", fuego: "Fuego" };
+      this.save();
+      return { type: r.type, id: r.id, label: "Torre " + (names[r.id] || r.id) };
+    }
+    return null;
+  }
+
   // --- Sistema de llaves y cofres ---
   addKey() {
     this.data.keys = (this.data.keys || 0) + 1;

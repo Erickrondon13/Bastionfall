@@ -154,6 +154,9 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
 - **Música por ambiente (§19):** música sintetizada (sin archivos) que cambia según el contexto —
   menú, combate, jefe (al aparecer un boss), victoria y derrota — compartiendo el control de sonido.
   Ver `fases/fase 3 profundida.md` §19.
+- **Campaña de mundos 1-2-3 (§20):** 3 mundos (Llanuras / Cañones / Ciénagas), 4 etapas cada uno con un BOSS
+  final. El selector de nivel agrupa por mundo, muestra estrellas y recompensas, y al vencer una etapa desbloquea
+  la siguiente y su mejora/torre. Ver `fases/fase 3 profundida.md` §20.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

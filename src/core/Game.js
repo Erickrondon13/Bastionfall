@@ -410,8 +410,13 @@ export class Game {
     if (!this.progression) return;
     const earned = computeStars(this.state);
     this.lastStars = earned;
-    if (this.state.stageId) this.progression.recordStage(this.state.stageId, earned);
-    else this.progression.recordStars(this.state.map.id, earned);
+    if (this.state.stageId) {
+      this.progression.recordStage(this.state.stageId, earned);
+      const rw = this.progression.applyStageReward(this.state.stageId);
+      if (rw) this.setFlash(`Recompensa: ${rw.label}`);
+    } else {
+      this.progression.recordStars(this.state.map.id, earned);
+    }
   }
 
   setFlash(msg) {

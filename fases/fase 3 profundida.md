@@ -787,9 +787,15 @@ y se marca aquí antes de pasar a la siguiente.
 - [x] **3l — Música por ambiente (§19):** `src/audio/Music.js` (sintetizada con Web Audio, sin assets):
       pistas `menu`/`gameplay`/`boss`/`victory`/`defeat` que cambian dinámicamente (a boss al aparecer un jefe,
       a gameplay al completar oleada, victory/defeat al terminar). Comparte el `AudioContext` y el mute de `Sfx`.
+- [x] **3m — Campaña de mundos 1-2-3 (§20):** `campaign.js` reestructurado en 3 mundos (Llanuras/Cañones/Ciénagas)
+      con 4 etapas cada uno (incluido un BOSS). `LevelSelect` agrupa por mundo y muestra estrellas, candado y
+      recompensa. Al vencer una etapa, `Progression.applyStageReward` desbloquea la mejora/torre asociada y la
+      siguiente etapa se habilita. Cumple "Mapa→Mejora/Torre, Boss→nueva mecánica".
 
-### Pendiente (orden sugerido)
-1. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
+### Checklist Fase 3 — COMPLETO ✅
+(3a estadísticas/críticos/habilidades/enemigos/élites/logros/endless · 3b árbol A/B · 3c sinergias · 3d
+modificadores · 3e reliquias · 3f bosses · 3g eventos · 3h economía · 3i tutorial · 3j zonas · 3k guardado ·
+3l música · 3m campaña de mundos)
 
 > Criterio del documento: priorizar **identidad estratégica de las 4 torres**
 > (ramas, sinergias, estadísticas, habilidades) antes de añadir más torres.
