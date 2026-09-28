@@ -12,6 +12,19 @@ function outline(ctx, color = "rgba(8,12,18,.5)", w = 1.5) {
   ctx.stroke();
 }
 
+function lerpColor(a, b, t) {
+  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+  const ar = (pa >> 16) & 255, ag = (pa >> 8) & 255, ab = pa & 255;
+  const br = (pb >> 16) & 255, bg = (pb >> 8) & 255, bb = pb & 255;
+  const r = Math.round(ar + (br - ar) * t), g = Math.round(ag + (bg - ag) * t), bl = Math.round(ab + (bb - ab) * t);
+  return `rgb(${r},${g},${bl})`;
+}
+
+function hillAt(c, r) {
+  const v = (Math.sin(c * 0.45) + Math.cos(r * 0.5) + Math.sin((c + r) * 0.28)) / 3;
+  return (v + 1) / 2;
+}
+
 export function drawTerrain(ctx, W, H, tile, state) {
   const theme = (THEMES[state.map.theme] || THEMES.forest);
   const g = ctx.createLinearGradient(0, 0, 0, H);
@@ -25,28 +38,35 @@ export function drawTerrain(ctx, W, H, tile, state) {
     for (let c = 0; c < cols; c++) {
       const x = c * tile, y = r * tile;
       if (state.blocked.has(`${c},${r}`)) continue;
-      const h1 = hash(c, r);
-      const base = theme.terrain[Math.floor(h1 * theme.terrain.length) % theme.terrain.length];
+      const hill = Math.max(0, Math.min(1, hillAt(c, r) + (hash(c * 3 + 1, r * 7 + 5) - 0.5) * 0.18));
+      const base = lerpColor(theme.terrainLow, theme.terrainHigh, hill);
       const vg = ctx.createLinearGradient(0, y, 0, y + tile);
-      vg.addColorStop(0, shade(base, 14));
+      vg.addColorStop(0, shade(base, 12));
       vg.addColorStop(1, shade(base, -10));
       ctx.fillStyle = vg;
       ctx.fillRect(x, y, tile, tile);
-      const h2 = hash(c * 3 + 1, r * 7 + 5);
-      if (h2 > 0.8) {
-        ctx.fillStyle = "rgba(0,0,0,.12)";
-        ctx.beginPath();
-        ctx.ellipse(x + tile * (0.3 + h2 * 0.4), y + tile * (0.4 + h2 * 0.3), 8 + h2 * 6, 5 + h2 * 4, 0, 0, Math.PI * 2);
-        ctx.fill();
-      }
       const hd = hash(c * 11 + 3, r * 13 + 7);
-      if (hd > 0.96) drawTree(ctx, x + tile / 2, y + tile * 0.7, 0.5 + hash(c, r) * 0.4, theme);
-      else if (hd > 0.9) drawBush(ctx, x + tile / 2, y + tile / 2, theme);
+      if (hd > 0.96) drawTreeVariant(ctx, x + tile / 2, y + tile * 0.7, 0.5 + hash(c, r) * 0.4, (Math.floor(hash(c * 2, r) * 4) % 4) + 1, theme);
+      else if (hd > 0.9) drawTreeVariant(ctx, x + tile / 2, y + tile * 0.8, 0.4 + hash(c, r) * 0.3, 3, theme);
       else if (hd > 0.86) drawRockCluster(ctx, x + tile / 2, y + tile / 2, 0.5 + hash(c * 2, r) * 0.5, theme);
       else if (hd > 0.82) drawFlowers(ctx, x + tile / 2, y + tile / 2);
       else if (hd > 0.78) drawGrass(ctx, x + tile / 2, y + tile / 2);
     }
   }
+
+  const hillSpots = [
+    [cols * 0.2, rows * 0.3, 1], [cols * 0.72, rows * 0.22, 0],
+    [cols * 0.5, rows * 0.72, 1], [cols * 0.85, rows * 0.62, 0], [cols * 0.3, rows * 0.82, 1],
+  ];
+  for (const [hc, hr, light] of hillSpots) {
+    const cx = hc * tile, cy = hr * tile, R = tile * 7;
+    const hg = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+    hg.addColorStop(0, light ? "rgba(200,220,150,0.30)" : "rgba(20,40,20,0.38)");
+    hg.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = hg;
+    ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
+  }
+
   drawForestFrame(ctx, W, H, tile, state, theme);
 }
 
@@ -58,69 +78,121 @@ function drawForestFrame(ctx, W, H, tile, state, theme) {
       if (!border) continue;
       const x = c * tile, y = r * tile;
       const s = 0.8 + hash(c * 3 + 1, r * 5 + 2) * 0.9;
-      drawTree(ctx, x + tile / 2, y + tile / 2, s, theme);
+      const v = (Math.floor(hash(c * 2 + r, c + r * 3) * 4) % 4) + 1;
+      drawTreeVariant(ctx, x + tile / 2, y + tile / 2, s, v, theme);
     }
   }
   for (let c = 0; c < cols; c++) {
-    drawTree(ctx, c * tile + hash(c, 1) * tile, -tile * 0.4, 1.1 + hash(c, 2) * 0.7, theme);
-    drawTree(ctx, c * tile + hash(c, 7) * tile, H + tile * 0.4, 1.1 + hash(c, 9) * 0.7, theme);
+    const v1 = (Math.floor(hash(c, 1) * 4) % 4) + 1;
+    const v2 = (Math.floor(hash(c, 7) * 4) % 4) + 1;
+    drawTreeVariant(ctx, c * tile + hash(c, 1) * tile, -tile * 0.4, 1.1 + hash(c, 2) * 0.7, v1, theme);
+    drawTreeVariant(ctx, c * tile + hash(c, 7) * tile, H + tile * 0.4, 1.1 + hash(c, 9) * 0.7, v2, theme);
   }
 }
 
-function drawTree(ctx, x, y, scale, theme) {
-  const trunkH = 14 * scale, trunkW = 5 * scale;
+function drawTreeVariant(ctx, x, y, scale, variant, theme) {
+  switch (variant) {
+    case 1: return drawPine(ctx, x, y, scale, theme);
+    case 2: return drawRoundAutumn(ctx, x, y, scale, theme);
+    case 3: return drawBushCluster(ctx, x, y, scale, theme);
+    default: return drawTallThin(ctx, x, y, scale, theme);
+  }
+}
+
+function drawPine(ctx, x, y, scale, theme) {
+  const trunkH = 12 * scale, trunkW = 4 * scale;
   ctx.fillStyle = "rgba(0,0,0,.18)";
-  ctx.beginPath();
-  ctx.ellipse(x, y + 2, 12 * scale, 4 * scale, 0, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x, y + 2, 10 * scale, 3.5 * scale, 0, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = theme.treeTrunk;
   ctx.fillRect(x - trunkW / 2, y - trunkH, trunkW, trunkH + 2);
-  const canopy = theme.treeCanopy;
-  for (let i = 0; i < 3; i++) {
-    const rr = (16 - i * 3) * scale;
-    const cy = y - trunkH - i * 6 * scale;
-    ctx.fillStyle = canopy[(i + Math.floor(x)) % canopy.length];
+  for (let i = 0; i < 4; i++) {
+    const w = (16 - i * 3) * scale;
+    const top = y - trunkH - i * 9 * scale;
+    const bot = top + 12 * scale;
+    ctx.fillStyle = i % 2 ? "#2f5a2a" : "#274d22";
     ctx.beginPath();
-    ctx.arc(x - 6 * scale + i * 3, cy, rr, 0, Math.PI * 2);
-    ctx.arc(x + 6 * scale - i * 3, cy + 2, rr * 0.9, 0, Math.PI * 2);
-    ctx.arc(x, cy - 4 * scale, rr * 0.95, 0, Math.PI * 2);
+    ctx.moveTo(x, top);
+    ctx.lineTo(x - w, bot);
+    ctx.lineTo(x + w, bot);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.06)";
+    ctx.beginPath();
+    ctx.moveTo(x, top);
+    ctx.lineTo(x - w * 0.3, top + 5 * scale);
+    ctx.lineTo(x + w * 0.3, top + 5 * scale);
+    ctx.closePath();
     ctx.fill();
   }
-  ctx.fillStyle = "rgba(255,255,255,.08)";
-  ctx.beginPath();
-  ctx.arc(x - 4 * scale, y - trunkH - 12 * scale, 5 * scale, 0, Math.PI * 2);
-  ctx.fill();
 }
 
-function drawBush(ctx, x, y, theme) {
-  ctx.fillStyle = "rgba(0,0,0,.15)";
-  ctx.beginPath(); ctx.ellipse(x, y + 4, 10, 3, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = theme.treeCanopy[1];
+function drawRoundAutumn(ctx, x, y, scale, theme) {
+  const trunkH = 14 * scale, trunkW = 5 * scale;
+  ctx.fillStyle = "rgba(0,0,0,.18)";
+  ctx.beginPath(); ctx.ellipse(x, y + 2, 12 * scale, 4 * scale, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = theme.treeTrunk;
+  ctx.fillRect(x - trunkW / 2, y - trunkH, trunkW, trunkH + 2);
+  const greens = ["#4a7d39", "#588f42", "#6fa14a"];
+  for (let i = 0; i < 5; i++) {
+    const a = (i * Math.PI * 2) / 5;
+    const cx = x + Math.cos(a) * 7 * scale;
+    const cy = y - trunkH - 6 * scale + Math.sin(a) * 6 * scale;
+    ctx.fillStyle = greens[i % greens.length];
+    ctx.beginPath(); ctx.arc(cx, cy, 9 * scale, 0, Math.PI * 2); ctx.fill();
+  }
   for (let i = 0; i < 4; i++) {
-    const a = i * Math.PI / 2 + 0.4;
+    const fx = x + (hash(i * 17 + Math.floor(x), Math.floor(y)) - 0.5) * 16 * scale;
+    const fy = y - trunkH - 4 * scale + (hash(i * 31 + Math.floor(y), Math.floor(x)) - 0.5) * 14 * scale;
+    ctx.fillStyle = "#e8c63a";
+    ctx.beginPath(); ctx.arc(fx, fy, 2.2 * scale, 0, Math.PI * 2); ctx.fill();
+  }
+}
+
+function drawBushCluster(ctx, x, y, scale, theme) {
+  ctx.fillStyle = "rgba(0,0,0,.15)";
+  ctx.beginPath(); ctx.ellipse(x, y + 3, 12 * scale, 4 * scale, 0, 0, Math.PI * 2); ctx.fill();
+  const cols = ["#3c6b30", "#4a7d39", "#2f5a2a"];
+  for (let i = 0; i < 5; i++) {
+    const a = (i * Math.PI * 2) / 5 + 0.3;
+    ctx.fillStyle = cols[i % cols.length];
     ctx.beginPath();
-    ctx.arc(x + Math.cos(a) * 6, y + Math.sin(a) * 4, 6, 0, Math.PI * 2);
+    ctx.arc(x + Math.cos(a) * 6 * scale, y - 2 * scale + Math.sin(a) * 3 * scale, (5 + (i % 2) * 2) * scale, 0, Math.PI * 2);
     ctx.fill();
   }
+}
+
+function drawTallThin(ctx, x, y, scale, theme) {
+  const trunkH = 26 * scale, trunkW = 3 * scale;
+  ctx.fillStyle = "rgba(0,0,0,.20)";
+  ctx.beginPath(); ctx.ellipse(x, y + 2, 14 * scale, 4 * scale, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = theme.treeTrunk;
+  ctx.fillRect(x - trunkW / 2, y - trunkH, trunkW, trunkH + 2);
+  const cy = y - trunkH - 8 * scale;
+  ctx.fillStyle = "rgba(74,125,57,0.5)";
+  ctx.beginPath(); ctx.arc(x, cy, 13 * scale, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "rgba(88,143,66,0.6)";
+  ctx.beginPath(); ctx.arc(x - 4 * scale, cy - 3 * scale, 9 * scale, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,.08)";
+  ctx.beginPath(); ctx.arc(x - 5 * scale, cy - 5 * scale, 4 * scale, 0, Math.PI * 2); ctx.fill();
 }
 
 function drawRockCluster(ctx, x, y, scale, theme) {
   const cols = theme.rock;
-  for (let i = 0; i < 3; i++) {
-    const ox = (i - 1) * 5 * scale;
-    const rr = (4 + (i % 2) * 2) * scale;
-    ctx.fillStyle = "rgba(0,0,0,.18)";
-    ctx.beginPath(); ctx.ellipse(x + ox, y + 3, rr, rr * 0.4, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = cols[i % cols.length];
+  ctx.fillStyle = "rgba(0,0,0,.20)";
+  ctx.beginPath(); ctx.ellipse(x, y + 4, 12 * scale, 4 * scale, 0, 0, Math.PI * 2); ctx.fill();
+  const stones = [[-6, 0, 5], [4, -2, 6], [-1, -7, 5], [6, -8, 4], [-7, -6, 3]];
+  for (const [ox, oy, rr] of stones) {
+    const px = x + ox * scale, py = y + oy * scale, s = rr * scale;
+    ctx.fillStyle = cols[((ox + oy + 13) % cols.length + cols.length) % cols.length];
     ctx.beginPath();
-    ctx.moveTo(x + ox - rr, y);
-    ctx.lineTo(x + ox - rr * 0.5, y - rr);
-    ctx.lineTo(x + ox + rr * 0.4, y - rr * 0.8);
-    ctx.lineTo(x + ox + rr, y);
+    ctx.moveTo(px - s, py);
+    ctx.lineTo(px - s * 0.5, py - s);
+    ctx.lineTo(px + s * 0.4, py - s * 0.8);
+    ctx.lineTo(px + s, py);
     ctx.closePath();
     ctx.fill();
     ctx.fillStyle = "rgba(255,255,255,.12)";
-    ctx.beginPath(); ctx.arc(x + ox - rr * 0.3, y - rr * 0.5, rr * 0.3, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px - s * 0.3, py - s * 0.5, s * 0.3, 0, Math.PI * 2); ctx.fill();
   }
 }
 
@@ -321,78 +393,60 @@ function drawBuildPlatform(ctx, x, y, tile, theme) {
   ctx.fillStyle = theme.platform.core;
   ctx.beginPath(); ctx.ellipse(x, y, rad * 0.26, rad * 0.2, 0, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
+  ctx.strokeStyle = theme.platform.core;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.ellipse(x, y, rad * 0.42, rad * 0.33, 0, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = "rgba(255,255,255,.28)";
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(x, y, rad * 0.5, rad * 0.39, 0, 0, Math.PI * 2); ctx.stroke();
   ctx.fillStyle = "rgba(255,255,255,.5)";
   ctx.beginPath(); ctx.ellipse(x - rad * 0.06, y - rad * 0.05, rad * 0.1, rad * 0.08, 0, 0, Math.PI * 2); ctx.fill();
 }
 
 export function drawPath(ctx, pts, state) {
   if (!pts || pts.length < 2) return;
-  const tile = state.map.tile;
-  const cols = state.map.cols;
-  const rows = state.map.rows;
-  const key = (c, r) => c + "," + r;
-  const set = new Set();
-  for (let i = 0; i < pts.length - 1; i++) {
-    const a = pts[i];
-    const b = pts[i + 1];
-    const steps = Math.max(1, Math.round(Math.hypot(b.x - a.x, b.y - a.y) / tile));
-    for (let s = 0; s <= steps; s++) {
-      const x = a.x + (b.x - a.x) * (s / steps);
-      const y = a.y + (b.y - a.y) * (s / steps);
-      const c = Math.floor(x / tile);
-      const r = Math.floor(y / tile);
-      if (c >= 0 && r >= 0 && c < cols && r < rows) set.add(key(c, r));
-    }
-  }
-  const isPath = (c, r) => set.has(key(c, r));
   const theme = (THEMES[state.map.theme] || THEMES.forest);
-
-  ctx.fillStyle = theme.pathDirt;
-  for (const k of set) {
-    const [c, r] = k.split(",").map(Number);
-    ctx.fillRect(c * tile - 5, r * tile - 5, tile + 10, tile + 10);
-  }
-
-  for (const k of set) {
-    const [c, r] = k.split(",").map(Number);
-    const x = c * tile, y = r * tile;
-    const g = ctx.createLinearGradient(0, y, 0, y + tile);
-    g.addColorStop(0, shade(theme.pathCenter, 14));
-    g.addColorStop(1, shade(theme.pathEdge, -10));
-    ctx.fillStyle = g;
-    ctx.fillRect(x, y, tile, tile);
-  }
-
-  for (const k of set) {
-    const [c, r] = k.split(",").map(Number);
-    const x = c * tile, y = r * tile;
-    const N = isPath(c, r - 1), S = isPath(c, r + 1), E = isPath(c + 1, r), W = isPath(c - 1, r);
-    if (!N) { ctx.fillStyle = "rgba(255,245,210,.30)"; ctx.fillRect(x, y, tile, 3); }
-    if (!W) { ctx.fillStyle = "rgba(255,245,210,.18)"; ctx.fillRect(x, y, 3, tile); }
-    if (!S) {
-      ctx.fillStyle = "rgba(70,45,20,.45)"; ctx.fillRect(x, y + tile - 4, tile, 4);
-      ctx.fillStyle = "rgba(0,0,0,.26)"; ctx.fillRect(x, y + tile - 2, tile, 3);
+  const trace = () => {
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p1 = pts[i], p2 = pts[i + 1];
+      const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
+      if (i === 0) ctx.lineTo(mx, my);
+      else ctx.quadraticCurveTo(p1.x, p1.y, mx, my);
     }
-    if (!E) {
-      ctx.fillStyle = "rgba(70,45,20,.45)"; ctx.fillRect(x + tile - 4, y, 4, tile);
-      ctx.fillStyle = "rgba(0,0,0,.26)"; ctx.fillRect(x + tile - 2, y, 3, tile);
-    }
-  }
+    ctx.quadraticCurveTo(pts[pts.length - 1].x, pts[pts.length - 1].y, pts[pts.length - 1].x, pts[pts.length - 1].y);
+  };
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
 
-  for (const k of set) {
-    const [c, r] = k.split(",").map(Number);
-    const h = hash(c * 9 + 3, r * 11 + 2);
-    if (h > 0.6) {
-      ctx.fillStyle = "rgba(255,255,230,.10)";
-      ctx.fillRect(c * tile + 6 + h * (tile - 16), r * tile + 6 + h * (tile - 16), 3, 2);
-    }
-  }
+  ctx.strokeStyle = theme.pathDirt;
+  ctx.lineWidth = 90;
+  trace(); ctx.stroke();
+
+  ctx.save();
+  ctx.translate(0, 4);
+  ctx.strokeStyle = "rgba(60,40,18,.5)";
+  ctx.lineWidth = 72;
+  trace(); ctx.stroke();
+  ctx.restore();
+
+  const g = ctx.createLinearGradient(0, 0, 0, state.map.rows * state.map.tile);
+  g.addColorStop(0, shade(theme.pathCenter, 10));
+  g.addColorStop(1, shade(theme.pathEdge, 0));
+  ctx.strokeStyle = g;
+  ctx.lineWidth = 68;
+  trace(); ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255,245,210,.22)";
+  ctx.lineWidth = 12;
+  trace(); ctx.stroke();
 
   const sp = pts[0];
-  ctx.strokeStyle = "rgba(255,225,150,.7)";
+  ctx.strokeStyle = "rgba(255,225,150,.85)";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(sp.x, sp.y, 11, 0, Math.PI * 2);
+  ctx.arc(sp.x, sp.y, 14, 0, Math.PI * 2);
   ctx.stroke();
 }
 
