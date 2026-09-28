@@ -86,10 +86,6 @@ export class Game {
       this.recordEndlessIfNeeded();
       if (this.onGameOver) this.onGameOver();
     });
-    this.events.on("game:over", () => {
-      this.award();
-      if (this.onGameOver) this.onGameOver();
-    });
     this.events.on("wave:complete", ({ wave, interest, streak, perfect, perfectBonus, total }) => {
       let msg = `Oleada ${wave} · +${total} oro (interés +${interest})`;
       if (streak > 1) msg += ` · 🔥 racha x${streak}`;
