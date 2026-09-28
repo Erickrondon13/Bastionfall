@@ -1,5 +1,6 @@
 import { TOWER_TYPES, towerStats } from "../config/towers.js";
 import { ZONE_TYPES } from "../config/maps.js";
+import { renderConfig } from "../config/render.js";
 import * as art from "./art.js";
 
 export class Renderer {
@@ -8,6 +9,21 @@ export class Renderer {
     this.ctx = canvas.getContext("2d");
     this.effects = effects || null;
     this.camera = camera || null;
+    this.ambient = [];
+    const W = canvas.width, H = canvas.height;
+    for (let i = 0; i < 46; i++) this.ambient.push(this._newEmber(W, H));
+  }
+
+  _newEmber(W, H) {
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vy: 0.2 + Math.random() * 0.5,
+      life: 80 + Math.random() * 220,
+      size: 0.6 + Math.random() * 1.4,
+      seed: Math.random() * 10,
+      color: "rgba(255,176,92,1)",
+    };
   }
 
   draw(state) {
@@ -67,6 +83,7 @@ export class Renderer {
     this.drawBaseShield(state);
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+    if (renderConfig.ambient) this.drawAmbient();
     this.drawFloaters(state);
     this.drawVignette();
     this.drawBossBar(state);
@@ -126,6 +143,27 @@ export class Renderer {
       }
     }
     ctx.restore();
+  }
+
+  drawAmbient() {
+    const ctx = this.ctx;
+    const W = this.canvas.width;
+    const H = this.canvas.height;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    for (const p of this.ambient) {
+      p.y -= p.vy;
+      p.x += Math.sin(p.y * 0.02 + p.seed) * 0.3;
+      p.life--;
+      if (p.y < -10 || p.life <= 0) Object.assign(p, this._newEmber(W, H));
+      ctx.globalAlpha = Math.max(0, 0.12 + 0.22 * Math.sin(p.life * 0.08));
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
   }
 
   drawVignette() {

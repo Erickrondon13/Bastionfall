@@ -153,7 +153,10 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
 - [x] **Fase 32 — Boss cinematográfico**: overlay `#boss-intro` (DOM) con nombre del jefe al spawnear (fade-in/out),
       `drawBossBar` con **indicador de fase** (3 pips) y flash de texto `¡FASE N!` en `boss:phase` (más shake existente).
       Conectado en `main.js` vía `boss:spawn`/`boss:phase`.
+- [x] **Fase 33 — Assets / pulido procedural**: sin assets externos, se añade **ambiente procedural** (brasas a la
+      deriva en espacio de pantalla con `globalCompositeOperation="lighter"`) en `Renderer.drawAmbient`, gestionado por
+      `renderConfig.ambient` y `renderConfig.artStyle` (gancho para sprites futuros). El arte procedural se mantiene.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 33 — Assets / Sprites**: sustituir el arte procedural por sprites (si se añaden assets) o pulir el
-procedural. No avanzar a Fase 34 hasta completar, probar y documentar Fase 33.
+Implementar **Fase 34 — Optimización**: evitar sobre-dibujado (cache de terreno/zonas), limitar partículas y usar
+`requestAnimationFrame`/dirty flags donde aplique. No avanzar a Fase 35 hasta completar, probar y documentar Fase 34.

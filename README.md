@@ -188,6 +188,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   jefe y encabezados de mundo con icono. Ver `fases/visual/README.md`.
 - **Fase 32 — Boss cinematográfico (§32):** intro overlay del jefe, barra con indicador de fase y flash al cambiar de
   fase. Ver `fases/visual/README.md`.
+- **Fase 33 — Assets/pulido (§33):** ambiente procedural (brasas a la deriva) y gancho `renderConfig` para sprites
+  futuros. Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)
