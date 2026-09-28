@@ -192,6 +192,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   futuros. Ver `fases/visual/README.md`.
 - **Fase 34 — Optimización (§34):** cache de terreno (terrain+zonas+path) en canvas offscreen, regenerado solo al
   cambiar de mapa. Ver `fases/visual/README.md`.
+- **Fase 35 — Responsive (§35):** cámara topdown escala/centra al canvas y `main.js` ajusta el canvas al viewport
+  conservando aspecto. Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

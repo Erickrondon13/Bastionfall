@@ -159,7 +159,10 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
 - [x] **Fase 34 — Optimización**: el terreno estático (terrain + zonas + path) se cachea en un canvas offscreen
       (`Renderer._ensureTerrain`) y se vuelca con `drawImage` bajo la transformación de cámara; se regenera solo al
       cambiar de mapa (`map.id`). En entornos sin `document` se dibuja directo (fallback). Reduce el sobre-dibujado.
+- [x] **Fase 35 — Responsive**: `Camera` en modo topdown ahora **escala y centra** el mundo al tamaño del canvas (igual
+      que isométrico), y `main.js` añade `resize()` que ajusta `canvas` al viewport conservando el aspecto 760×520, con
+      listener de `window.resize`. El HUD/toolbar ya usa flex-wrap. El juego se adapta a móvil/escritorio.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 35 — Responsive / adaptación**: que el canvas y la UI escalen a distintos tamaños de pantalla
-(móvil/escritorio) manteniendo legibilidad. No avanzar a Fase 36 hasta completar, probar y documentar Fase 35.
+Implementar **Fase 36 — Pulido final**: pasada de coherencia visual (paleta, contraste, consistencia de estilos),
+micro-detail en torres/enemigos y revisión general. Tras Fase 36, el rediseño visual (Fases 18–36) queda completo.

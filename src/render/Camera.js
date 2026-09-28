@@ -24,8 +24,12 @@ export class Camera {
       this.m = [s, 0, 0, s * tiltY, e, f];
       this.scale = s;
     } else {
-      this.m = [1, 0, 0, 1, 0, 0];
-      this.scale = 1;
+      const margin = this.config.margin ?? 0.94;
+      const s = Math.min(canvasW / worldW, canvasH / worldH) * margin;
+      const e = (canvasW - worldW * s) / 2;
+      const f = (canvasH - worldH * s) / 2;
+      this.m = [s, 0, 0, s, e, f];
+      this.scale = s;
     }
   }
 

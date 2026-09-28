@@ -17,6 +17,26 @@ import { renderConfig } from "./config/render.js";
 import { Camera } from "./render/Camera.js";
 
 const canvas = document.getElementById("game");
+
+function resize() {
+  const WORLD_W = 760;
+  const WORLD_H = 520;
+  const availW = window.innerWidth - 32;
+  const availH = window.innerHeight - 230;
+  const ar = WORLD_W / WORLD_H;
+  let w = availW;
+  let h = w / ar;
+  if (h > availH) { h = availH; w = h * ar; }
+  w = Math.max(320, Math.floor(w));
+  h = Math.round(w / ar);
+  canvas.style.width = w + "px";
+  canvas.style.height = h + "px";
+  canvas.width = w;
+  canvas.height = h;
+}
+resize();
+window.addEventListener("resize", resize);
+
 const progression = new Progression();
 const game = new Game(canvas, progression);
 
