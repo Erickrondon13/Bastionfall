@@ -135,7 +135,12 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
       propia, bajo las entidades) para **base, torres, enemigos** (suelo y voladores) y **proyectiles**. Se separa el
       orden de capas: fondo → terreno → zonas → camino → sombras → hover → entidades (z-sorted) → luces → rangos →
       UI. Las sombras inline previas en `drawTower`/`drawEnemy` se eliminan para evitar duplicidad.
+- [x] **Fase 28 — Efectos visuales**: `Effects` se convierte en biblioteca de partículas con tipos `spark`, `ring`,
+      `shard` y `flame`. Conectada a eventos de combate: `enemy:hit` (chispa), `projectile:explode` + `ability:impact`
+      (explosión con anillo), `enemy:killed` (muerte/poof), y rastro de **fuego** para enemigos en quemadura
+      (`burnTimer`, generado en `Effects.update(state)`). `CombatSystem` emite `enemy:hit`/`projectile:explode`.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 28 — Efectos visuales**: biblioteca de efectos (explosión, hielo, fuego, humo, impacto, muerte)
-procedural y conectada a los eventos de combate. No avanzar a Fase 29 hasta completar, probar y documentar Fase 28.
+Implementar **Fase 29 — HUD y retroalimentación**: rediseñar barras (vida, oleada, recursos), indicadores de sinergia/
+modificadores activos, popups de daño y micro-retroalimentación. No avanzar a Fase 30 hasta completar, probar y
+documentar Fase 29.

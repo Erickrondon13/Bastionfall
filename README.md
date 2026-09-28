@@ -178,6 +178,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   Ver `fases/visual/README.md`.
 - **Fase 27 — Sombras (§27):** capa de sombras de contacto centralizada (base, torres, enemigos, proyectiles) y
   separación de capas de render. Ver `fases/visual/README.md`.
+- **Fase 28 — Efectos visuales (§28):** biblioteca de partículas (chispa, anillo, quemadura, hielo, explosión, muerte)
+  conectada a eventos de combate y rastro de fuego por quemadura. Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

@@ -240,7 +240,7 @@ document.getElementById("tb-pause").addEventListener("click", () => game.toggleP
 const loop = new GameLoop(
   (dt) => {
     game.update(dt);
-    effects.update();
+    effects.update(game.state);
     overlay.el.style.display = game.state.gameOver || game.state.victory ? "flex" : "none";
   },
   () => {

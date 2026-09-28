@@ -37,18 +37,19 @@ function pushFloater(state, x, y, text, color, crit) {
   state.floaters.push({ x, y, text: String(text), color, crit: !!crit, timer: 48 });
 }
 
-function applyHit(state, p, target) {
+function applyHit(state, p, target, events) {
   if (p.splash > 0) {
     for (const e of state.enemigos) {
       if (e.hp <= 0) continue;
-      if (dist(p, e) <= p.splash) dealDamage(state, e, p);
+      if (dist(p, e) <= p.splash) dealDamage(state, e, p, events);
     }
+    if (events) events.emit("projectile:explode", { x: p.x, y: p.y, color: p.color });
   } else {
-    dealDamage(state, target, p);
+    dealDamage(state, target, p, events);
   }
 }
 
-function dealDamage(state, e, p) {
+function dealDamage(state, e, p, events) {
   let dmg = p.damage;
   let crit = false;
   if (p.crit && Math.random() < p.crit) {
@@ -67,6 +68,7 @@ function dealDamage(state, e, p) {
   }
   e.hp -= eff;
   e.hitFlash = 5;
+  if (events) events.emit("enemy:hit", { x: e.x, y: e.y, color: p.color });
   state.stats.dmgDealt += eff;
   if (p.slow > 0) e.slowTimer = Math.max(e.slowTimer, e.slowResist ? Math.round(p.slowDur / 2) : p.slowDur);
   if (p.burn > 0) {
@@ -112,7 +114,7 @@ export class CombatSystem {
       const dy = tgt.y - p.y;
       const d = Math.hypot(dx, dy);
       if (d <= p.speed) {
-        applyHit(state, p, tgt);
+        applyHit(state, p, tgt, events);
         state.proyectiles.splice(i, 1);
         this.pool.push(p);
       } else {
