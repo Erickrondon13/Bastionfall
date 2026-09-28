@@ -73,11 +73,12 @@ export class Renderer {
     this.drawShadows(state);
     this.drawHover(state, tile);
 
+    const iso = cam && cam.config.cameraMode === "isometric";
     const drawables = [];
-    drawables.push({ y: state.base.y, fn: () => art.drawBase(ctx, state.base, time) });
+    drawables.push({ x: state.base.x, y: state.base.y, fn: () => art.drawBase(ctx, state.base, time) });
     for (const t of state.torres) {
       drawables.push({
-        y: t.y,
+        x: t.x, y: t.y,
         fn: () => {
           art.drawTower(ctx, t, time);
           if (t.disabledTimer > 0) {
@@ -92,10 +93,10 @@ export class Renderer {
         },
       });
     }
-    for (const e of state.enemigos) drawables.push({ y: e.y, fn: () => art.drawEnemy(ctx, e, time) });
-    for (const p of state.proyectiles) drawables.push({ y: p.y, fn: () => art.drawProjectile(ctx, p) });
+    for (const e of state.enemigos) drawables.push({ x: e.x, y: e.y, fn: () => art.drawEnemy(ctx, e, time) });
+    for (const p of state.proyectiles) drawables.push({ x: p.x, y: p.y, fn: () => art.drawProjectile(ctx, p) });
 
-    drawables.sort((a, b) => a.y - b.y);
+    drawables.sort((a, b) => (iso ? (a.x + a.y) - (b.x + b.y) : a.y - b.y));
     for (const d of drawables) d.fn();
 
     if (this.effects) this.effects.draw(ctx);

@@ -91,7 +91,8 @@ function setMenu(show) {
 
 viewBtn.addEventListener("click", () => {
   input.onToggleView && input.onToggleView();
-  viewBtn.textContent = "Vista: " + (renderConfig.cameraMode === "isometric" ? "Isométrica (V)" : "Cenital (V)");
+  const names = { topdown: "Cenital (V)", tilt: "Inclinada (V)", isometric: "Isométrica (V)" };
+  viewBtn.textContent = "Vista: " + names[renderConfig.cameraMode];
 });
 
 game.onRestart = () => overlay.hide();
@@ -234,8 +235,11 @@ document.getElementById("menu-tutorial").addEventListener("click", () => {
 });
 input.onToggleTutorial = () => game.startTutorial();
 input.onToggleView = () => {
-  renderConfig.cameraMode = renderConfig.cameraMode === "topdown" ? "isometric" : "topdown";
-  game.setFlash("Cámara: " + (renderConfig.cameraMode === "isometric" ? "Isométrica 2.5D" : "Cenital"));
+  const order = ["topdown", "tilt", "isometric"];
+  const i = order.indexOf(renderConfig.cameraMode);
+  renderConfig.cameraMode = order[(i + 1) % order.length];
+  const names = { topdown: "Cenital", tilt: "Inclinada 2.5D", isometric: "Isométrica 45°" };
+  game.setFlash("Cámara: " + names[renderConfig.cameraMode]);
 };
 document.getElementById("menu-save").addEventListener("click", () => {
   game.saveRun();

@@ -15,16 +15,23 @@ export class Camera {
     this.canvasW = canvasW;
     this.canvasH = canvasH;
 
-    if (this.config.cameraMode === "isometric") {
+    const margin = this.config.margin ?? 0.94;
+    const mode = this.config.cameraMode;
+
+    if (mode === "isometric") {
+      const s = Math.min((canvasW * margin) / (worldW + worldH), (canvasH * margin * 2) / (worldW + worldH));
+      const e = canvasW / 2 - (s * (worldW - worldH)) / 2;
+      const f = canvasH / 2 - (s * (worldW + worldH)) / 4;
+      this.m = [s, s / 2, -s, s / 2, e, f];
+      this.scale = s;
+    } else if (mode === "tilt") {
       const tiltY = this.config.tiltY ?? 0.62;
-      const margin = this.config.margin ?? 0.94;
-      const s = Math.min(canvasW / worldW, canvasH / worldH / tiltY) * margin;
+      const s = Math.min(canvasW / worldW, (canvasH / tiltY) / worldH) * margin;
       const e = (canvasW - worldW * s) / 2;
       const f = (canvasH - worldH * s * tiltY) / 2;
       this.m = [s, 0, 0, s * tiltY, e, f];
       this.scale = s;
     } else {
-      const margin = this.config.margin ?? 0.94;
       const s = Math.min(canvasW / worldW, canvasH / worldH) * margin;
       const e = (canvasW - worldW * s) / 2;
       const f = (canvasH - worldH * s) / 2;
