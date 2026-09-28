@@ -107,8 +107,12 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
       proyección 2.5D eso equivale a `y` de pantalla), de modo que los objetos cercanos siempre solapan a los lejanos
       en ambas cámaras. El `screen→tile` para hover/selección/rango ya usa la inversa de la cámara, así que la
       elección de casillas es correcta en isométrico. La rotación 45° en diamante queda para Fase 21 (terreno).
+- [x] **Fase 21 — Terreno isométrico**: `art.drawTerrain` ahora dibuja variación procedural por casilla (paleta de
+      verdes con hash determinista por `(c,r)`), borde superior/inferior para dar relieve, y decoración (matas de
+      hierba, guijarros, flores, charcos) sembrada de forma estable. Se elimina el aspecto de "cuadrícula de Excel".
+      La proyección en diamante (rotación 45°) sigue pendiente para cuando el terreno use tiles diamante.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 21 — Terreno isométrico**: dibujar tiles con variación, bordes y transiciones (procedural, sin
-assets), y activar opcionalmente la proyección en diamante (rotación 45°) sobre la cámara de Fase 19/20. No avanzar
-a Fase 22 hasta completar, probar y documentar Fase 21.
+Implementar **Fase 22 — Camino y navegación visual**: mejorar `art.drawPath` (bordes, transición con el terreno,
+variantes de tramo) para que el camino se integre visualmente. No avanzar a Fase 23 hasta completar, probar y
+documentar Fase 22.

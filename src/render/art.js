@@ -6,35 +6,92 @@ function hash(c, r) {
 
 export function drawTerrain(ctx, W, H, tile, state) {
   const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, "#141b26");
-  g.addColorStop(1, "#0e131c");
+  g.addColorStop(0, "#16202e");
+  g.addColorStop(1, "#0e151f");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 
+  const tones = ["#1b2a1c", "#1f3020", "#182619", "#202d1e", "#1d2b1d"];
   for (let r = 0; r < state.map.rows; r++) {
     for (let c = 0; c < state.map.cols; c++) {
       const x = c * tile;
       const y = r * tile;
       if (state.blocked.has(`${c},${r}`)) {
-        ctx.fillStyle = "#7a5c3e";
+        ctx.fillStyle = "#6f5337";
         ctx.fillRect(x, y, tile, tile);
+        ctx.fillStyle = "rgba(255,255,255,.06)";
+        ctx.fillRect(x, y, tile, 2);
+        ctx.fillStyle = "rgba(0,0,0,.18)";
+        ctx.fillRect(x, y + tile - 2, tile, 2);
         ctx.fillStyle = "rgba(0,0,0,.12)";
-        ctx.fillRect(x, y, tile, 3);
-        ctx.fillRect(x, y, 3, tile);
+        ctx.fillRect(x, y, 2, tile);
         continue;
       }
-      const light = (c + r) % 2 === 0;
-      ctx.fillStyle = light ? "#1a2230" : "#161d29";
+      const h1 = hash(c, r);
+      const h2 = hash(c * 3 + 1, r * 7 + 5);
+      const h3 = hash(r * 11 + 3, c * 5 + 9);
+      ctx.fillStyle = tones[Math.floor(h1 * tones.length) % tones.length];
       ctx.fillRect(x, y, tile, tile);
-      const h = hash(c, r);
-      if (h > 0.82) {
-        ctx.fillStyle = "rgba(76,201,240,.06)";
-        ctx.beginPath();
-        ctx.arc(x + tile * (0.3 + h * 0.4), y + tile * (0.3 + h * 0.4), 1.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      ctx.fillStyle = "rgba(0,0,0,.10)";
+      ctx.fillRect(x, y + tile - 3, tile, 3);
+      ctx.fillStyle = "rgba(255,255,255,.035)";
+      ctx.fillRect(x, y, tile, 2);
+
+      if (h2 > 0.86) drawGrassTuft(ctx, x, y, tile, h3);
+      else if (h2 > 0.72) drawPebble(ctx, x, y, tile, h3);
+      else if (h2 > 0.62) drawFlower(ctx, x, y, tile, h3);
+      else if (h2 > 0.56) drawPuddle(ctx, x, y, tile, h3);
     }
   }
+}
+
+function drawGrassTuft(ctx, x, y, tile, h) {
+  const px = x + tile * (0.2 + h * 0.6);
+  const py = y + tile * (0.55 + (1 - h) * 0.3);
+  ctx.strokeStyle = "rgba(120,180,110,.5)";
+  ctx.lineWidth = 1;
+  for (let i = -1; i <= 1; i++) {
+    ctx.beginPath();
+    ctx.moveTo(px + i * 2, py);
+    ctx.lineTo(px + i * 2 - 1, py - 4 - (i === 0 ? 2 : 0));
+    ctx.stroke();
+  }
+}
+
+function drawPebble(ctx, x, y, tile, h) {
+  const px = x + tile * (0.25 + h * 0.5);
+  const py = y + tile * (0.35 + (1 - h) * 0.4);
+  ctx.fillStyle = "rgba(150,150,160,.45)";
+  ctx.beginPath();
+  ctx.ellipse(px, py, 2, 1.4, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawFlower(ctx, x, y, tile, h) {
+  const px = x + tile * (0.3 + h * 0.5);
+  const py = y + tile * (0.4 + (1 - h) * 0.35);
+  const col = h > 0.8 ? "#ffd166" : "#e0aaff";
+  ctx.fillStyle = col;
+  ctx.beginPath();
+  ctx.arc(px, py, 1.6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,.5)";
+  ctx.beginPath();
+  ctx.arc(px, py, 0.7, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawPuddle(ctx, x, y, tile, h) {
+  const px = x + tile * (0.3 + h * 0.4);
+  const py = y + tile * (0.35 + (1 - h) * 0.4);
+  ctx.fillStyle = "rgba(70,130,180,.16)";
+  ctx.beginPath();
+  ctx.ellipse(px, py, tile * 0.22, tile * 0.12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(180,220,255,.10)";
+  ctx.beginPath();
+  ctx.ellipse(px - 2, py - 1, tile * 0.1, tile * 0.05, 0, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 export function drawPath(ctx, pts) {

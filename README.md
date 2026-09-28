@@ -164,6 +164,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   La lógica de juego queda intacta. Ver `fases/visual/README.md`.
 - **Fase 20 — Profundidad/orden (§20):** entidades (base, torres, enemigos, proyectiles) dibujadas en orden por
   `y` de profundidad, así los objetos cercanos solapan a los lejanos en ambas cámaras. Ver `fases/visual/README.md`.
+- **Fase 21 — Terreno (§21):** `art.drawTerrain` con variación procedural por casilla, relieve y decoración
+  (hierba, guijarros, flores, charcos) sin assets. Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)
