@@ -778,12 +778,14 @@ y se marca aquí antes de pasar a la siguiente.
 - [x] **3i — Tutorial (§15):** tutorial guiado de 4 pasos (colocar torre → iniciar oleada → mejorar →
       derrotar enemigo) con banner instructivo, botón de menú y autoarranque la primera vez (guardado en
       `Progression.tutorialDone`).
+- [x] **3j — Mapas con zonas especiales (§1):** en `maps.js` (`ZONE_TYPES`, `zoneAt`) y `MovementSystem`:
+      **pantano** ralentiza enemigos (×0.55), **lava** daña periódicamente, **montaña** da +30% alcance a
+      torres construidas sobre ella, **bosque** da −25% alcance. Renderizadas en el mapa. Nuevo mapa "Ciénagas".
 
 ### Pendiente (orden sugerido)
 1. **Guardado de partida a medias (§16):** "Continuar partida".
 2. **Música por ambiente (§19):** MENU/GAMEPLAY/BOSS/VICTORY/DEFEAT.
 3. **Campaña de mundos 1-2-3 (§20):** mapa mundial con desbloqueos.
-4. **Mapas con zonas especiales (§1):** pantano/montaña/lava/bosque.
 
 > Criterio del documento: priorizar **identidad estratégica de las 4 torres**
 > (ramas, sinergias, estadísticas, habilidades) antes de añadir más torres.

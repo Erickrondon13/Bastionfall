@@ -2,7 +2,7 @@ import { TOWER_TYPES, towerStats } from "../config/towers.js";
 
 function applyStats(tower, next, mods) {
   const dmgMult = mods.dmg[tower.key] || 1;
-  tower.range = Math.round(next.range * mods.range);
+  tower.range = Math.round(next.range * mods.range * (mods.zoneRange || 1));
   tower.damage = Math.round(next.damage * dmgMult);
   tower.cooldown = Math.round(next.cooldown * (mods.cdMult || 1));
   tower.splash = next.splash;
@@ -33,7 +33,7 @@ export function createTower(typeIndex, c, r, tile, mods) {
     x: c * tile + tile / 2,
     y: r * tile + tile / 2,
     level: 0,
-    range: Math.round(stats.range * mods.range),
+    range: Math.round(stats.range * mods.range * (mods.zoneRange || 1)),
     damage: Math.round(stats.damage * dmgMult),
     cooldown: Math.round(stats.cooldown * (mods.cdMult || 1)),
     splash: stats.splash,

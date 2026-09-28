@@ -1,4 +1,5 @@
 import { TOWER_TYPES, towerStats } from "../config/towers.js";
+import { ZONE_TYPES } from "../config/maps.js";
 import * as art from "./art.js";
 
 export class Renderer {
@@ -22,6 +23,7 @@ export class Renderer {
     ctx.translate(shake.x, shake.y);
 
     art.drawTerrain(ctx, W, H, tile, state);
+    this.drawZones(state, tile);
     art.drawPath(ctx, state.pathPoints);
     this.drawHazards(state);
     art.drawBase(ctx, state.base, time);
@@ -62,6 +64,20 @@ export class Renderer {
       ctx.beginPath();
       ctx.arc(h.x, h.y, h.r * 0.6, 0, Math.PI * 2);
       ctx.fill();
+    }
+  }
+
+  drawZones(state, tile) {
+    const ctx = this.ctx;
+    if (!state.map || !state.map.zones) return;
+    for (const z of state.map.zones) {
+      const def = ZONE_TYPES[z.type];
+      if (!def) continue;
+      ctx.fillStyle = def.color + "55";
+      ctx.fillRect(z.c * tile, z.r * tile, tile, tile);
+      ctx.strokeStyle = def.color;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(z.c * tile + 0.5, z.r * tile + 0.5, tile - 1, tile - 1);
     }
   }
 

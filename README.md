@@ -145,6 +145,9 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
 - **Tutorial (§15):** la primera vez se abre un tutorial guiado de 4 pasos (colocar torre → iniciar oleada →
   mejorar → derrotar enemigo) con banner instructivo; también accesible desde el menú (tecla `T`). Ver
   `fases/fase 3 profundida.md` §15.
+- **Mapas con zonas especiales (§1):** casillas con personalidad — **pantano** ralentiza enemigos,
+  **lava** daña periódicamente, **montaña** da +30% alcance a torres sobre ella, **bosque** da −25% alcance.
+  Nuevo mapa "Ciénagas Putrefactas" en campaña. Ver `fases/fase 3 profundida.md` §1.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

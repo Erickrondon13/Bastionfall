@@ -1,5 +1,5 @@
 import { createState } from "./GameState.js";
-import { buildMap } from "../config/maps.js";
+import { buildMap, ZONE_TYPES, zoneAt } from "../config/maps.js";
 import { SpawnSystem } from "../systems/SpawnSystem.js";
 import { MovementSystem } from "../systems/MovementSystem.js";
 import { CombatSystem } from "../systems/CombatSystem.js";
@@ -468,7 +468,10 @@ export class Game {
     if (s.oro < stats.cost) { this.setFlash("Oro insuficiente"); return false; }
     s.oro -= stats.cost;
     s.stats.goldSpent += stats.cost;
-    s.torres.push(createTower(s.selectedTower, c, r, s.map.tile, this.mods()));
+    const mods = this.mods();
+    const zType = zoneAt(s.map, c * s.map.tile + s.map.tile / 2, r * s.map.tile + s.map.tile / 2);
+    mods.zoneRange = (ZONE_TYPES[zType] && ZONE_TYPES[zType].towerRange) || 1;
+    s.torres.push(createTower(s.selectedTower, c, r, s.map.tile, mods));
     return true;
   }
 

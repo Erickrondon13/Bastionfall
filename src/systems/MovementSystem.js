@@ -1,3 +1,5 @@
+import { zoneAt, ZONE_TYPES } from "../config/maps.js";
+
 function applyStatus(e, evMul) {
   if (e.slowTimer > 0) {
     e.slowTimer--;
@@ -52,6 +54,21 @@ export class MovementSystem {
 
       const evMul = (state.eventMods && state.eventMods.enemySpeedMult) || 1;
       applyStatus(e, evMul);
+
+      const zt = zoneAt(state.map, e.x, e.y);
+      if (zt === "pantano") {
+        e.speed *= ZONE_TYPES.pantano.enemySlow;
+      } else if (zt === "lava") {
+        e._lavaT = (e._lavaT || 0) - 1;
+        if (e._lavaT <= 0) {
+          e._lavaT = ZONE_TYPES.lava.interval;
+          e.hp -= ZONE_TYPES.lava.enemyDps;
+          state.stats.dmgDealt += ZONE_TYPES.lava.enemyDps;
+          if (state.floaters.length < 120) {
+            state.floaters.push({ x: e.x, y: e.y - e.radius, text: String(ZONE_TYPES.lava.enemyDps), color: "#ff7b00", crit: false, timer: 32 });
+          }
+        }
+      }
 
       const arrived = e.flying ? moveFlying(e, base) : moveAlongPath(e, pathPoints);
       if (arrived) {
