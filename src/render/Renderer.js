@@ -205,9 +205,12 @@ export class Renderer {
       const a = Math.min(1, f.timer / 24);
       const sx = cam ? cam.worldToScreen(f.x, f.y - (48 - f.timer) * 0.5) : [f.x, f.y - (48 - f.timer) * 0.5];
       ctx.globalAlpha = a;
-      ctx.fillStyle = f.color;
-      ctx.font = (f.crit ? "bold 14px" : "11px") + " sans-serif";
+      ctx.font = `bold ${(f.crit ? 18 : 13) * (cam ? cam.scale : 1)}px "Trebuchet MS", sans-serif`;
       ctx.textAlign = "center";
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(0,0,0,0.7)";
+      ctx.strokeText(f.text, sx[0], sx[1]);
+      ctx.fillStyle = f.color;
       ctx.fillText(f.text, sx[0], sx[1]);
     }
     ctx.globalAlpha = 1;

@@ -233,6 +233,35 @@
     margin-top: 8px; background: var(--accent); color: #08121a; border: none;
     padding: 10px 22px; border-radius: 8px; font-weight: 700; cursor: pointer;
   }
+  /* === Fase 29: HUD dark-fantasy === */
+  #hud {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, rgba(20,26,38,.92), rgba(13,17,24,.92));
+    border: 1px solid rgba(255,209,102,.25); border-bottom: 2px solid rgba(255,209,102,.4);
+    box-shadow: 0 4px 18px rgba(0,0,0,.5), inset 0 0 30px rgba(76,201,240,.05);
+    padding: 10px 16px; border-radius: 0 0 14px 14px; backdrop-filter: blur(4px);
+    font-size: 14px; letter-spacing: .3px;
+  }
+  #hud span {
+    background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.06);
+    padding: 5px 12px; border-radius: 999px; font-weight: 600;
+  }
+  #hud b { font-size: 15px; }
+  .stat-vida { text-shadow: 0 0 8px rgba(239,71,111,.7); }
+  .stat-oro { text-shadow: 0 0 8px rgba(255,209,102,.7); }
+  .stat-oleada { text-shadow: 0 0 8px rgba(6,214,160,.6); }
+  #sel {
+    background: linear-gradient(180deg, rgba(27,34,48,.95), rgba(18,23,33,.95));
+    border: 1px solid rgba(76,201,240,.35); border-radius: 12px;
+    padding: 8px 16px; margin: 8px auto 0; text-align: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,.4); min-width: 320px;
+  }
+  #sel .name { color: var(--gold); text-shadow: 0 0 8px rgba(255,209,102,.4); }
+  .syn-chip, .mod-chip, .relic-chip, .event-chip {
+    box-shadow: 0 0 10px currentColor; border-radius: 999px; font-weight: 700; letter-spacing: .2px;
+  }
+  .branch-btn { box-shadow: 0 0 12px rgba(76,201,240,.35); }
+  #tower-stats { box-shadow: 0 3px 12px rgba(0,0,0,.35); }
 </style>
 </head>
 <body>

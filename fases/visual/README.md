@@ -139,8 +139,11 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
       `shard` y `flame`. Conectada a eventos de combate: `enemy:hit` (chispa), `projectile:explode` + `ability:impact`
       (explosión con anillo), `enemy:killed` (muerte/poof), y rastro de **fuego** para enemigos en quemadura
       (`burnTimer`, generado en `Effects.update(state)`). `CombatSystem` emite `enemy:hit`/`projectile:explode`.
+- [x] **Fase 29 — HUD y retroalimentación**: estilo dark-fantasy para la barra superior (`#hud` con degradado,
+      blur, bordes dorados y pills con glow por recurso), tarjeta `#sel` y chips de sinergia/modificador/relic/evento
+      con resplandor. Popups de daño en canvas mejorados (`drawFloaters`): contorno, fuente resaltada, escala de
+      crítico y `Camera.scale`. `Camera` ahora expone `scale`.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 29 — HUD y retroalimentación**: rediseñar barras (vida, oleada, recursos), indicadores de sinergia/
-modificadores activos, popups de daño y micro-retroalimentación. No avanzar a Fase 30 hasta completar, probar y
-documentar Fase 29.
+Implementar **Fase 30 — Menús y pantallas**: rediseñar el menú principal, pantallas de victoria/derrota, progresión
+y tienda con la estética dark-fantasy. No avanzar a Fase 31 hasta completar, probar y documentar Fase 30.

@@ -6,6 +6,7 @@ export class Camera {
     this.worldH = 520;
     this.canvasW = 760;
     this.canvasH = 520;
+    this.scale = 1;
   }
 
   update(worldW, worldH, canvasW, canvasH) {
@@ -21,8 +22,10 @@ export class Camera {
       const e = (canvasW - worldW * s) / 2;
       const f = (canvasH - worldH * s * tiltY) / 2;
       this.m = [s, 0, 0, s * tiltY, e, f];
+      this.scale = s;
     } else {
       this.m = [1, 0, 0, 1, 0, 0];
+      this.scale = 1;
     }
   }
 
