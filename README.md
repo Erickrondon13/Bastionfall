@@ -156,7 +156,12 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   Ver `fases/fase 3 profundida.md` §19.
 - **Campaña de mundos 1-2-3 (§20):** 3 mundos (Llanuras / Cañones / Ciénagas), 4 etapas cada uno con un BOSS
   final. El selector de nivel agrupa por mundo, muestra estrellas y recompensas, y al vencer una etapa desbloquea
-  la siguiente y su mejora/torre. Ver `fases/fase 3 profundida.md` §20.
+  la siguiente y su mejora/torre.   Ver `fases/fase 3 profundida.md` §20.
+
+## Rediseño visual (fases visual/ — ver `fases/visual/README.md`)
+- **Fase 19 — Cámara 2.5D (§19):** capa `Camera` que traduce píxel-mundo ↔ pantalla, con toggle `topdown` (por
+  defecto, idéntico al anterior) / `isometric` (vista inclinada 2.5D). Botón "Vista" en el menú y tecla `V`.
+  La lógica de juego queda intacta. Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

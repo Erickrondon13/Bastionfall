@@ -1,9 +1,10 @@
 import { TOWER_TYPES } from "../config/towers.js";
 
 export class Input {
-  constructor(game, canvas) {
+  constructor(game, canvas, camera) {
     this.game = game;
     this.canvas = canvas;
+    this.camera = camera || null;
     this.tile = () => game.state.map.tile;
 
     canvas.addEventListener("mousemove", (ev) => this.onMove(ev));
@@ -25,11 +26,16 @@ export class Input {
 
   cellFromEvent(ev) {
     const rect = this.canvas.getBoundingClientRect();
-    const scaleX = this.canvas.width / rect.width;
-    const scaleY = this.canvas.height / rect.height;
-    const x = (ev.clientX - rect.left) * scaleX;
-    const y = (ev.clientY - rect.top) * scaleY;
-    return { c: Math.floor(x / this.tile()), r: Math.floor(y / this.tile()) };
+    const x = (ev.clientX - rect.left) * (this.canvas.width / rect.width);
+    const y = (ev.clientY - rect.top) * (this.canvas.height / rect.height);
+    let wx = x;
+    let wy = y;
+    if (this.camera) {
+      const w = this.camera.screenToWorld(x, y);
+      wx = w[0];
+      wy = w[1];
+    }
+    return { c: Math.floor(wx / this.tile()), r: Math.floor(wy / this.tile()) };
   }
 
   onMove(ev) {
@@ -72,6 +78,7 @@ export class Input {
     else if (ev.code === "KeyC") { ev.preventDefault(); this.onToggleCampaign && this.onToggleCampaign(); }
     else if (ev.code === "KeyM") { ev.preventDefault(); this.onToggleMods && this.onToggleMods(); }
     else if (ev.code === "KeyT") { ev.preventDefault(); this.onToggleTutorial && this.onToggleTutorial(); }
+    else if (ev.code === "KeyV") { ev.preventDefault(); this.onToggleView && this.onToggleView(); }
     else if (ev.code === "Escape") { ev.preventDefault(); this.game.togglePause(); }
   }
 }

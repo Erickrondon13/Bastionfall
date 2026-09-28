@@ -13,16 +13,19 @@ import { ABILITIES } from "./config/abilities.js";
 import { Effects } from "./render/Effects.js";
 import { MODIFIERS } from "./config/modifiers.js";
 import { RELICS, relicById } from "./config/relics.js";
+import { renderConfig } from "./config/render.js";
+import { Camera } from "./render/Camera.js";
 
 const canvas = document.getElementById("game");
 const progression = new Progression();
 const game = new Game(canvas, progression);
 
 const effects = new Effects(game.events);
-const renderer = new Renderer(canvas, effects);
+const camera = new Camera(renderConfig);
+const renderer = new Renderer(canvas, effects, camera);
 const hud = new Hud(game);
 const overlay = new Overlay(game);
-const input = new Input(game, canvas);
+const input = new Input(game, canvas, camera);
 const techMenu = new TechMenu(progression);
 const levelSelect = new LevelSelect(game, progression);
 
@@ -48,9 +51,15 @@ game.events.on("game:over", () => music.setTrack("defeat"));
 
 const menuEl = document.getElementById("menu");
 const soundBtn = document.getElementById("menu-sound");
+const viewBtn = document.getElementById("menu-view");
 function setMenu(show) {
   menuEl.classList.toggle("hidden", !show);
 }
+
+viewBtn.addEventListener("click", () => {
+  input.onToggleView && input.onToggleView();
+  viewBtn.textContent = "Vista: " + (renderConfig.cameraMode === "isometric" ? "Isométrica (V)" : "Cenital (V)");
+});
 
 game.onRestart = () => overlay.hide();
 game.onPause = (paused) => {
@@ -191,6 +200,10 @@ document.getElementById("menu-tutorial").addEventListener("click", () => {
   game.startTutorial();
 });
 input.onToggleTutorial = () => game.startTutorial();
+input.onToggleView = () => {
+  renderConfig.cameraMode = renderConfig.cameraMode === "topdown" ? "isometric" : "topdown";
+  game.setFlash("Cámara: " + (renderConfig.cameraMode === "isometric" ? "Isométrica 2.5D" : "Cenital"));
+};
 document.getElementById("menu-save").addEventListener("click", () => {
   game.saveRun();
   setMenu(true);

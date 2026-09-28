@@ -3,10 +3,11 @@ import { ZONE_TYPES } from "../config/maps.js";
 import * as art from "./art.js";
 
 export class Renderer {
-  constructor(canvas, effects) {
+  constructor(canvas, effects, camera) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
     this.effects = effects || null;
+    this.camera = camera || null;
   }
 
   draw(state) {
@@ -16,10 +17,16 @@ export class Renderer {
     const W = map.cols * tile;
     const H = map.rows * tile;
     const time = state.time || 0;
+    const cam = this.camera;
+    if (cam) cam.update(W, H, this.canvas.width, this.canvas.height);
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    ctx.fillStyle = "#0d1117";
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    if (cam) cam.apply(ctx);
 
     const shake = this.effects ? this.effects.shakeOffset() : { x: 0, y: 0 };
-    ctx.clearRect(0, 0, W, H);
-    ctx.save();
     ctx.translate(shake.x, shake.y);
 
     art.drawTerrain(ctx, W, H, tile, state);
@@ -43,12 +50,12 @@ export class Renderer {
     for (const e of state.enemigos) art.drawEnemy(ctx, e, time);
     for (const p of state.proyectiles) art.drawProjectile(ctx, p);
     if (this.effects) this.effects.draw(ctx);
-    this.drawBossBar(state, W);
     this.drawSelectedRange(state);
     this.drawBaseShield(state);
-    this.drawFloaters(state);
-    ctx.restore();
 
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.drawFloaters(state);
+    this.drawBossBar(state);
     this.drawFlash(state);
   }
 
@@ -107,6 +114,7 @@ export class Renderer {
 
   drawFloaters(state) {
     const ctx = this.ctx;
+    const cam = this.camera;
     for (let i = state.floaters.length - 1; i >= 0; i--) {
       const f = state.floaters[i];
       f.timer--;
@@ -115,19 +123,21 @@ export class Renderer {
         continue;
       }
       const a = Math.min(1, f.timer / 24);
+      const sx = cam ? cam.worldToScreen(f.x, f.y - (48 - f.timer) * 0.5) : [f.x, f.y - (48 - f.timer) * 0.5];
       ctx.globalAlpha = a;
       ctx.fillStyle = f.color;
       ctx.font = (f.crit ? "bold 14px" : "11px") + " sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText(f.text, f.x, f.y - (48 - f.timer) * 0.5);
+      ctx.fillText(f.text, sx[0], sx[1]);
     }
     ctx.globalAlpha = 1;
   }
 
-  drawBossBar(state, W) {
+  drawBossBar(state) {
     const boss = state.enemigos.find((e) => e.boss);
     if (!boss) return;
     const ctx = this.ctx;
+    const W = this.canvas.width;
     const bw = Math.min(W - 40, 480);
     const x = (W - bw) / 2;
     const y = 8;
@@ -161,7 +171,7 @@ export class Renderer {
 
   drawFlash(state) {
     const ctx = this.ctx;
-    const W = state.map.cols * state.map.tile;
+    const W = this.canvas.width;
     if (state.flash.timer > 0 && state.flash.msg) {
       ctx.fillStyle = `rgba(255,255,255,${state.flash.timer / 120})`;
       ctx.font = "bold 16px sans-serif";
