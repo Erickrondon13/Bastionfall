@@ -7,6 +7,7 @@ export class Renderer {
   constructor(canvas, effects, camera) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
+    this.ctx.imageSmoothingEnabled = true;
     this.effects = effects || null;
     this.camera = camera || null;
     this.ambient = [];
@@ -25,6 +26,7 @@ export class Renderer {
     c.width = W;
     c.height = H;
     const tctx = c.getContext("2d");
+    tctx.imageSmoothingEnabled = true;
     art.drawTerrain(tctx, W, H, tile, state);
     this.drawZones(tctx, state, tile);
     art.drawPath(tctx, state.pathPoints, state);
