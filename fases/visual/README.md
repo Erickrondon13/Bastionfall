@@ -119,8 +119,12 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
       por tipo — **arco** (ballesta de madera), **cañón** (bloque de piedra + cañón orientado al ángulo),
       **hielo** (espiga de cristal con brillo), **fuego** (torre metálica con núcleo y llama) — y 3 niveles que
       crecen en tamaño/detalle. Pulso idle sutil. Procedural y sin assets; respeta la profundidad de Fase 20.
+- [x] **Fase 24 — Enemigos**: `art.drawEnemy` rediseñado con sombra de contacto y forma propia por tipo —
+      **básico** (slime con ojos), **rápido** (dardo inclinado), **tanque** (hexágono blindado), **blindado**
+      (caja con remaches y visor), **volador** (murciélago con alas batientes), **divisor** (célula con núcleo),
+      **jefe** (masa oscura con cuernos y ojos). Se conservan anillos de estado (escudo/invisible/quemado/lento) y
+      barra de vida. Procedural y sin assets.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 24 — Enemigos**: rediseñar los enemigos (básico, volador, blindado, divisor, élite, boss) con
-identidad visual propia, manteniendo las siluetas actuales como base. No avanzar a Fase 25 hasta completar, probar y
-documentar Fase 24.
+Implementar **Fase 25 — Animaciones**: añadir animaciones idle/ataque/muerte (procedural) para torres y enemigos,
+aprovechando el `time` ya disponible en los draw. No avanzar a Fase 26 hasta completar, probar y documentar Fase 25.

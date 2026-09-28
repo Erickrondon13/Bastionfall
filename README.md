@@ -170,6 +170,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   césped, integrándose con el terreno, más anillo de spawn. Ver `fases/visual/README.md`.
 - **Fase 23 — Torres (§23):** `art.drawTower` con volumen, sombra, forma distintiva por tipo y 3 niveles, sin
   assets. Ver `fases/visual/README.md`.
+- **Fase 24 — Enemigos (§24):** `art.drawEnemy` con sombra y forma propia por tipo (básico, rápido, tanque,
+  blindado, volador, divisor, jefe). Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)
