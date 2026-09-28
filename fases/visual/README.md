@@ -127,7 +127,12 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
 - [x] **Fase 25 — Animaciones**: retroceso (recoil) y fogonazo de muzzle en **cañón/arco** según `cooldown/cooldownMax`
       (sin tocar lógica), y destello blanco de impacto en enemigos (`hitFlash`, fijado en `CombatSystem` al dañar y
       decaído en `MovementSystem`). Aprovecha el `time` existente para idle/walk. Procedural y sin assets.
+- [x] **Fase 26 — Iluminación**: `Renderer.drawLighting` añade luces aditivas (`globalCompositeOperation = "lighter"`)
+      — halo cálido en torre de **fuego**, halo frío en **hielo**, resplandor naranja en enemigos **quemando** y aura
+      púrpura pulsante en **boss** — más una viñeta ambiental (`drawVignette`) en espacio de pantalla. Todo con
+      gradientes radiales, sin assets.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 26 — Iluminación**: realces de luz (gradientes/overlays) para fuego/hielo/boss y atmósfera,
-usando composición de Canvas. No avanzar a Fase 27 hasta completar, probar y documentar Fase 26.
+Implementar **Fase 27 — Sombras y profundidad**: separar capas (fondo/terreno/decoración/sombras/estructuras/unidades/
+efectos/UI) y añadir sombras proyectadas a torres/enemigos/proyectiles. No avanzar a Fase 28 hasta completar, probar y
+documentar Fase 27.

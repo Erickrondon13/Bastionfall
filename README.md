@@ -174,6 +174,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   blindado, volador, divisor, jefe). Ver `fases/visual/README.md`.
 - **Fase 25 — Animaciones (§25):** retroceso + fogonazo de muzzle en torres según cooldown y destello de impacto en
   enemigos. Ver `fases/visual/README.md`.
+- **Fase 26 — Iluminación (§26):** halos aditivos para fuego/hielo/enemigos quemándose/boss y viñeta ambiental.
+  Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

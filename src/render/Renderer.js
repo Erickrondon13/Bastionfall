@@ -61,13 +61,64 @@ export class Renderer {
     for (const d of drawables) d.fn();
 
     if (this.effects) this.effects.draw(ctx);
+    this.drawLighting(state, time);
     this.drawSelectedRange(state);
     this.drawBaseShield(state);
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     this.drawFloaters(state);
+    this.drawVignette();
     this.drawBossBar(state);
     this.drawFlash(state);
+  }
+
+  drawLighting(state, time) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    for (const t of state.torres) {
+      let col = null;
+      if (t.typeIndex === 3) col = "255,140,40";
+      else if (t.typeIndex === 2) col = "120,200,255";
+      if (col) {
+        const R = 46;
+        const g = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, R);
+        g.addColorStop(0, `rgba(${col},0.22)`);
+        g.addColorStop(1, `rgba(${col},0)`);
+        ctx.fillStyle = g;
+        ctx.fillRect(t.x - R, t.y - R, R * 2, R * 2);
+      }
+    }
+    for (const e of state.enemigos) {
+      if (e.burnTimer > 0) {
+        const R = e.radius + 8;
+        const g = ctx.createRadialGradient(e.x, e.y, 0, e.x, e.y, R);
+        g.addColorStop(0, "rgba(255,120,30,0.25)");
+        g.addColorStop(1, "rgba(255,120,30,0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(e.x - R, e.y - R, R * 2, R * 2);
+      }
+      if (e.boss) {
+        const R = e.radius + 26 + 6 * Math.sin(time / 8);
+        const g = ctx.createRadialGradient(e.x, e.y, 0, e.x, e.y, R);
+        g.addColorStop(0, "rgba(180,23,158,0.18)");
+        g.addColorStop(1, "rgba(180,23,158,0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(e.x - R, e.y - R, R * 2, R * 2);
+      }
+    }
+    ctx.restore();
+  }
+
+  drawVignette() {
+    const ctx = this.ctx;
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const g = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.35, w / 2, h / 2, Math.max(w, h) * 0.75);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(1, "rgba(0,0,0,0.35)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
   }
 
   drawHazards(state) {
