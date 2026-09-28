@@ -30,7 +30,7 @@ export class Hud {
 
   update() {
     const s = this.game.state;
-    this.el.vida.textContent = s.vida;
+    this.el.vida.textContent = `${s.vida}/${s.vidaMax || 20}`;
     this.el.oro.textContent = s.oro;
     this.el.oleada.textContent = `${s.oleada} / ${Number.isFinite(s.totalOleadas) ? s.totalOleadas : "∞"}`;
     this.el.streak.textContent = s.streak || 0;

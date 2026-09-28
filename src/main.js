@@ -98,6 +98,8 @@ viewBtn.addEventListener("click", () => {
 game.onRestart = () => overlay.hide();
 game.onPause = (paused) => {
   if (!game.state.gameOver && !game.state.victory) setMenu(paused);
+  const pb = document.getElementById("btn-pause");
+  if (pb) { pb.textContent = paused ? "▶" : "⏸"; pb.classList.toggle("active", paused); }
 };
 
 input.onToggleTech = () => { setMenu(false); techMenu.toggle(); };
@@ -274,10 +276,26 @@ document.getElementById("tb-upgrade").addEventListener("click", () => game.upgra
 document.getElementById("tb-sell").addEventListener("click", () => game.sellSelected());
 document.getElementById("tb-pause").addEventListener("click", () => game.togglePause());
 
+const speedBtn = document.getElementById("btn-speed");
+const pauseCtrlBtn = document.getElementById("btn-pause");
+const settingsBtn = document.getElementById("btn-settings");
+let speed = 1;
+const speeds = [1, 2, 3];
+pauseCtrlBtn.addEventListener("click", () => game.togglePause());
+speedBtn.addEventListener("click", () => {
+  speed = speeds[(speeds.indexOf(speed) + 1) % speeds.length];
+  speedBtn.textContent = speed + "×";
+  speedBtn.classList.toggle("active", speed > 1);
+  game.setFlash("Velocidad " + speed + "×");
+});
+settingsBtn.addEventListener("click", () => setMenu(true));
+
 const loop = new GameLoop(
   (dt) => {
-    game.update(dt);
-    effects.update(game.state);
+    for (let i = 0; i < speed; i++) {
+      game.update(dt);
+      effects.update(game.state);
+    }
     overlay.el.style.display = game.state.gameOver || game.state.victory ? "flex" : "none";
   },
   () => {

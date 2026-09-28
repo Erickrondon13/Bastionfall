@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bastionfall — Tower Defense</title>
-<style>
+  <title>Bastionfall — Tower Defense</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=MedievalSharp&display=swap" rel="stylesheet" />
+  <style>
   :root {
     --bg: #11151c;
     --panel: #1b2230;
@@ -14,6 +16,9 @@
     --danger: #ef476f;
     --gold: #ffd166;
     --ok: #06d6a0;
+    --stone: #2a241e;
+    --stone-light: #4a4138;
+    --font-fantasy: 'MedievalSharp', 'Cinzel', 'Trebuchet MS', fantasy, serif;
   }
   * { box-sizing: border-box; }
   html, body {
@@ -344,18 +349,66 @@
     text-shadow: 0 0 30px rgba(255,107,120,.4);
   }
   .bi-sub { color: var(--muted); font-size: 14px; letter-spacing: 1px; }
+
+  /* === Fase 5.4: UI de fantasía / RPG (madera, piedra, monedas, gemas, corazón) === */
+  #hud, #sel, #toolbar, #touchbar, #abilities, #tower-stats, #hint,
+  .menu-btn, .tower-btn, .tech-panel, .relic-card, .mod-card, #modifiers .tech-panel, #relic .tech-panel {
+    font-family: var(--font-fantasy);
+  }
+  #hud {
+    background:
+      linear-gradient(180deg, rgba(58,48,38,.96), rgba(34,28,22,.96)),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0 6px, rgba(255,255,255,.03) 6px 12px);
+    border: 2px solid #6b5a44; border-bottom: 3px solid #3a2f24;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 6px 22px rgba(0,0,0,.6), inset 0 0 24px rgba(0,0,0,.45);
+    padding: 10px 18px;
+  }
+  #hud .stat {
+    background: linear-gradient(180deg, rgba(40,33,26,.95), rgba(26,21,16,.95));
+    border: 1px solid #5a4c3a; border-radius: 999px;
+    padding: 5px 14px; font-weight: 700; color: #f4e9d6;
+    text-shadow: 0 1px 2px rgba(0,0,0,.8); letter-spacing: .3px;
+  }
+  #hud b { font-size: 15px; color: #fff7e6; text-shadow: 0 0 8px rgba(255,221,128,.6); }
+  .stat-vida { box-shadow: 0 0 12px rgba(239,71,111,.35); }
+  .stat-oro b { color: #ffe08a; text-shadow: 0 0 8px rgba(255,209,102,.8); }
+  .stat-esencia b { color: #d7a6ff; text-shadow: 0 0 8px rgba(155,93,229,.8); }
+  .stat-oleada b { color: #9ff0d6; text-shadow: 0 0 8px rgba(6,214,160,.7); }
+
+  #controls {
+    position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 14px; z-index: 8;
+  }
+  .ctrl-btn {
+    width: 52px; height: 52px; border-radius: 50%; cursor: pointer;
+    font-size: 20px; font-family: var(--font-fantasy);
+    color: #f4e9d6; background: radial-gradient(circle at 35% 30%, #5a4f40, #2a241e 70%);
+    border: 2px solid #7a684f;
+    box-shadow: 0 4px 12px rgba(0,0,0,.5), inset 0 2px 4px rgba(255,255,255,.18), inset 0 -3px 6px rgba(0,0,0,.5);
+    text-shadow: 0 1px 3px rgba(0,0,0,.9);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .ctrl-btn:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 6px 16px rgba(0,0,0,.6), inset 0 2px 4px rgba(255,255,255,.25), 0 0 14px rgba(255,209,102,.35); }
+  .ctrl-btn:active { transform: translateY(1px) scale(.97); }
+  .ctrl-btn.active { border-color: var(--gold); box-shadow: 0 0 16px rgba(255,209,102,.6), inset 0 2px 4px rgba(255,255,255,.2); }
+
+  @media (max-width: 820px) {
+    #controls { bottom: 8px; gap: 10px; }
+    .ctrl-btn { width: 44px; height: 44px; font-size: 17px; }
+  }
 </style>
 </head>
 <body>
   <h1>Bastionfall <small>tower defense</small></h1>
 
   <div id="hud">
-    <span>Vida <b class="stat-vida" id="hud-vida">20</b></span>
-    <span>Oro <b class="stat-oro" id="hud-oro">120</b></span>
-    <span>Oleada <b class="stat-oleada" id="hud-oleada">0 / 0</b></span>
-    <span>Racha <b class="stat-oleada" id="hud-streak">0</b></span>
-    <span>Enemigos <b id="hud-enemigos">0</b></span>
-    <span>Esencia <b class="stat-oleada" id="hud-esencia">0</b></span>
+    <span class="stat stat-vida">❤ <b id="hud-vida">20/20</b></span>
+    <span class="stat stat-oro">🪙 <b id="hud-oro">120</b></span>
+    <span class="stat stat-oleada">⚔ Oleada <b id="hud-oleada">0 / 0</b></span>
+    <span class="stat stat-streak">🔥 Racha <b id="hud-streak">0</b></span>
+    <span class="stat">👾 <b id="hud-enemigos">0</b></span>
+    <span class="stat stat-esencia">💎 <b id="hud-esencia">0</b></span>
   </div>
 
   <div id="sel">
@@ -424,6 +477,12 @@
     <button class="touch-btn" id="tb-upgrade">▲ Mejorar</button>
     <button class="touch-btn" id="tb-sell">✕ Vender</button>
     <button class="touch-btn" id="tb-pause">⏸ Pausa</button>
+  </div>
+
+  <div id="controls">
+    <button class="ctrl-btn" id="btn-pause" title="Pausa / Reanudar">⏸</button>
+    <button class="ctrl-btn" id="btn-speed" title="Velocidad">1×</button>
+    <button class="ctrl-btn" id="btn-settings" title="Ajustes">⚙</button>
   </div>
 
   <div id="tech">
