@@ -12,92 +12,108 @@ function outline(ctx, color = "rgba(8,12,18,.5)", w = 1.5) {
 
 export function drawTerrain(ctx, W, H, tile, state) {
   const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, "#16202e");
-  g.addColorStop(1, "#0e151f");
+  g.addColorStop(0, "#1c1814");
+  g.addColorStop(1, "#0c0a08");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 
-  const tones = ["#1b2a1c", "#1f3020", "#182619", "#202d1e", "#1d2b1d"];
+  const tones = ["#2a2622", "#322c26", "#262220", "#38322b", "#2e2925", "#221e1a"];
   for (let r = 0; r < state.map.rows; r++) {
     for (let c = 0; c < state.map.cols; c++) {
       const x = c * tile;
       const y = r * tile;
       if (state.blocked.has(`${c},${r}`)) {
-        ctx.fillStyle = "#6f5337";
+        ctx.fillStyle = "#3a322a";
         ctx.fillRect(x, y, tile, tile);
-        ctx.fillStyle = "rgba(255,255,255,.06)";
+        ctx.fillStyle = "rgba(255,255,255,.05)";
         ctx.fillRect(x, y, tile, 2);
+        ctx.fillStyle = "rgba(0,0,0,.30)";
+        ctx.fillRect(x, y + tile - 3, tile, 3);
         ctx.fillStyle = "rgba(0,0,0,.18)";
-        ctx.fillRect(x, y + tile - 2, tile, 2);
-        ctx.fillStyle = "rgba(0,0,0,.12)";
         ctx.fillRect(x, y, 2, tile);
         continue;
       }
       const h1 = hash(c, r);
       const h2 = hash(c * 3 + 1, r * 7 + 5);
-      const h3 = hash(r * 11 + 3, c * 5 + 9);
       ctx.fillStyle = tones[Math.floor(h1 * tones.length) % tones.length];
       ctx.fillRect(x, y, tile, tile);
-      ctx.fillStyle = "rgba(0,0,0,.10)";
-      ctx.fillRect(x, y + tile - 3, tile, 3);
-      ctx.fillStyle = "rgba(255,255,255,.035)";
+      ctx.fillStyle = "rgba(255,255,255,.05)";
       ctx.fillRect(x, y, tile, 2);
-
-      if (h2 > 0.86) drawGrassTuft(ctx, x, y, tile, h3);
-      else if (h2 > 0.72) drawPebble(ctx, x, y, tile, h3);
-      else if (h2 > 0.62) drawFlower(ctx, x, y, tile, h3);
-      else if (h2 > 0.56) drawPuddle(ctx, x, y, tile, h3);
+      ctx.fillStyle = "rgba(0,0,0,.22)";
+      ctx.fillRect(x, y + tile - 3, tile, 3);
+      if (h2 > 0.9) {
+        ctx.strokeStyle = "rgba(0,0,0,.35)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x + tile * 0.3, y + tile * 0.3);
+        ctx.lineTo(x + tile * 0.5, y + tile * 0.7);
+        ctx.lineTo(x + tile * 0.7, y + tile * 0.4);
+        ctx.stroke();
+      }
+      if (hash(c * 7 + 2, r * 5 + 3) >= 0.94) drawCrystalStatic(ctx, x, y, tile, c, r);
     }
   }
 }
 
-function drawGrassTuft(ctx, x, y, tile, h) {
-  const px = x + tile * (0.2 + h * 0.6);
-  const py = y + tile * (0.55 + (1 - h) * 0.3);
-  ctx.strokeStyle = "rgba(120,180,110,.5)";
-  ctx.lineWidth = 1;
-  for (let i = -1; i <= 1; i++) {
-    ctx.beginPath();
-    ctx.moveTo(px + i * 2, py);
-    ctx.lineTo(px + i * 2 - 1, py - 4 - (i === 0 ? 2 : 0));
-    ctx.stroke();
-  }
-}
-
-function drawPebble(ctx, x, y, tile, h) {
-  const px = x + tile * (0.25 + h * 0.5);
-  const py = y + tile * (0.35 + (1 - h) * 0.4);
-  ctx.fillStyle = "rgba(150,150,160,.45)";
+function drawCrystalStatic(ctx, x, y, tile, c, r) {
+  const cx = x + tile / 2;
+  const cy = y + tile * 0.6;
+  const col = hash(c, r) > 0.5 ? "#7fd0ff" : "#c77dff";
+  ctx.fillStyle = "rgba(10,8,14,.6)";
   ctx.beginPath();
-  ctx.ellipse(px, py, 2, 1.4, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy + 4, 6, 2, 0, 0, Math.PI * 2);
   ctx.fill();
-}
-
-function drawFlower(ctx, x, y, tile, h) {
-  const px = x + tile * (0.3 + h * 0.5);
-  const py = y + tile * (0.4 + (1 - h) * 0.35);
-  const col = h > 0.8 ? "#ffd166" : "#e0aaff";
   ctx.fillStyle = col;
   ctx.beginPath();
-  ctx.arc(px, py, 1.6, 0, Math.PI * 2);
+  ctx.moveTo(cx, cy - 8);
+  ctx.lineTo(cx + 3, cy);
+  ctx.lineTo(cx, cy + 3);
+  ctx.lineTo(cx - 3, cy);
+  ctx.closePath();
   ctx.fill();
-  ctx.fillStyle = "rgba(255,255,255,.5)";
-  ctx.beginPath();
-  ctx.arc(px, py, 0.7, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,.5)";
+  ctx.lineWidth = 0.6;
+  ctx.stroke();
 }
 
-function drawPuddle(ctx, x, y, tile, h) {
-  const px = x + tile * (0.3 + h * 0.4);
-  const py = y + tile * (0.35 + (1 - h) * 0.4);
-  ctx.fillStyle = "rgba(70,130,180,.16)";
-  ctx.beginPath();
-  ctx.ellipse(px, py, tile * 0.22, tile * 0.12, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "rgba(180,220,255,.10)";
-  ctx.beginPath();
-  ctx.ellipse(px - 2, py - 1, tile * 0.1, tile * 0.05, 0, 0, Math.PI * 2);
-  ctx.fill();
+export function drawCaveGlow(ctx, state, time) {
+  const tile = state.map.tile;
+  const W = state.map.cols * tile;
+  const H = state.map.rows * tile;
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  for (let r = 0; r < state.map.rows; r++) {
+    for (let c = 0; c < state.map.cols; c++) {
+      if (state.blocked.has(`${c},${r}`)) continue;
+      const hc = hash(c * 7 + 2, r * 5 + 3);
+      if (hc < 0.94) continue;
+      const x = c * tile + tile / 2;
+      const y = r * tile + tile * 0.6;
+      const col = hash(c, r) > 0.5 ? "120,180,255" : "190,100,255";
+      const pulse = 0.5 + 0.5 * Math.sin(time / 18 + c + r);
+      const R = 16 + pulse * 10;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, R);
+      g.addColorStop(0, `rgba(${col},${0.35 * pulse + 0.15})`);
+      g.addColorStop(1, `rgba(${col},0)`);
+      ctx.fillStyle = g;
+      ctx.fillRect(x - R, y - R, R * 2, R * 2);
+    }
+  }
+  const torches = [
+    { x: tile * 1.5, y: tile * 1.5 },
+    { x: W - tile * 1.5, y: tile * 1.5 },
+    { x: state.base.x, y: state.base.y },
+  ];
+  for (const t of torches) {
+    const pulse = 0.6 + 0.4 * Math.sin(time / 10 + t.x);
+    const R = 26 + pulse * 10;
+    const g = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, R);
+    g.addColorStop(0, `rgba(255,170,60,${0.4 * pulse + 0.15})`);
+    g.addColorStop(1, "rgba(255,170,60,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(t.x - R, t.y - R, R * 2, R * 2);
+  }
+  ctx.restore();
 }
 
 export function drawPath(ctx, pts, state) {
@@ -132,24 +148,32 @@ export function drawPath(ctx, pts, state) {
     const E = isPath(c + 1, r);
     const W = isPath(c - 1, r);
 
-    ctx.fillStyle = "#5a4632";
-    roundRect(ctx, x + 1.5, y + 1.5, tile - 3, tile - 3, 6);
+    ctx.fillStyle = "#15110d";
+    roundRect(ctx, x, y, tile, tile, 7);
     ctx.fill();
 
-    ctx.fillStyle = "#6b5238";
+    ctx.fillStyle = "#4a4138";
+    roundRect(ctx, x + 2, y + 2, tile - 4, tile - 4, 6);
+    ctx.fill();
+
+    ctx.fillStyle = "#5a5046";
     const w = 14;
-    if (N) ctx.fillRect(cx - w / 2, y + 1.5, w, tile / 2 - 1.5);
-    if (S) ctx.fillRect(cx - w / 2, cy, w, tile / 2 - 1.5);
-    if (W) ctx.fillRect(x + 1.5, cy - w / 2, tile / 2 - 1.5, w);
-    if (E) ctx.fillRect(cx, cy - w / 2, tile / 2 - 1.5, w);
+    if (N) ctx.fillRect(cx - w / 2, y + 2, w, tile / 2 - 2);
+    if (S) ctx.fillRect(cx - w / 2, cy, w, tile / 2 - 2);
+    if (W) ctx.fillRect(x + 2, cy - w / 2, tile / 2 - 2, w);
+    if (E) ctx.fillRect(cx, cy - w / 2, tile / 2 - 2, w);
 
-    ctx.fillStyle = "rgba(255,235,200,.08)";
-    roundRect(ctx, x + 4, y + 4, tile - 8, tile - 8, 4);
+    ctx.fillStyle = "rgba(255,240,210,.10)";
+    roundRect(ctx, x + 5, y + 5, tile - 10, tile - 10, 4);
     ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,.4)";
+    ctx.lineWidth = 1;
+    roundRect(ctx, x + 2, y + 2, tile - 4, tile - 4, 6);
+    ctx.stroke();
   }
 
   const sp = pts[0];
-  ctx.strokeStyle = "rgba(120,200,255,.5)";
+  ctx.strokeStyle = "rgba(255,170,60,.7)";
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.arc(sp.x, sp.y, 11, 0, Math.PI * 2);
@@ -169,13 +193,13 @@ function roundRect(ctx, x, y, w, h, r) {
 export function drawBase(ctx, base, time) {
   const x = base.x;
   const y = base.y;
-  ctx.fillStyle = "rgba(6,214,160,.12)";
+  ctx.fillStyle = "rgba(190,100,255,.12)";
   ctx.beginPath();
   ctx.arc(x, y, 22, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = "#10243a";
-  ctx.strokeStyle = "#06d6a0";
+  ctx.fillStyle = "#2a2420";
+  ctx.strokeStyle = "#7a6a55";
   ctx.lineWidth = 2;
   const s = 16;
   ctx.beginPath();
@@ -191,17 +215,18 @@ export function drawBase(ctx, base, time) {
   ctx.fill();
   ctx.stroke();
 
-  ctx.fillStyle = "#08121a";
-  ctx.fillRect(x - 4, y - 2, 8, 8);
-
-  const wave = Math.sin(time / 12) * 3;
-  ctx.fillStyle = "#ffd166";
+  const pulse = 0.5 + 0.5 * Math.sin(time / 9);
+  ctx.fillStyle = `rgba(199,125,255,${0.6 + 0.4 * pulse})`;
   ctx.beginPath();
-  ctx.moveTo(x, y - s);
-  ctx.lineTo(x + 10, y - s - 4 + wave);
-  ctx.lineTo(x, y - s + 4);
+  ctx.moveTo(x, y - s - 2 - pulse * 3);
+  ctx.lineTo(x + 5, y - s + 4);
+  ctx.lineTo(x, y - s + 7);
+  ctx.lineTo(x - 5, y - s + 4);
   ctx.closePath();
   ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,.5)";
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
 }
 
 export function drawTower(ctx, t, time = 0) {

@@ -71,6 +71,7 @@ export class Renderer {
     }
     this.drawHazards(state);
     this.drawShadows(state);
+    art.drawCaveGlow(ctx, state, time);
     this.drawHover(state, tile);
 
     const iso = cam && cam.config.cameraMode === "isometric";
