@@ -31,7 +31,7 @@ export class Renderer {
 
     art.drawTerrain(ctx, W, H, tile, state);
     this.drawZones(state, tile);
-    art.drawPath(ctx, state.pathPoints);
+    art.drawPath(ctx, state.pathPoints, state);
     this.drawHazards(state);
     this.drawHover(state, tile);
 

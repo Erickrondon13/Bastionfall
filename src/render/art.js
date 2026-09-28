@@ -94,31 +94,70 @@ function drawPuddle(ctx, x, y, tile, h) {
   ctx.fill();
 }
 
-export function drawPath(ctx, pts) {
-  ctx.lineJoin = "round";
-  ctx.lineCap = "round";
-  ctx.strokeStyle = "#3c2f22";
-  ctx.lineWidth = 32;
-  tracePath(ctx, pts);
-  ctx.stroke();
-  ctx.strokeStyle = "#8a6a45";
-  ctx.lineWidth = 24;
-  tracePath(ctx, pts);
-  ctx.stroke();
-  ctx.strokeStyle = "#a9855a";
-  ctx.lineWidth = 16;
-  tracePath(ctx, pts);
-  ctx.stroke();
-  ctx.strokeStyle = "rgba(255,235,200,.12)";
-  ctx.lineWidth = 5;
-  tracePath(ctx, pts);
+export function drawPath(ctx, pts, state) {
+  if (!pts || pts.length < 2) return;
+  const tile = state.map.tile;
+  const cols = state.map.cols;
+  const rows = state.map.rows;
+  const key = (c, r) => c + "," + r;
+  const set = new Set();
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i];
+    const b = pts[i + 1];
+    const steps = Math.max(1, Math.round(Math.hypot(b.x - a.x, b.y - a.y) / tile));
+    for (let s = 0; s <= steps; s++) {
+      const x = a.x + (b.x - a.x) * (s / steps);
+      const y = a.y + (b.y - a.y) * (s / steps);
+      const c = Math.floor(x / tile);
+      const r = Math.floor(y / tile);
+      if (c >= 0 && r >= 0 && c < cols && r < rows) set.add(key(c, r));
+    }
+  }
+  const isPath = (c, r) => set.has(key(c, r));
+
+  for (const k of set) {
+    const [c, r] = k.split(",").map(Number);
+    const x = c * tile;
+    const y = r * tile;
+    const cx = x + tile / 2;
+    const cy = y + tile / 2;
+    const N = isPath(c, r - 1);
+    const S = isPath(c, r + 1);
+    const E = isPath(c + 1, r);
+    const W = isPath(c - 1, r);
+
+    ctx.fillStyle = "#5a4632";
+    roundRect(ctx, x + 1.5, y + 1.5, tile - 3, tile - 3, 6);
+    ctx.fill();
+
+    ctx.fillStyle = "#6b5238";
+    const w = 14;
+    if (N) ctx.fillRect(cx - w / 2, y + 1.5, w, tile / 2 - 1.5);
+    if (S) ctx.fillRect(cx - w / 2, cy, w, tile / 2 - 1.5);
+    if (W) ctx.fillRect(x + 1.5, cy - w / 2, tile / 2 - 1.5, w);
+    if (E) ctx.fillRect(cx, cy - w / 2, tile / 2 - 1.5, w);
+
+    ctx.fillStyle = "rgba(255,235,200,.08)";
+    roundRect(ctx, x + 4, y + 4, tile - 8, tile - 8, 4);
+    ctx.fill();
+  }
+
+  const sp = pts[0];
+  ctx.strokeStyle = "rgba(120,200,255,.5)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(sp.x, sp.y, 11, 0, Math.PI * 2);
   ctx.stroke();
 }
 
-function tracePath(ctx, pts) {
+function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
-  ctx.moveTo(pts[0].x, pts[0].y);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
 }
 
 export function drawBase(ctx, base, time) {

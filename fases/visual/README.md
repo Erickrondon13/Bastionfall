@@ -111,8 +111,11 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
       verdes con hash determinista por `(c,r)`), borde superior/inferior para dar relieve, y decoración (matas de
       hierba, guijarros, flores, charcos) sembrada de forma estable. Se elimina el aspecto de "cuadrícula de Excel".
       La proyección en diamante (rotación 45°) sigue pendiente para cuando el terreno use tiles diamante.
+- [x] **Fase 22 — Camino y navegación visual**: `art.drawPath` ahora recorre `pathPoints`, marca los tiles de
+      camino y dibuja cada uno como "tierra" con conexiones a sus vecinos (rectas/esquinas) y un pequeño margen de
+      césped en los bordes, integrándose con el terreno en vez de superponerse. Añade un anillo de spawn en el
+      inicio. Mantiene ambas cámaras.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 22 — Camino y navegación visual**: mejorar `art.drawPath` (bordes, transición con el terreno,
-variantes de tramo) para que el camino se integre visualmente. No avanzar a Fase 23 hasta completar, probar y
-documentar Fase 22.
+Implementar **Fase 23 — Torres**: rediseñar las 4 torres con volumen, sombra y niveles (procedural, sin assets),
+respetando la profundidad de Fase 20. No avanzar a Fase 24 hasta completar, probar y documentar Fase 23.
