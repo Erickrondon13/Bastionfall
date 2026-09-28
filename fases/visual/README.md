@@ -147,7 +147,10 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
       título `Bastionfall` con gradiente y glow, botones `.menu-btn` con borde/hover dorado, modo activo resaltado,
       `#overlay` (victoria/derrota) con radial + blur y título dorado, y realces para relic/mod/tech cards. Aplica a
       menú principal, progresión, campaña, cavernas, modificadores y tienda de reliquias.
+- [x] **Fase 31 — Mapa de campaña**: `LevelSelect` agrupa las etapas de cada mundo en `.camp-world-group` y se dibuja
+      un **camino** con conector vertical y **nodos** por etapa (color según estado: bloqueado/completado/jefe). El
+      encabezado de mundo lleva icono ◆ y las etapas jefe tienen tag `☠ JEFE` y estilo propio. CSS nuevo en index.html.
 
 ## 6. Siguiente paso sugerido
-Implementar **Fase 31 — Mapa de campaña**: pantalla de selección de mundo/etapa con la nueva estética (ya iniciada en
-§20) y conexiones visuales entre etapas. No avanzar a Fase 32 hasta completar, probar y documentar Fase 31.
+Implementar **Fase 32 — Boss cinematográfico**: pantalla de introducción del jefe, barra de fase, y efectos al entrar/
+salir de fase. No avanzar a Fase 33 hasta completar, probar y documentar Fase 32.

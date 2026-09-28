@@ -184,6 +184,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   popups de daño con contorno/escala de crítico. Ver `fases/visual/README.md`.
 - **Fase 30 — Menús (§30):** estética dark-fantasy para menú principal, progresión, campaña, cavernas, modificadores y
   tienda de reliquias (paneles con borde dorado/glow, título con gradiente). Ver `fases/visual/README.md`.
+- **Fase 31 — Mapa de campaña (§31):** etapas agrupadas en un camino con conector vertical y nodos por estado, tag de
+  jefe y encabezados de mundo con icono. Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

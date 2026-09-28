@@ -45,8 +45,12 @@ export class LevelSelect {
     for (const world of WORLDS) {
       const wt = document.createElement("div");
       wt.className = "camp-world";
-      wt.textContent = world.name;
+      wt.textContent = "◆ " + world.name;
       this.list.append(wt);
+
+      const group = document.createElement("div");
+      group.className = "camp-world-group";
+      this.list.append(group);
 
       for (const stage of world.stages) {
         const idx = CAMPAIGN.indexOf(stage);
@@ -57,6 +61,12 @@ export class LevelSelect {
         const row = document.createElement("button");
         row.className = "camp-stage" + (unlocked ? "" : " locked") + (completed ? " done" : "") + (stage.boss ? " boss" : "");
         row.disabled = !unlocked;
+        if (stage.boss) {
+          const tag = document.createElement("div");
+          tag.className = "camp-boss-tag";
+          tag.textContent = "☠ JEFE";
+          row.append(tag);
+        }
 
         const name = document.createElement("div");
         name.className = "camp-name";
@@ -75,7 +85,7 @@ export class LevelSelect {
           row.append(r);
         }
         if (unlocked) row.addEventListener("click", () => this.choose(stage));
-        this.list.append(row);
+        group.append(row);
       }
     }
 
