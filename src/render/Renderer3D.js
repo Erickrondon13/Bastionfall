@@ -203,7 +203,9 @@ export class Renderer3D {
     const n = this._vnoise(c * 0.35 + 3, r * 0.35 + 3);
     const low = new THREE.Color(theme.terrainLow || "#2c4622");
     const high = new THREE.Color(theme.terrainHigh || "#7a9a44");
-    return low.clone().lerp(high, n);
+    const col = low.clone().lerp(high, n);
+    const checker = ((c + r) % 2 === 0) ? 1.0 : 0.9;
+    return col.multiplyScalar(checker);
   }
 
   _buildTerrain(state) {
@@ -242,20 +244,29 @@ export class Renderer3D {
     const t = this.tile;
     const group = new THREE.Group();
     const theme = this._theme;
-    const mat = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(theme.pathCenter || "#d4b248"),
-      roughness: 0.8, emissive: new THREE.Color(theme.pathCenter || "#d4b248"), emissiveIntensity: 0.12,
-    });
+    const roadCol = new THREE.Color(theme.pathCenter || "#d4b248");
+    const roadMat = new THREE.MeshStandardMaterial({ color: roadCol, roughness: 0.85, flatShading: true });
+    const curbMat = new THREE.MeshStandardMaterial({ color: roadCol.clone().multiplyScalar(0.65), roughness: 0.95, flatShading: true });
     const pts = state.pathPoints || [];
     for (let i = 0; i < pts.length - 1; i++) {
       const a = pts[i], b = pts[i + 1];
       const dx = b.x - a.x, dz = b.y - a.y;
       const len = Math.hypot(dx, dz);
-      const geo = new THREE.BoxGeometry(len + t * 0.35, 5, t * 0.82);
-      const m = new THREE.Mesh(geo, mat);
-      m.position.set((a.x + b.x) / 2, this._heightAtWorld((a.x + b.x) / 2, (a.y + b.y) / 2) + 3.5, (a.y + b.y) / 2);
-      m.rotation.y = -Math.atan2(dz, dx);
-      group.add(m);
+      const ang = -Math.atan2(dz, dx);
+      const dirX = dx / len, dirZ = dz / len;
+      const perpX = -dirZ, perpZ = dirX;
+      const cx = (a.x + b.x) / 2, cz = (a.y + b.y) / 2;
+      const cy = this._heightAtWorld(cx, cz);
+      const road = new THREE.Mesh(new THREE.BoxGeometry(len + t * 0.35, 4, t * 0.8), roadMat);
+      road.position.set(cx, cy + 3.5, cz);
+      road.rotation.y = ang;
+      group.add(road);
+      for (const side of [-1, 1]) {
+        const curb = new THREE.Mesh(new THREE.BoxGeometry(len + t * 0.35, 7, t * 0.12), curbMat);
+        curb.position.set(cx + perpX * side * t * 0.44, cy + 5.5, cz + perpZ * side * t * 0.44);
+        curb.rotation.y = ang;
+        group.add(curb);
+      }
     }
     this._pathGroup = group;
     this.scene.add(group);
@@ -265,27 +276,41 @@ export class Renderer3D {
     const t = this.tile;
     const group = new THREE.Group();
     const stoneMat = new THREE.MeshStandardMaterial({ color: 0x6f685c, roughness: 0.9, flatShading: true });
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x5cf0ff, transparent: true, opacity: 0.8 });
+    const topMat = new THREE.MeshStandardMaterial({ color: 0x8a8175, roughness: 0.85, flatShading: true });
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x5cf0ff, transparent: true, opacity: 0.85 });
     for (const s of state.map.buildSlots || []) {
       const h = this._heightAtWorld(s.x, s.y);
-      const disc = new THREE.Mesh(new THREE.CylinderGeometry(t * 0.4, t * 0.44, 6, 16), stoneMat);
-      disc.position.set(s.x, h + 3, s.y);
-      group.add(disc);
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(t * 0.34, 1.2, 8, 24), ringMat);
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(t * 0.46, t * 0.5, 5, 18), stoneMat);
+      base.position.set(s.x, h + 2.5, s.y);
+      group.add(base);
+      const top = new THREE.Mesh(new THREE.CylinderGeometry(t * 0.36, t * 0.42, 4, 18), topMat);
+      top.position.set(s.x, h + 5.5, s.y);
+      group.add(top);
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(t * 0.36, 1.4, 8, 28), ringMat);
       ring.rotation.x = Math.PI / 2;
-      ring.position.set(s.x, h + 6.2, s.y);
+      ring.position.set(s.x, h + 7.7, s.y);
       group.add(ring);
+      const glow = new THREE.Mesh(new THREE.CircleGeometry(t * 0.32, 24),
+        new THREE.MeshBasicMaterial({ color: 0x123a44, transparent: true, opacity: 0.55 }));
+      glow.rotation.x = -Math.PI / 2;
+      glow.position.set(s.x, h + 7.8, s.y);
+      group.add(glow);
     }
     for (const z of state.map.zones || []) {
       const cx = z.c * t + t / 2, cz = z.r * t + t / 2;
       const h = this._heightAtWorld(cx, cz);
       const col = (ZONE_TYPES[z.type] && ZONE_TYPES[z.type].glowColor) || "#ffffff";
-      const disc = new THREE.Mesh(
-        new THREE.CylinderGeometry(t * 0.36, t * 0.4, 9, 18),
-        new THREE.MeshStandardMaterial({ color: new THREE.Color(col), emissive: new THREE.Color(col), emissiveIntensity: 0.5, roughness: 0.6 })
+      const pad = new THREE.Mesh(
+        new THREE.CylinderGeometry(t * 0.4, t * 0.44, 7, 20),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(col), emissive: new THREE.Color(col), emissiveIntensity: 0.45, roughness: 0.6, flatShading: true })
       );
-      disc.position.set(cx, h + 4.5, cz);
-      group.add(disc);
+      pad.position.set(cx, h + 4, cz);
+      group.add(pad);
+      const halo = new THREE.Mesh(new THREE.TorusGeometry(t * 0.4, 1.2, 8, 24),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(col), transparent: true, opacity: 0.8 }));
+      halo.rotation.x = Math.PI / 2;
+      halo.position.set(cx, h + 7.6, cz);
+      group.add(halo);
     }
     this._slotsGroup = group;
     this.scene.add(group);
@@ -299,21 +324,31 @@ export class Renderer3D {
     group.position.set(b.x, h, b.y);
     const stone = new THREE.MeshStandardMaterial({ color: 0x8a8f9c, roughness: 0.85, flatShading: true });
     const dark = new THREE.MeshStandardMaterial({ color: 0x5a5f6b, roughness: 0.9, flatShading: true });
-    const base = new THREE.Mesh(new THREE.BoxGeometry(t * 1.1, 22, t * 1.1), stone);
-    base.position.y = 11; group.add(base);
-    const mid = new THREE.Mesh(new THREE.BoxGeometry(t * 0.8, 16, t * 0.8), dark);
-    mid.position.y = 30; group.add(mid);
-    const roof = new THREE.Mesh(new THREE.ConeGeometry(t * 0.65, 22, 4), stone);
-    roof.position.y = 53; roof.rotation.y = Math.PI / 4; group.add(roof);
+    const found = new THREE.Mesh(new THREE.CylinderGeometry(t * 0.66, t * 0.74, 10, 18), dark);
+    found.position.y = 5; group.add(found);
+    const bodyH = 34;
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(t * 0.5, t * 0.58, bodyH, 18), stone);
+    body.position.y = 10 + bodyH / 2; group.add(body);
+    const topY = 10 + bodyH;
+    for (let i = 0; i < 10; i++) {
+      const a = (i * Math.PI * 2) / 10;
+      const merlon = new THREE.Mesh(new THREE.BoxGeometry(t * 0.13, 9, t * 0.13), dark);
+      merlon.position.set(Math.cos(a) * t * 0.5, topY + 4, Math.sin(a) * t * 0.5);
+      group.add(merlon);
+    }
+    const gate = new THREE.Mesh(new THREE.BoxGeometry(t * 0.3, 18, 5), dark);
+    gate.position.set(0, 17, t * 0.56); group.add(gate);
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(t * 0.58, 18, 4), stone);
+    roof.position.y = topY + 9; roof.rotation.y = Math.PI / 4; group.add(roof);
     const flag = new THREE.Mesh(new THREE.SphereGeometry(4, 12, 12),
       new THREE.MeshStandardMaterial({ color: 0x4cc9f0, emissive: 0x2a9fd0, emissiveIntensity: 0.6 }));
-    flag.position.y = 68; group.add(flag);
+    flag.position.y = topY + 24; group.add(flag);
 
     this._shield = new THREE.Mesh(
       new THREE.SphereGeometry(t * 0.95, 20, 16),
       new THREE.MeshBasicMaterial({ color: 0x4cc9f0, transparent: true, opacity: 0.22, side: THREE.DoubleSide })
     );
-    this._shield.position.y = 30;
+    this._shield.position.y = 28;
     this._shield.visible = false;
     group.add(this._shield);
 
@@ -375,17 +410,62 @@ export class Renderer3D {
     this.scene.add(group);
   }
 
-  _towerTop(typeIndex, color) {
-    const t = this.tile;
-    const col = new THREE.Color(color);
-    const mat = new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 0.35, roughness: 0.5, flatShading: true });
-    let top;
-    if (typeIndex === 0) top = new THREE.Mesh(new THREE.ConeGeometry(t * 0.3, 24, 16), mat);
-    else if (typeIndex === 1) top = new THREE.Mesh(new THREE.SphereGeometry(t * 0.32, 16, 16), mat);
-    else if (typeIndex === 2) top = new THREE.Mesh(new THREE.OctahedronGeometry(t * 0.36), mat);
-    else top = new THREE.Mesh(new THREE.ConeGeometry(t * 0.34, 22, 4), mat);
-    top.position.y = 30;
-    return top;
+  _accentMat(color, emi = 0.45) {
+    const c = new THREE.Color(color);
+    return new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: emi, roughness: 0.5, flatShading: true });
+  }
+
+  _towerTop(typeIndex, color, t) {
+    const g = new THREE.Group();
+    const stone = new THREE.MeshStandardMaterial({ color: 0x9a9387, roughness: 0.9, flatShading: true });
+    const stoneDark = new THREE.MeshStandardMaterial({ color: 0x6f685c, roughness: 0.95, flatShading: true });
+    const acc = this._accentMat(color);
+
+    if (typeIndex === 0) {
+      for (let i = 0; i < 4; i++) {
+        const a = i * Math.PI / 2 + Math.PI / 4;
+        const merlon = new THREE.Mesh(new THREE.BoxGeometry(6, 9, 6), stoneDark);
+        merlon.position.set(Math.cos(a) * t * 0.26, 4.5, Math.sin(a) * t * 0.26);
+        g.add(merlon);
+      }
+      const pivot = new THREE.Mesh(new THREE.SphereGeometry(t * 0.12, 10, 8), acc);
+      pivot.position.y = 9; g.add(pivot);
+      const bow = new THREE.Mesh(new THREE.TorusGeometry(t * 0.16, 2, 6, 16, Math.PI), acc);
+      bow.position.y = 9; bow.rotation.x = Math.PI / 2;
+      g.add(bow);
+    } else if (typeIndex === 1) {
+      const dome = new THREE.Mesh(
+        new THREE.SphereGeometry(t * 0.28, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2), stone);
+      g.add(dome);
+      const barrel = new THREE.Mesh(new THREE.CylinderGeometry(t * 0.1, t * 0.13, t * 0.55, 12), acc);
+      barrel.rotation.z = Math.PI / 2;
+      barrel.position.set(t * 0.2, t * 0.12, 0);
+      g.add(barrel);
+      const muzzle = new THREE.Mesh(new THREE.TorusGeometry(t * 0.1, 1.4, 6, 12), stoneDark);
+      muzzle.rotation.y = Math.PI / 2;
+      muzzle.position.set(t * 0.47, t * 0.12, 0);
+      g.add(muzzle);
+    } else if (typeIndex === 2) {
+      const core = new THREE.Mesh(new THREE.OctahedronGeometry(t * 0.18, 0), this._accentMat(color, 0.7));
+      core.scale.y = 2.0; core.position.y = t * 0.2; g.add(core);
+      for (let i = 0; i < 4; i++) {
+        const a = i * Math.PI / 2 + 0.5;
+        const cr = new THREE.Mesh(new THREE.OctahedronGeometry(t * 0.12, 0), this._accentMat(0xaee9ff, 0.6));
+        cr.scale.y = 1.6;
+        cr.position.set(Math.cos(a) * t * 0.16, t * 0.1, Math.sin(a) * t * 0.16);
+        cr.rotation.y = a;
+        g.add(cr);
+      }
+    } else {
+      const bowl = new THREE.Mesh(new THREE.CylinderGeometry(t * 0.24, t * 0.12, 9, 12), stone);
+      bowl.position.y = 5; g.add(bowl);
+      const flame = new THREE.Mesh(new THREE.ConeGeometry(t * 0.17, t * 0.42, 10),
+        new THREE.MeshStandardMaterial({ color: 0xff7a1e, emissive: 0xff5a00, emissiveIntensity: 0.9, roughness: 0.4, flatShading: true }));
+      flame.position.y = 15; g.add(flame);
+      const ember = new THREE.Mesh(new THREE.SphereGeometry(t * 0.08, 8, 8), this._accentMat(0xffd166, 0.9));
+      ember.position.y = 22; g.add(ember);
+    }
+    return g;
   }
 
   _addTower(tower, state) {
@@ -393,10 +473,26 @@ export class Renderer3D {
     const h = this._heightAtWorld(tower.x, tower.y);
     const group = new THREE.Group();
     group.position.set(tower.x, h, tower.y);
+
     const stone = new THREE.MeshStandardMaterial({ color: 0x9a9387, roughness: 0.9, flatShading: true });
-    const base = new THREE.Mesh(new THREE.CylinderGeometry(t * 0.33, t * 0.4, 16, 14), stone);
-    base.position.y = 8; group.add(base);
-    const top = this._towerTop(tower.typeIndex, TOWER_TYPES[tower.typeIndex].color);
+    const stoneDark = new THREE.MeshStandardMaterial({ color: 0x6f685c, roughness: 0.95, flatShading: true });
+
+    const found = new THREE.Mesh(new THREE.CylinderGeometry(t * 0.44, t * 0.48, 7, 16), stoneDark);
+    found.position.y = 3.5; group.add(found);
+    const bodyH = 24;
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(t * 0.3, t * 0.37, bodyH, 14), stone);
+    body.position.y = 7 + bodyH / 2; group.add(body);
+
+    const lv = tower.level || 0;
+    for (let i = 0; i < lv; i++) {
+      const band = new THREE.Mesh(new THREE.TorusGeometry(t * 0.37, 1.5, 6, 18), stoneDark);
+      band.rotation.x = Math.PI / 2;
+      band.position.y = 7 + 8 + i * 8;
+      group.add(band);
+    }
+
+    const top = this._towerTop(tower.typeIndex, TOWER_TYPES[tower.typeIndex].color, t);
+    top.position.y = 7 + bodyH;
     group.add(top);
 
     this.scene.add(group);
@@ -499,10 +595,10 @@ export class Renderer3D {
       const lv = (e.level || 0);
       if (o.level !== e.level || o.branch !== e.branch) {
         o.level = e.level; o.branch = e.branch;
-        o.top.scale.setScalar(1 + 0.14 * lv);
+        o.top.scale.setScalar(1 + 0.12 * lv);
       }
-      if (e.disabledTimer > 0) o.top.material.emissive.setHex(0xef476f);
-      else o.top.material.emissive.set(new THREE.Color(TOWER_TYPES[e.typeIndex].color));
+      const c = (e.disabledTimer > 0) ? 0xef476f : new THREE.Color(TOWER_TYPES[e.typeIndex].color);
+      o.top.traverse((m) => { if (m.material && m.material.emissive) m.material.emissive.set(c); });
       return;
     }
     if (o.kind === "enemy") {
