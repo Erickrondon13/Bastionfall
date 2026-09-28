@@ -194,6 +194,8 @@ enfoque en dar identidad real a las 4 torres y decisiones estratégicas:
   cambiar de mapa. Ver `fases/visual/README.md`.
 - **Fase 35 — Responsive (§35):** cámara topdown escala/centra al canvas y `main.js` ajusta el canvas al viewport
   conservando aspecto. Ver `fases/visual/README.md`.
+- **Fase 36 — Pulido final (§36):** contorno oscuro sutil en enemigos y base de torres para coherencia visual. Cierre de
+  las Fases 18–36 del rediseño. Ver `fases/visual/README.md`.
 
 
 ## Cavernas aleatorias y llaves (Fase 2)

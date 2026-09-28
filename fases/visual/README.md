@@ -162,7 +162,12 @@ HTML5 Canvas · ES Modules · sin frameworks · no romper Campaña/Infinito/loca
 - [x] **Fase 35 — Responsive**: `Camera` en modo topdown ahora **escala y centra** el mundo al tamaño del canvas (igual
       que isométrico), y `main.js` añade `resize()` que ajusta `canvas` al viewport conservando el aspecto 760×520, con
       listener de `window.resize`. El HUD/toolbar ya usa flex-wrap. El juego se adapta a móvil/escritorio.
+- [x] **Fase 36 — Pulido final**: coherencia visual mediante **contorno oscuro sutil** (`art.outline`) en los cuerpos
+      principales de todos los enemigos (básico, rápido, blindado, volador, divisor, jefe) y en la base de las torres,
+      para separarlos del terreno y unificar estilo. Cierre de las Fases 18–36 del rediseño visual.
 
-## 6. Siguiente paso sugerido
-Implementar **Fase 36 — Pulido final**: pasada de coherencia visual (paleta, contraste, consistencia de estilos),
-micro-detail en torres/enemigos y revisión general. Tras Fase 36, el rediseño visual (Fases 18–36) queda completo.
+## 6. Estado
+**Rediseño visual completo (Fases 18–36).** El juego mantiene toda la lógica de juego intacta; los cambios son solo de
+presentación (cámara, profundidad, terreno, torres, enemigos, animaciones, iluminación, sombras, efectos, HUD, menús,
+mapa de campaña, boss cinematográfico, ambiente, optimización, responsive y pulido). Siguiente trabajo sugerido: bugs,
+balance fino o nuevas mecánicas de juego (fuera del alcance visual).

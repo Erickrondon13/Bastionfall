@@ -4,6 +4,12 @@ function hash(c, r) {
   return ((h ^ (h >> 16)) >>> 0) / 4294967295;
 }
 
+function outline(ctx, color = "rgba(8,12,18,.5)", w = 1.5) {
+  ctx.lineWidth = w;
+  ctx.strokeStyle = color;
+  ctx.stroke();
+}
+
 export function drawTerrain(ctx, W, H, tile, state) {
   const g = ctx.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, "#16202e");
@@ -212,6 +218,7 @@ export function drawTower(ctx, t, time = 0) {
   ctx.fillStyle = "#3a4456";
   roundRect(ctx, -12, 2, 24, 10, 3);
   ctx.fill();
+  outline(ctx);
   ctx.fillStyle = "rgba(255,255,255,.06)";
   roundRect(ctx, -12, 2, 24, 3, 2);
   ctx.fill();
@@ -374,10 +381,11 @@ export function drawEnemy(ctx, e, time) {
   }
   if (e.invisible) {
     ctx.globalAlpha = 0.4;
-    ctx.fillStyle = "#c77dff";
-    ctx.beginPath();
-    ctx.arc(x, y, r + 2, 0, Math.PI * 2);
-    ctx.fill();
+  ctx.fillStyle = "#c77dff";
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.7, 0, Math.PI * 2);
+  ctx.fill();
+  outline(ctx, "rgba(40,20,60,.6)");
     ctx.globalAlpha = 1;
   }
 
@@ -396,6 +404,7 @@ function drawBasico(ctx, r) {
   ctx.beginPath();
   ctx.arc(0, 0, r, 0, Math.PI * 2);
   ctx.fill();
+  outline(ctx);
   ctx.fillStyle = "rgba(255,255,255,.18)";
   ctx.beginPath();
   ctx.arc(-r * 0.3, -r * 0.35, r * 0.45, 0, Math.PI * 2);
@@ -418,6 +427,7 @@ function drawRapido(ctx, r, time, x) {
   ctx.lineTo(-r, r);
   ctx.closePath();
   ctx.fill();
+  outline(ctx);
   ctx.fillStyle = "rgba(255,255,255,.5)";
   ctx.beginPath();
   ctx.moveTo(0, -r + 2);
@@ -445,6 +455,9 @@ function drawTanque(ctx, r) {
 function drawBlindado(ctx, r) {
   ctx.fillStyle = "#8d99ae";
   ctx.fillRect(-r, -r, r * 2, r * 2);
+  ctx.strokeStyle = "rgba(8,12,18,.5)";
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(-r, -r, r * 2, r * 2);
   ctx.fillStyle = "rgba(255,255,255,.15)";
   ctx.fillRect(-r, -r, r * 2, 3);
   ctx.fillStyle = "rgba(0,0,0,.35)";
@@ -483,6 +496,7 @@ function drawDivisor(ctx, r) {
   ctx.beginPath();
   ctx.arc(0, 0, r, 0, Math.PI * 2);
   ctx.fill();
+  outline(ctx);
   ctx.fillStyle = "rgba(255,255,255,.5)";
   ctx.beginPath(); ctx.arc(0, 0, r * 0.4, 0, Math.PI * 2); ctx.fill();
   ctx.strokeStyle = "rgba(0,0,0,.4)";
@@ -498,6 +512,7 @@ function drawJefe(ctx, r, e) {
   ctx.beginPath();
   ctx.arc(0, 0, r * 0.55, 0, Math.PI * 2);
   ctx.fill();
+  outline(ctx, "rgba(0,0,0,.45)", 2);
   ctx.strokeStyle = "#111";
   ctx.lineWidth = 2;
   for (let i = -1; i <= 1; i += 2) {
