@@ -1,5 +1,5 @@
 export const renderConfig = {
-  cameraMode: "topdown",
+  cameraMode: "tilt",
   tiltY: 0.62,
   margin: 0.94,
   artStyle: "procedural",

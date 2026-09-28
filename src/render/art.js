@@ -1,3 +1,5 @@
+import { THEMES } from "../config/maps.js";
+
 function hash(c, r) {
   let h = (c * 73856093) ^ (r * 19349663);
   h = (h ^ (h >> 13)) * 1274126177;
@@ -11,78 +13,143 @@ function outline(ctx, color = "rgba(8,12,18,.5)", w = 1.5) {
 }
 
 export function drawTerrain(ctx, W, H, tile, state) {
-  const amb = (state.map && state.map.lighting && state.map.lighting.ambientColor) || "#111016";
+  const theme = (THEMES[state.map.theme] || THEMES.forest);
   const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, "#16141b");
-  g.addColorStop(1, amb);
+  g.addColorStop(0, theme.bgTop);
+  g.addColorStop(1, theme.bgBottom);
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 
-  const tones = ["#141418", "#181820", "#101014", "#1a1a22", "#121216", "#0e0e12"];
-  for (let r = 0; r < state.map.rows; r++) {
-    for (let c = 0; c < state.map.cols; c++) {
-      const x = c * tile;
-      const y = r * tile;
-      if (state.blocked.has(`${c},${r}`)) {
-        ctx.fillStyle = "#0e0e12";
-        ctx.fillRect(x, y, tile, tile);
-        ctx.fillStyle = "rgba(255,255,255,.04)";
-        ctx.fillRect(x, y, tile, 2);
-        ctx.fillStyle = "rgba(0,0,0,.30)";
-        ctx.fillRect(x, y + tile - 3, tile, 3);
-        ctx.fillStyle = "rgba(0,0,0,.18)";
-        ctx.fillRect(x, y, 2, tile);
-        continue;
-      }
+  const cols = state.map.cols, rows = state.map.rows;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x = c * tile, y = r * tile;
+      if (state.blocked.has(`${c},${r}`)) continue;
       const h1 = hash(c, r);
-      const h2 = hash(c * 3 + 1, r * 7 + 5);
-      const baseTone = 16 + Math.floor(h1 * 10);
-      const g = ctx.createLinearGradient(0, y, 0, y + tile);
-      g.addColorStop(0, `rgb(${baseTone + 5},${baseTone + 3},${baseTone + 9})`);
-      g.addColorStop(1, `rgb(${Math.max(2, baseTone - 5)},${Math.max(2, baseTone - 5)},${baseTone})`);
-      ctx.fillStyle = g;
+      const base = theme.terrain[Math.floor(h1 * theme.terrain.length) % theme.terrain.length];
+      const vg = ctx.createLinearGradient(0, y, 0, y + tile);
+      vg.addColorStop(0, shade(base, 14));
+      vg.addColorStop(1, shade(base, -10));
+      ctx.fillStyle = vg;
       ctx.fillRect(x, y, tile, tile);
-      if (h2 > 0.9) {
-        ctx.strokeStyle = "rgba(0,0,0,.35)";
-        ctx.lineWidth = 1;
+      const h2 = hash(c * 3 + 1, r * 7 + 5);
+      if (h2 > 0.8) {
+        ctx.fillStyle = "rgba(0,0,0,.12)";
         ctx.beginPath();
-        ctx.moveTo(x + tile * 0.3, y + tile * 0.3);
-        ctx.lineTo(x + tile * 0.5, y + tile * 0.7);
-        ctx.lineTo(x + tile * 0.7, y + tile * 0.4);
-        ctx.stroke();
-      }
-      const hr = hash(c * 5 + 2, r * 3 + 1);
-      if (hr > 0.45) {
-        ctx.fillStyle = "rgba(0,0,0,.22)";
-        ctx.beginPath();
-        ctx.arc(x + tile * (0.3 + hr * 0.4), y + tile * (0.35 + hr * 0.3), 7 + hr * 6, 0, Math.PI * 2);
+        ctx.ellipse(x + tile * (0.3 + h2 * 0.4), y + tile * (0.4 + h2 * 0.3), 8 + h2 * 6, 5 + h2 * 4, 0, 0, Math.PI * 2);
         ctx.fill();
       }
-      if (hr > 0.8) {
-        ctx.fillStyle = "rgba(255,255,255,.05)";
-        ctx.beginPath();
-        ctx.arc(x + tile * (0.2 + hr * 0.5), y + tile * (0.2 + hr * 0.3), 4 + hr * 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      if (hash(c * 7 + 2, r * 5 + 3) >= 0.94) drawCrystalStatic(ctx, x, y, tile, c, r);
-
-      const hp = hash(c * 13 + 1, r * 17 + 3);
-      if (hp > 0.92) {
-        const px = x + 5 + hash(c + 1, r) * (tile - 10);
-        const py = y + 5 + hash(c, r + 1) * (tile - 10);
-        const gold = hash(c * 2, r) > 0.5;
-        const col = gold ? "255,214,120" : "220,235,255";
-        const R = 3.5 + hash(c, r * 2) * 3;
-        const pg = ctx.createRadialGradient(px, py, 0, px, py, R);
-        pg.addColorStop(0, `rgba(${col},0.95)`);
-        pg.addColorStop(0.4, `rgba(${col},0.35)`);
-        pg.addColorStop(1, `rgba(${col},0)`);
-        ctx.fillStyle = pg;
-        ctx.fillRect(px - R, py - R, R * 2, R * 2);
-      }
+      const hd = hash(c * 11 + 3, r * 13 + 7);
+      if (hd > 0.96) drawTree(ctx, x + tile / 2, y + tile * 0.7, 0.5 + hash(c, r) * 0.4, theme);
+      else if (hd > 0.9) drawBush(ctx, x + tile / 2, y + tile / 2, theme);
+      else if (hd > 0.86) drawRockCluster(ctx, x + tile / 2, y + tile / 2, 0.5 + hash(c * 2, r) * 0.5, theme);
+      else if (hd > 0.82) drawFlowers(ctx, x + tile / 2, y + tile / 2);
+      else if (hd > 0.78) drawGrass(ctx, x + tile / 2, y + tile / 2);
     }
   }
-  drawCaveFrame(ctx, W, H, tile, state);
+  drawForestFrame(ctx, W, H, tile, state, theme);
+}
+
+function drawForestFrame(ctx, W, H, tile, state, theme) {
+  const cols = state.map.cols, rows = state.map.rows;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const border = c === 0 || c === cols - 1 || r === 0 || r === rows - 1;
+      if (!border) continue;
+      const x = c * tile, y = r * tile;
+      const s = 0.8 + hash(c * 3 + 1, r * 5 + 2) * 0.9;
+      drawTree(ctx, x + tile / 2, y + tile / 2, s, theme);
+    }
+  }
+  for (let c = 0; c < cols; c++) {
+    drawTree(ctx, c * tile + hash(c, 1) * tile, -tile * 0.4, 1.1 + hash(c, 2) * 0.7, theme);
+    drawTree(ctx, c * tile + hash(c, 7) * tile, H + tile * 0.4, 1.1 + hash(c, 9) * 0.7, theme);
+  }
+}
+
+function drawTree(ctx, x, y, scale, theme) {
+  const trunkH = 14 * scale, trunkW = 5 * scale;
+  ctx.fillStyle = "rgba(0,0,0,.18)";
+  ctx.beginPath();
+  ctx.ellipse(x, y + 2, 12 * scale, 4 * scale, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = theme.treeTrunk;
+  ctx.fillRect(x - trunkW / 2, y - trunkH, trunkW, trunkH + 2);
+  const canopy = theme.treeCanopy;
+  for (let i = 0; i < 3; i++) {
+    const rr = (16 - i * 3) * scale;
+    const cy = y - trunkH - i * 6 * scale;
+    ctx.fillStyle = canopy[(i + Math.floor(x)) % canopy.length];
+    ctx.beginPath();
+    ctx.arc(x - 6 * scale + i * 3, cy, rr, 0, Math.PI * 2);
+    ctx.arc(x + 6 * scale - i * 3, cy + 2, rr * 0.9, 0, Math.PI * 2);
+    ctx.arc(x, cy - 4 * scale, rr * 0.95, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "rgba(255,255,255,.08)";
+  ctx.beginPath();
+  ctx.arc(x - 4 * scale, y - trunkH - 12 * scale, 5 * scale, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawBush(ctx, x, y, theme) {
+  ctx.fillStyle = "rgba(0,0,0,.15)";
+  ctx.beginPath(); ctx.ellipse(x, y + 4, 10, 3, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = theme.treeCanopy[1];
+  for (let i = 0; i < 4; i++) {
+    const a = i * Math.PI / 2 + 0.4;
+    ctx.beginPath();
+    ctx.arc(x + Math.cos(a) * 6, y + Math.sin(a) * 4, 6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawRockCluster(ctx, x, y, scale, theme) {
+  const cols = theme.rock;
+  for (let i = 0; i < 3; i++) {
+    const ox = (i - 1) * 5 * scale;
+    const rr = (4 + (i % 2) * 2) * scale;
+    ctx.fillStyle = "rgba(0,0,0,.18)";
+    ctx.beginPath(); ctx.ellipse(x + ox, y + 3, rr, rr * 0.4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = cols[i % cols.length];
+    ctx.beginPath();
+    ctx.moveTo(x + ox - rr, y);
+    ctx.lineTo(x + ox - rr * 0.5, y - rr);
+    ctx.lineTo(x + ox + rr * 0.4, y - rr * 0.8);
+    ctx.lineTo(x + ox + rr, y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.12)";
+    ctx.beginPath(); ctx.arc(x + ox - rr * 0.3, y - rr * 0.5, rr * 0.3, 0, Math.PI * 2); ctx.fill();
+  }
+}
+
+function drawFlowers(ctx, x, y) {
+  for (let i = 0; i < 3; i++) {
+    const fx = x + (hash(Math.floor(x) + i, Math.floor(y)) - 0.5) * 14;
+    const fy = y + (hash(Math.floor(x) + i + 5, Math.floor(y) + 2) - 0.5) * 10;
+    ctx.strokeStyle = "#3f6b2e"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(fx, fy + 4); ctx.lineTo(fx, fy); ctx.stroke();
+    ctx.fillStyle = "#f5d442";
+    ctx.beginPath(); ctx.arc(fx, fy, 2, 0, Math.PI * 2); ctx.fill();
+  }
+}
+
+function drawGrass(ctx, x, y) {
+  ctx.strokeStyle = "#4c7a33"; ctx.lineWidth = 1;
+  for (let i = -1; i <= 1; i++) {
+    ctx.beginPath();
+    ctx.moveTo(x + i * 3, y + 4);
+    ctx.lineTo(x + i * 3 + 1, y - 3);
+    ctx.stroke();
+  }
+}
+
+function shade(hex, amt) {
+  const n = parseInt(hex.slice(1), 16);
+  let r = (n >> 16) + amt, g = ((n >> 8) & 255) + amt, b = (n & 255) + amt;
+  r = Math.max(0, Math.min(255, r)); g = Math.max(0, Math.min(255, g)); b = Math.max(0, Math.min(255, b));
+  return `rgb(${r},${g},${b})`;
 }
 
 function drawCaveFrame(ctx, W, H, tile, state) {
@@ -212,82 +279,50 @@ function drawCrystalStatic(ctx, x, y, tile, c, r) {
 
 export function drawCaveGlow(ctx, state, time) {
   const tile = state.map.tile;
-  const W = state.map.cols * tile;
-  const H = state.map.rows * tile;
+  const theme = (THEMES[state.map.theme] || THEMES.forest);
   ctx.save();
   ctx.globalCompositeOperation = "lighter";
-  for (let r = 0; r < state.map.rows; r++) {
-    for (let c = 0; c < state.map.cols; c++) {
-      if (state.blocked.has(`${c},${r}`)) continue;
-      const hc = hash(c * 7 + 2, r * 5 + 3);
-      if (hc < 0.94) continue;
-      const x = c * tile + tile / 2;
-      const y = r * tile + tile * 0.6;
-      const col = hash(c, r) > 0.5 ? "120,180,255" : "190,100,255";
-      const pulse = 0.5 + 0.5 * Math.sin(time / 18 + c + r);
-      const R = 16 + pulse * 10;
-      const g = ctx.createRadialGradient(x, y, 0, x, y, R);
-      g.addColorStop(0, `rgba(${col},${0.35 * pulse + 0.15})`);
-      g.addColorStop(1, `rgba(${col},0)`);
-      ctx.fillStyle = g;
-      ctx.fillRect(x - R, y - R, R * 2, R * 2);
-    }
-  }
-  const cols = state.map.cols;
-  const rows = state.map.rows;
-
   const tps = (state.map.lighting && state.map.lighting.torchPoints) || [];
   for (const [c, r] of tps) {
     const x = c * tile + tile / 2;
     const y = r * tile + tile / 2;
-    const flick = 0.5 + 0.5 * Math.sin(time / 9 + c * 1.3 + r);
-    const R = 32 + flick * 14;
+    const flick = 0.6 + 0.4 * Math.sin(time / 11 + c * 1.3 + r);
+    const R = 34 + flick * 14;
     const g = ctx.createRadialGradient(x, y, 0, x, y, R);
-    g.addColorStop(0, `rgba(255,170,60,${0.28 * flick + 0.08})`);
-    g.addColorStop(1, "rgba(255,170,60,0)");
+    g.addColorStop(0, `rgba(${theme.light},${0.22 * flick + 0.05})`);
+    g.addColorStop(1, `rgba(${theme.light},0)`);
     ctx.fillStyle = g;
     ctx.fillRect(x - R, y - R, R * 2, R * 2);
-    ctx.save();
-    ctx.shadowColor = "rgba(255,170,60,0.9)";
-    ctx.shadowBlur = 14;
-    ctx.fillStyle = `rgba(255,${150 + Math.floor(70 * flick)},40,0.85)`;
-    ctx.beginPath();
-    ctx.moveTo(x - 3, y + 4);
-    ctx.quadraticCurveTo(x - 4, y - 6, x, y - 11 * (0.7 + flick * 0.5));
-    ctx.quadraticCurveTo(x + 4, y - 6, x + 3, y + 4);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
-
-  const torchSpots = [
-    [Math.floor(cols * 0.15), 0], [Math.floor(cols * 0.85), 0],
-    [0, Math.floor(rows * 0.5)], [cols - 1, Math.floor(rows * 0.5)],
-    [Math.floor(cols * 0.5), rows - 1],
-  ];
-  for (const [c, r] of torchSpots) {
-    const x = c * tile + tile / 2;
-    const y = r * tile + (r === 0 ? tile - 6 : 6);
-    const flick = 0.5 + 0.5 * Math.sin(time / 9 + c + r * 2) * Math.sin(time / 13 + r);
-    const R = 30 + flick * 14;
-    const g = ctx.createRadialGradient(x, y, 0, x, y, R);
-    g.addColorStop(0, `rgba(255,170,60,${0.35 * flick + 0.12})`);
-    g.addColorStop(1, "rgba(255,170,60,0)");
-    ctx.fillStyle = g;
-    ctx.fillRect(x - R, y - R, R * 2, R * 2);
-    ctx.save();
-    ctx.shadowColor = "rgba(255,170,60,0.9)";
-    ctx.shadowBlur = 14;
-    ctx.fillStyle = `rgba(255,${150 + Math.floor(70 * flick)},40,0.9)`;
-    ctx.beginPath();
-    ctx.moveTo(x - 3, y + 4);
-    ctx.quadraticCurveTo(x - 4, y - 6, x, y - 12 * (0.7 + flick * 0.5));
-    ctx.quadraticCurveTo(x + 4, y - 6, x + 3, y + 4);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
   }
   ctx.restore();
+}
+
+export function drawBuildPlatforms(ctx, state, tile) {
+  const slots = (state.map && state.map.buildSlots) || [];
+  const theme = (THEMES[state.map.theme] || THEMES.forest);
+  for (const s of slots) drawBuildPlatform(ctx, s.x, s.y, tile, theme);
+}
+
+function drawBuildPlatform(ctx, x, y, tile, theme) {
+  const rad = tile * 0.42;
+  ctx.fillStyle = "rgba(0,0,0,.30)";
+  ctx.beginPath();
+  ctx.ellipse(x, y + rad * 0.5, rad * 1.05, rad * 0.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = theme.platform.outer;
+  ctx.beginPath(); ctx.ellipse(x, y, rad, rad * 0.78, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = theme.platform.ring;
+  ctx.beginPath(); ctx.ellipse(x, y, rad * 0.82, rad * 0.64, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = theme.platform.inner;
+  ctx.beginPath(); ctx.ellipse(x, y, rad * 0.6, rad * 0.47, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.save();
+  ctx.shadowColor = theme.platform.core;
+  ctx.shadowBlur = 14;
+  ctx.fillStyle = theme.platform.core;
+  ctx.beginPath(); ctx.ellipse(x, y, rad * 0.26, rad * 0.2, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = "rgba(255,255,255,.5)";
+  ctx.beginPath(); ctx.ellipse(x - rad * 0.06, y - rad * 0.05, rad * 0.1, rad * 0.08, 0, 0, Math.PI * 2); ctx.fill();
 }
 
 export function drawPath(ctx, pts, state) {
@@ -310,42 +345,51 @@ export function drawPath(ctx, pts, state) {
     }
   }
   const isPath = (c, r) => set.has(key(c, r));
+  const theme = (THEMES[state.map.theme] || THEMES.forest);
 
-  ctx.fillStyle = "rgba(0,0,0,.5)";
+  ctx.fillStyle = theme.pathDirt;
   for (const k of set) {
     const [c, r] = k.split(",").map(Number);
-    const x = c * tile, y = r * tile;
-    ctx.fillRect(x + 2, y + tile - 5, tile - 2, 7);
-    ctx.fillRect(x + tile - 5, y + 2, 7, tile - 2);
+    ctx.fillRect(c * tile - 5, r * tile - 5, tile + 10, tile + 10);
   }
 
   for (const k of set) {
     const [c, r] = k.split(",").map(Number);
     const x = c * tile, y = r * tile;
     const g = ctx.createLinearGradient(0, y, 0, y + tile);
-    g.addColorStop(0, "#6a6052");
-    g.addColorStop(1, "#40382e");
+    g.addColorStop(0, shade(theme.pathCenter, 14));
+    g.addColorStop(1, shade(theme.pathEdge, -10));
     ctx.fillStyle = g;
     ctx.fillRect(x, y, tile, tile);
-    const hs = hash(c * 9 + 3, r * 11 + 2);
-    if (hs > 0.55) {
-      ctx.fillStyle = "rgba(0,0,0,.16)";
-      ctx.fillRect(x + 4 + hs * (tile - 10), y + 5 + hs * (tile - 12), 2, 2);
-    }
   }
 
   for (const k of set) {
     const [c, r] = k.split(",").map(Number);
     const x = c * tile, y = r * tile;
     const N = isPath(c, r - 1), S = isPath(c, r + 1), E = isPath(c + 1, r), W = isPath(c - 1, r);
-    if (!N) { ctx.fillStyle = "rgba(255,240,210,.32)"; ctx.fillRect(x, y, tile, 3); }
-    if (!W) { ctx.fillStyle = "rgba(255,240,210,.20)"; ctx.fillRect(x, y, 3, tile); }
-    if (!S) { ctx.fillStyle = "rgba(0,0,0,.5)"; ctx.fillRect(x, y + tile - 3, tile, 3); }
-    if (!E) { ctx.fillStyle = "rgba(0,0,0,.5)"; ctx.fillRect(x + tile - 3, y, 3, tile); }
+    if (!N) { ctx.fillStyle = "rgba(255,245,210,.30)"; ctx.fillRect(x, y, tile, 3); }
+    if (!W) { ctx.fillStyle = "rgba(255,245,210,.18)"; ctx.fillRect(x, y, 3, tile); }
+    if (!S) {
+      ctx.fillStyle = "rgba(70,45,20,.45)"; ctx.fillRect(x, y + tile - 4, tile, 4);
+      ctx.fillStyle = "rgba(0,0,0,.26)"; ctx.fillRect(x, y + tile - 2, tile, 3);
+    }
+    if (!E) {
+      ctx.fillStyle = "rgba(70,45,20,.45)"; ctx.fillRect(x + tile - 4, y, 4, tile);
+      ctx.fillStyle = "rgba(0,0,0,.26)"; ctx.fillRect(x + tile - 2, y, 3, tile);
+    }
+  }
+
+  for (const k of set) {
+    const [c, r] = k.split(",").map(Number);
+    const h = hash(c * 9 + 3, r * 11 + 2);
+    if (h > 0.6) {
+      ctx.fillStyle = "rgba(255,255,230,.10)";
+      ctx.fillRect(c * tile + 6 + h * (tile - 16), r * tile + 6 + h * (tile - 16), 3, 2);
+    }
   }
 
   const sp = pts[0];
-  ctx.strokeStyle = "rgba(255,170,60,.7)";
+  ctx.strokeStyle = "rgba(255,225,150,.7)";
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.arc(sp.x, sp.y, 11, 0, Math.PI * 2);

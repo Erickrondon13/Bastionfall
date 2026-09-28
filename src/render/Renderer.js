@@ -1,5 +1,4 @@
 import { TOWER_TYPES, towerStats } from "../config/towers.js";
-import { ZONE_TYPES } from "../config/maps.js";
 import { renderConfig } from "../config/render.js";
 import * as art from "./art.js";
 
@@ -219,69 +218,7 @@ export class Renderer {
   }
 
   drawZones(ctx, state, tile) {
-    if (!state.map || !state.map.zones) return;
-    for (const z of state.map.zones) {
-      const def = ZONE_TYPES[z.type];
-      if (!def) continue;
-      const x = z.c * tile, y = z.r * tile;
-      if (def.texture === "crystal_cluster") {
-        ctx.fillStyle = "rgba(43,27,61,.55)";
-        ctx.fillRect(x, y, tile, tile);
-        ctx.save();
-        ctx.globalCompositeOperation = "lighter";
-        const g = ctx.createRadialGradient(x + tile / 2, y + tile / 2, 0, x + tile / 2, y + tile / 2, tile * 0.8);
-        g.addColorStop(0, (def.glowColor || "#b55fe6") + "55");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.fillRect(x - 6, y - 6, tile + 12, tile + 12);
-        ctx.restore();
-        const cols = [def.glowColor || "#b55fe6", "#e05cff"];
-        for (let i = 0; i < 3; i++) {
-          const cx = x + tile / 2 + (i - 1) * 9;
-          const cy = y + tile / 2 + (i % 2 ? -4 : 4);
-          ctx.fillStyle = cols[i % 2];
-          ctx.beginPath();
-          ctx.moveTo(cx, cy - 10); ctx.lineTo(cx + 3, cy); ctx.lineTo(cx, cy + 3); ctx.lineTo(cx - 3, cy);
-          ctx.closePath(); ctx.fill();
-        }
-      } else if (def.texture === "stone_block") {
-        ctx.fillStyle = def.color;
-        ctx.fillRect(x + 3, y + 3, tile - 6, tile - 6);
-        ctx.fillStyle = "rgba(255,255,255,.08)";
-        ctx.fillRect(x + 4, y + 3, tile - 8, 3);
-        ctx.strokeStyle = "rgba(0,0,0,.45)";
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x + 3.5, y + 3.5, tile - 7, tile - 7);
-      } else if (def.texture === "magma_vent") {
-        ctx.fillStyle = def.color;
-        ctx.fillRect(x, y, tile, tile);
-        ctx.save();
-        ctx.globalCompositeOperation = "lighter";
-        const g = ctx.createRadialGradient(x + tile / 2, y + tile / 2, 0, x + tile / 2, y + tile / 2, tile * 0.7);
-        g.addColorStop(0, (def.glowColor || "#ff4500") + "aa");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.fillRect(x - 6, y - 6, tile + 12, tile + 12);
-        ctx.restore();
-        ctx.fillStyle = "#ffcc00";
-        ctx.beginPath();
-        ctx.arc(x + tile / 2, y + tile / 2, 4, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (def.texture === "wood_scaffolding") {
-        ctx.fillStyle = def.color;
-        ctx.fillRect(x, y, tile, tile);
-        ctx.fillStyle = "rgba(0,0,0,.3)";
-        ctx.fillRect(x + 5, y, 3, tile);
-        ctx.fillRect(x + tile - 8, y, 3, tile);
-        ctx.fillRect(x, y + 5, tile, 3);
-        ctx.fillRect(x, y + tile - 8, tile, 3);
-        ctx.fillStyle = "rgba(255,255,255,.06)";
-        ctx.fillRect(x + 5, y, 3, tile);
-      } else {
-        ctx.fillStyle = def.color + "55";
-        ctx.fillRect(x, y, tile, tile);
-      }
-    }
+    art.drawBuildPlatforms(ctx, state, tile);
   }
 
   drawSelectedRange(state) {

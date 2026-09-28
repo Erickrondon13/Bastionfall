@@ -56,7 +56,24 @@ function buildZones(path, cols, rows, types) {
 
 const GRID = { cols: 26, rows: 18, tile: 40 };
 
-function makeMap(id, name, seed, startGold, startLife, types, ambientTheme) {
+export const THEMES = {
+  forest: {
+    ambientColor: "#0e1710",
+    bgTop: "#2c4626",
+    bgBottom: "#16241a",
+    terrain: ["#3f6130", "#4a7038", "#557d3f", "#36552a", "#61894a", "#476b34", "#52793c"],
+    pathDirt: "rgba(110,84,46,0.32)",
+    pathCenter: "#d8c08a",
+    pathEdge: "#b3935f",
+    light: "255,225,150",
+    treeCanopy: ["#2f5a2a", "#3c6b30", "#4a7d39", "#588f42", "#356b2e"],
+    treeTrunk: "#5a3d22",
+    rock: ["#9a9a9a", "#7c7c7c", "#b3b3b3"],
+    platform: { outer: "#4f4030", ring: "#9a9182", inner: "#6f685c", core: "#46e6ff" },
+  },
+};
+
+function makeMap(id, name, seed, startGold, startLife, types, theme) {
   const rng = mulberry32(seed);
   const path = genPath(GRID.rows, GRID.cols, rng);
   const zones = buildZones(path, GRID.cols, GRID.rows, types);
@@ -68,30 +85,59 @@ function makeMap(id, name, seed, startGold, startLife, types, ambientTheme) {
     zones,
     startGold,
     startLife,
-    theme: ambientTheme || "dark_cave",
+    theme: theme || "forest",
     lighting: {
-      ambientColor: "#111016",
+      ambientColor: (THEMES[theme] || THEMES.forest).ambientColor,
       torchPoints: path.filter((_, index) => index % 5 === 0),
     },
   };
 }
 
 export const MAPS = {
-  llanura: makeMap("llanura", "Mina del Eco Profundo", 1234, 120, 20, ["pantano", "montana"], "crystal_mine"),
-  cañon: makeMap("cañon", "Garganta del Magma", 5678, 140, 18, ["lava", "montana", "bosque"], "volcanic_cave"),
-  cienagas: makeMap("cienagas", "Abismo de los Cristales", 9012, 130, 20, ["pantano", "lava", "bosque"], "deep_abyss"),
+  llanura: makeMap("llanura", "Bosque de Bastionfall", 1234, 120, 20, ["pantano", "montana"], "forest"),
+  cañon: makeMap("cañon", "Garganta de la Fortaleza", 5678, 140, 18, ["lava", "montana", "bosque"], "forest"),
+  cienagas: makeMap("cienagas", "Claros del Abismo", 9012, 130, 20, ["pantano", "lava", "bosque"], "forest"),
 };
+
+function computeBuildSlots(path, cols, rows, t) {
+  const blocked = new Set(path.map(([c, r]) => `${c},${r}`));
+  const seen = new Set();
+  const cand = [];
+  const neigh = [
+    [1, 0], [-1, 0], [0, 1], [0, -1],
+    [1, 1], [-1, -1], [1, -1], [-1, 1],
+  ];
+  for (const [c, r] of path) {
+    for (const [dc, dr] of neigh) {
+      const nc = c + dc, nr = r + dr;
+      if (nc > 0 && nc < cols - 1 && nr > 0 && nr < rows - 1 && !blocked.has(`${nc},${nr}`)) {
+        const k = `${nc},${nr}`;
+        if (!seen.has(k)) { seen.add(k); cand.push([nc, nr]); }
+      }
+    }
+  }
+  const minDist = 2;
+  const slots = [];
+  for (const [c, r] of cand) {
+    if (slots.length >= 18) break;
+    if (slots.some(([sc, sr]) => Math.abs(sc - c) <= minDist && Math.abs(sr - r) <= minDist)) continue;
+    slots.push([c, r]);
+  }
+  return slots.map(([c, r]) => ({ c, r, x: c * t + t / 2, y: r * t + t / 2 }));
+}
 
 export function assembleMap(m) {
   const t = m.tile;
   const pathPoints = m.path.map(([c, r]) => ({ x: c * t + t / 2, y: r * t + t / 2 }));
   const blocked = new Set(m.path.map(([c, r]) => `${c},${r}`));
   const base = pathPoints[pathPoints.length - 1];
+  const buildSlots = computeBuildSlots(m.path, m.cols, m.rows, t);
   return {
     ...m,
     pathPoints,
     blocked,
     base,
+    buildSlots,
     startGold: m.startGold,
     startLife: m.startLife,
   };
