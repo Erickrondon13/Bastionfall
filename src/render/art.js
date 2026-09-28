@@ -240,7 +240,7 @@ export function drawTower(ctx, t, time = 0) {
 
   ctx.save();
   ctx.translate(x, y);
-  ctx.fillStyle = "#3a4456";
+  ctx.fillStyle = "#4a4338";
   roundRect(ctx, -12, 2, 24, 10, 3);
   ctx.fill();
   outline(ctx);
@@ -264,25 +264,25 @@ export function drawTower(ctx, t, time = 0) {
 }
 
 function drawArco(ctx, lvl, pulse, recoil, angle, firing) {
-  ctx.fillStyle = "#6b4a2b";
+  ctx.fillStyle = "#6b6258";
   const back = -recoil * 3;
   roundRect(ctx, -6 + back, -14 - lvl * 2, 12, 18 + lvl * 2, 3);
   ctx.fill();
   ctx.fillStyle = "rgba(255,255,255,.12)";
   roundRect(ctx, -6 + back, -14 - lvl * 2, 4, 18 + lvl * 2, 2);
   ctx.fill();
-  ctx.strokeStyle = "#caa472";
+  ctx.strokeStyle = "#9fe8ff";
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.arc(back, -12, 10 + lvl, Math.PI * 1.1, Math.PI * 1.9);
   ctx.stroke();
-  ctx.strokeStyle = "rgba(230,237,243,.7)";
+  ctx.strokeStyle = "rgba(159,232,255,.7)";
   ctx.beginPath();
   ctx.moveTo(back, -12 - (10 + lvl));
   ctx.lineTo(back, -12 + (10 + lvl));
   ctx.stroke();
   if (firing) {
-    ctx.fillStyle = "rgba(255,220,120,.9)";
+    ctx.fillStyle = "rgba(159,232,255,.95)";
     ctx.beginPath();
     ctx.arc(back + 2, -12, 3 + lvl, 0, Math.PI * 2);
     ctx.fill();
@@ -294,7 +294,7 @@ function drawArco(ctx, lvl, pulse, recoil, angle, firing) {
 }
 
 function drawCanon(ctx, angle, lvl, pulse, recoil, firing) {
-  ctx.fillStyle = "#4a4f57";
+  ctx.fillStyle = "#5a5450";
   roundRect(ctx, -9, -10 - lvl, 18, 14 + lvl, 3);
   ctx.fill();
   ctx.fillStyle = "rgba(255,255,255,.08)";
@@ -303,15 +303,15 @@ function drawCanon(ctx, angle, lvl, pulse, recoil, firing) {
   ctx.save();
   ctx.rotate(angle);
   const back = -recoil * 5;
-  ctx.fillStyle = "#23272e";
+  ctx.fillStyle = "#2a2622";
   roundRect(ctx, back, -5, 18 + lvl * 2, 10, 3);
   ctx.fill();
-  ctx.fillStyle = "#3a3f47";
+  ctx.fillStyle = "#3a342e";
   ctx.beginPath();
   ctx.arc(back + 18 + lvl * 2, 0, 5, 0, Math.PI * 2);
   ctx.fill();
   if (firing) {
-    ctx.fillStyle = "rgba(255,200,90,.95)";
+    ctx.fillStyle = "rgba(255,150,40,.95)";
     ctx.beginPath();
     ctx.arc(back + 20 + lvl * 2, 0, 5 + lvl, 0, Math.PI * 2);
     ctx.fill();
@@ -406,13 +406,14 @@ export function drawEnemy(ctx, e, time) {
   }
   if (e.invisible) {
     ctx.globalAlpha = 0.4;
-  ctx.fillStyle = "#c77dff";
+  ctx.fillStyle = "#9b6dde";
   ctx.beginPath();
   ctx.arc(0, 0, r * 0.7, 0, Math.PI * 2);
   ctx.fill();
-  outline(ctx, "rgba(40,20,60,.6)");
-    ctx.globalAlpha = 1;
-  }
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.arc(-r * 0.2, -r * 0.1, 1.6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(r * 0.2, -r * 0.1, 1.6, 0, Math.PI * 2); ctx.fill();
+}
 
   if (e.burnTimer > 0) ring(ctx, x, y, r, "#ff9e00");
   else if (e.slowTimer > 0) ring(ctx, x, y, r, "#a0c4ff");
@@ -425,16 +426,16 @@ export function drawEnemy(ctx, e, time) {
 }
 
 function drawBasico(ctx, r) {
-  ctx.fillStyle = "#3aa655";
+  ctx.fillStyle = "#6b6b73";
   ctx.beginPath();
   ctx.arc(0, 0, r, 0, Math.PI * 2);
   ctx.fill();
   outline(ctx);
-  ctx.fillStyle = "rgba(255,255,255,.18)";
+  ctx.fillStyle = "rgba(255,255,255,.10)";
   ctx.beginPath();
   ctx.arc(-r * 0.3, -r * 0.35, r * 0.45, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = "#fff";
+  ctx.fillStyle = "#9fe8ff";
   ctx.beginPath(); ctx.arc(-r * 0.35, -r * 0.1, 2.2, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.arc(r * 0.35, -r * 0.1, 2.2, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = "#111";
@@ -445,7 +446,7 @@ function drawBasico(ctx, r) {
 function drawRapido(ctx, r, time, x) {
   const tilt = Math.sin(time / 4 + x * 0.1) * 0.2;
   ctx.rotate(tilt);
-  ctx.fillStyle = "#ef476f";
+  ctx.fillStyle = "#9b5de5";
   ctx.beginPath();
   ctx.moveTo(0, -r - 2);
   ctx.lineTo(r, r);
@@ -463,7 +464,7 @@ function drawRapido(ctx, r, time, x) {
 }
 
 function drawTanque(ctx, r) {
-  ctx.fillStyle = "#e08a3c";
+  ctx.fillStyle = "#8a7a66";
   polygon(ctx, r, 6);
   ctx.fillStyle = "rgba(0,0,0,.25)";
   for (let i = 0; i < 6; i++) {
@@ -478,7 +479,7 @@ function drawTanque(ctx, r) {
 }
 
 function drawBlindado(ctx, r) {
-  ctx.fillStyle = "#8d99ae";
+  ctx.fillStyle = "#5a5e66";
   ctx.fillRect(-r, -r, r * 2, r * 2);
   ctx.strokeStyle = "rgba(8,12,18,.5)";
   ctx.lineWidth = 1.5;
@@ -490,7 +491,7 @@ function drawBlindado(ctx, r) {
   ctx.fillRect(r - 6, -r + 3, 3, 3);
   ctx.fillRect(-r + 3, r - 6, 3, 3);
   ctx.fillRect(r - 6, r - 6, 3, 3);
-  ctx.fillStyle = "#ff5d5d";
+  ctx.fillStyle = "#d9b36b";
   ctx.fillRect(-r * 0.5, -2, r, 4);
 }
 
@@ -531,7 +532,7 @@ function drawDivisor(ctx, r) {
 
 function drawJefe(ctx, r, e) {
   const tint = e.color || "#b5179e";
-  ctx.fillStyle = "#2b2b3a";
+  ctx.fillStyle = "#3a3340";
   polygon(ctx, r, 8);
   ctx.fillStyle = tint;
   ctx.beginPath();
@@ -585,12 +586,23 @@ function triangle(ctx, r) {
 }
 
 export function drawProjectile(ctx, p) {
-  ctx.fillStyle = "rgba(255,255,255,.25)";
+  const isFire = /f/.test(p.color) || p.color === "#ff8a3d" || p.color === "#ff6a2d";
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 7);
+  glow.addColorStop(0, p.color);
+  glow.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = glow;
   ctx.beginPath();
-  ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+  ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
   ctx.fill();
+  ctx.restore();
   ctx.fillStyle = p.color;
   ctx.beginPath();
-  ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+  ctx.arc(p.x, p.y, isFire ? 3 + Math.random() * 1.5 : 3.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,.85)";
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, 1.4, 0, Math.PI * 2);
   ctx.fill();
 }
